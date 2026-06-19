@@ -11,8 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class FavoriteMenuService {
@@ -22,6 +24,16 @@ public class FavoriteMenuService {
 
     public List<FavoriteMenuEntity> getFavoriteList(Long userPoid, String userId) throws SQLException {
         return favoriteMenuRepository.getFavoriteMenuList(userPoid, userId);
+    }
+
+    public Map<String, List<FavoriteMenuEntity>> getGroupedFavoriteList(Long userPoid, String userId) throws SQLException {
+        List<FavoriteMenuEntity> favorites = favoriteMenuRepository.getFavoriteMenuList(userPoid, userId);
+        return favorites.stream()
+                .collect(Collectors.groupingBy(
+                        menu -> menu.getMenuGroup() != null ? menu.getMenuGroup() : "",
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
     }
 
     public Map<String, Object> getUnassignedFavList(Long userPoid, String userId, String search, Pageable pageable) throws SQLException {

@@ -42,6 +42,20 @@ public class UserController {
         }
     }
 
+    @GetMapping("/favorite-menu/groupedList")
+    public ResponseEntity<?> getGroupedFavoriteMenuList(@RequestParam(required = false) Long userPoid,
+                                                        @Parameter(hidden = true) @RequestParam(required = false, defaultValue = "") String userId) {
+        try {
+            String processedUserId = (!userId.isEmpty()) ? userId.toUpperCase() : null;
+
+            Map<String, List<FavoriteMenuEntity>> groupedFavorites =
+                    favoriteMenuService.getGroupedFavoriteList(userPoid, processedUserId);
+            return success("success", groupedFavorites);
+        } catch (Exception e) {
+            return internalServerError("Error fetching grouped favorite menus: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/favorite-menu/unAssignedFavoriteList")
     public ResponseEntity<?> getFavoriteMenusAvailable(@RequestParam(required = false) Long userPoid,
                                                        @RequestParam(required = false) String userId,

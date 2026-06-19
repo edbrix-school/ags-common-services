@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class FavoriteMenuRepository {
                     menu.setTaskflowUrl(rs.getString("TASKFLOW_URL"));
                     menu.setDocType(rs.getString("DOC_TYPE"));
                     menu.setModuleId(rs.getString("MODULE_ID"));
+                    mapSeqColumns(rs, menu);
                     results.add(menu);
                 }
             }
@@ -78,13 +80,38 @@ public class FavoriteMenuRepository {
                     menu.setTaskflowUrl(rs.getString("TASKFLOW_URL"));
                     menu.setDocType(rs.getString("DOC_TYPE"));
                     menu.setModuleId(rs.getString("MODULE_ID"));
-
+                    mapSeqColumns(rs, menu);
                     results.add(menu);
                 }
             }
         }
 
         return results;
+    }
+
+    private void mapSeqColumns(ResultSet rs, FavoriteMenuEntity menu) throws SQLException {
+        if (hasColumn(rs, "CAT_SEQ_NO")) {
+            Long catSeqNo = rs.getLong("CAT_SEQ_NO");
+            if (!rs.wasNull()) {
+                menu.setCatSeqNo(catSeqNo);
+            }
+        }
+        if (hasColumn(rs, "DOC_SEQ_NO")) {
+            Long docSeqNo = rs.getLong("DOC_SEQ_NO");
+            if (!rs.wasNull()) {
+                menu.setDocSeqNo(docSeqNo);
+            }
+        }
+    }
+
+    private boolean hasColumn(ResultSet rs, String column) throws SQLException {
+        ResultSetMetaData meta = rs.getMetaData();
+        for (int i = 1; i <= meta.getColumnCount(); i++) {
+            if (column.equalsIgnoreCase(meta.getColumnName(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String addFavoriteMenu(String userId, Long userPoid, String categoryValue, String selectedDocIds) throws SQLException {
@@ -128,5 +155,3 @@ public class FavoriteMenuRepository {
         return status;
     }
 }
-
-
