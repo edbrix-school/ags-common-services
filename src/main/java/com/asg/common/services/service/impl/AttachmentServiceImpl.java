@@ -11,12 +11,10 @@ import com.asg.common.services.dto.AttachmentUploadDto;
 import com.asg.common.services.dto.UpdateRemarksRequest;
 import com.asg.common.services.dto.UploadResponse;
 import com.asg.common.services.entity.Attachment;
-import com.asg.common.services.client.DmsClient;
 import com.asg.common.services.repository.AttachmentRepository;
 import com.asg.common.services.service.AttachmentService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -28,7 +26,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,8 +43,6 @@ import java.util.stream.Collectors;
 public class AttachmentServiceImpl implements AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
-    private final DmsClient dmsClient;
-    private final HttpServletRequest httpServletRequest;
 
     @Autowired
     private LoggingService loggingService;
@@ -105,9 +100,16 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
 
             try {
-                // Upload to DMS — returns stored key: DMS_{documentId}_{documentFileId}
-                String authToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-                String storedName = dmsClient.uploadToDms(file, docId, docKeyPoid, authToken);
+                String storedName = "ASG_Attach_" + UUID.randomUUID() + "." +
+                        FilenameUtils.getExtension(originalName);
+
+                File dir = new File(basePath).getAbsoluteFile();
+                if (!dir.exists() && !dir.mkdirs()) {
+                    throw new AsgException("Cannot create directory: " + dir.getAbsolutePath(), 500);
+                }
+
+                File dest = new File(dir, storedName);
+                file.transferTo(dest);
 
                 Long groupPoid = getGroupPoid();
                 Long companyPoid = 1L;
@@ -436,30 +438,25 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .findByDocIdAndDocKeyPoidAndFileNameMappedForArchive(docId, docKeyPoid, fileNameMapped)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment", "fileNameMapped", fileNameMapped));
 
-        String mappedFileName = attachment.getFileNameMapped();
-
-        // DMS stored files have key format: DMS_{documentId}_{documentFileId}
-        if (mappedFileName != null && mappedFileName.startsWith("DMS_")) {
-            Long documentId = Long.valueOf(mappedFileName.substring(4)); // DMS_{documentId}
-            String authToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-            return dmsClient.downloadFromDms(documentId, attachment.getFileName(), authToken);
-        }
-
-        // Fallback: legacy local file system
         String attachmentsPath = resolveAttachmentsPath(docId);
         if (attachmentsPath == null || attachmentsPath.trim().isEmpty()) {
             throw new AsgException("AttachmentsPath is missing for login company", 500);
         }
+
+        String mappedFileName = attachment.getFileNameMapped();
         File file;
+        
         if (mappedFileName.contains(".")) {
             file = new File(attachmentsPath, mappedFileName);
         } else {
             String extension = FilenameUtils.getExtension(attachment.getFileName());
             file = new File(attachmentsPath, mappedFileName + "." + extension);
         }
+        
         if (!file.exists() || !file.canRead()) {
             throw new ResourceNotFoundException("File not found on server", "path", file.getAbsolutePath());
         }
+
         return new FileSystemResource(file);
     }
 
