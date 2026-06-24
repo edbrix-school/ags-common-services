@@ -1,5 +1,6 @@
 package com.asg.common.services.dto;
 
+import com.asg.common.lib.dto.LovGetListDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ public class AddressDetailsResponseDto {
     private BigDecimal addressPoid;
     private String addressName;
     private String addressType;
+    private LovGetListDto addressTypeDet;
     private String offTel1;
     private String offTel2;
     private String contactPerson;

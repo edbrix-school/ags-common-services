@@ -36,6 +36,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -424,6 +427,21 @@ public class CommonDataServiceImpl implements CommonDataService {
                     : "Address Master POID: " + addressMasterPoid;
             throw new ValidationException("No address details found for " + identifier);
         }
+
+        Set<String> allowedTypes = Set.of("MAIN", "OPERATION", "SALES", "CAN", "FIN");
+        Map<String, LovGetListDto> typelovMap = Map.of(
+                "MAIN",      new LovGetListDto(null, "MAIN",      "Main",                 null, null, 1, null),
+                "OPERATION", new LovGetListDto(null, "OPERATION", "Operation",            null, null, 2, null),
+                "SALES",     new LovGetListDto(null, "SALES",     "Sales",                null, null, 3, null),
+                "CAN",       new LovGetListDto(null, "CAN",       "Cargo Arrival Notice", null, null, 4, null),
+                "FIN",       new LovGetListDto(null, "FIN",       "Finance",              null, null, 5, null)
+        );
+
+        addressDetailsList = addressDetailsList.stream()
+                .filter(a -> a.getAddressType() != null && allowedTypes.contains(a.getAddressType().toUpperCase()))
+                .collect(Collectors.toList());
+
+        addressDetailsList.forEach(a -> a.setAddressTypeDet(typelovMap.get(a.getAddressType().toUpperCase())));
 
         return new AddressDetailsListResponseDto(addressDetailsList);
     }
