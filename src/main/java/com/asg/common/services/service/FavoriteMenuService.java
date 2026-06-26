@@ -1,6 +1,7 @@
 package com.asg.common.services.service;
 
 import com.asg.common.lib.utility.PaginationUtil;
+import com.asg.common.services.dto.FavoriteMenuReorderRequest;
 import com.asg.common.services.dto.FavoriteMenuRequest;
 import com.asg.common.services.entity.FavoriteMenuEntity;
 import com.asg.common.services.repository.FavoriteMenuRepository;
@@ -61,5 +62,48 @@ public class FavoriteMenuService {
 
     public String removeFavoriteMenus(String userId, Long userPoid, String categoryValue, String selectedDocIdList) throws SQLException {
         return favoriteMenuRepository.removeFavoriteMenuList(userId, userPoid, categoryValue, selectedDocIdList);
+    }
+
+    public String reorderFavoriteMenus(FavoriteMenuReorderRequest request) throws SQLException {
+        if (request.getData() == null || request.getData().isEmpty()) {
+            throw new RuntimeException("data is required");
+        }
+
+        int updatedCount = 0;
+        int catSeqNo = 0;
+
+        for (Map.Entry<String, List<FavoriteMenuEntity>> entry : request.getData().entrySet()) {
+            String menuGroup = entry.getKey();
+            List<FavoriteMenuEntity> items = entry.getValue();
+            if (items == null || items.isEmpty()) {
+                catSeqNo++;
+                continue;
+            }
+
+            int docSeqNo = 0;
+            for (FavoriteMenuEntity item : items) {
+                int rows;
+                if (item.getId() != null) {
+                    rows = favoriteMenuRepository.updateFavoriteMenuOrderById(
+                            request.getUserPoid(), item.getId(), catSeqNo, docSeqNo);
+                } else {
+                    String menuId = item.getMenuId();
+                    String group = item.getMenuGroup() != null ? item.getMenuGroup() : menuGroup;
+                    rows = favoriteMenuRepository.updateFavoriteMenuOrder(
+                            request.getUserPoid(), group, menuId, catSeqNo, docSeqNo);
+                }
+                if (rows == 0) {
+                    throw new RuntimeException(
+                            "Favorite menu not found for menuGroup=" + menuGroup
+                                    + ", menuId=" + item.getMenuId() + ", id=" + item.getId()
+                    );
+                }
+                updatedCount += rows;
+                docSeqNo++;
+            }
+            catSeqNo++;
+        }
+
+        return "SUCCESS: Updated " + updatedCount + " favorite menu record(s)";
     }
 }

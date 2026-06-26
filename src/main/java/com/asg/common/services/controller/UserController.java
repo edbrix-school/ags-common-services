@@ -1,5 +1,6 @@
 package com.asg.common.services.controller;
 
+import com.asg.common.services.dto.FavoriteMenuReorderRequest;
 import com.asg.common.services.dto.FavoriteMenuRequest;
 import com.asg.common.services.entity.FavoriteMenuEntity;
 import com.asg.common.services.service.FavoriteMenuService;
@@ -93,6 +94,20 @@ public class UserController {
             }
             String result = favoriteMenuService.removeFavoriteMenus(request.getUserId(), request.getUserPoid(), request.getMenuGroup(), request.getSelectedDocIds());
             return success("Favorite menu removed successfully", result);
+        } catch (Exception e) {
+            return internalServerError(e.getMessage());
+        }
+    }
+
+    @PostMapping("/favorite-menu/reorder")
+    public ResponseEntity<?> reorderFavoriteMenus(@RequestBody FavoriteMenuReorderRequest request) {
+        try {
+            if (request == null || request.getUserId() == null || request.getUserPoid() == null
+                    || request.getData() == null || request.getData().isEmpty()) {
+                throw new RuntimeException("Missing or invalid fields: userId, userPoid, or data");
+            }
+            String result = favoriteMenuService.reorderFavoriteMenus(request);
+            return success("Favorite menu order saved successfully", result);
         } catch (Exception e) {
             return internalServerError(e.getMessage());
         }

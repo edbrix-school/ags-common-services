@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class FavoriteMenuEntity {
+    private Long id;
     private String menuId;
     private String menuName;
     private Long menuLevel;

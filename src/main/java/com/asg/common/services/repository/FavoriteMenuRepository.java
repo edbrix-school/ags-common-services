@@ -9,11 +9,14 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Repository
@@ -86,10 +89,81 @@ public class FavoriteMenuRepository {
             }
         }
 
+        enrichWithIdAuto(userPoid, results);
         return results;
     }
 
+    private void enrichWithIdAuto(Long userPoid, List<FavoriteMenuEntity> menus) throws SQLException {
+        if (menus.isEmpty()) {
+            return;
+        }
+
+        String sql = """
+                SELECT ID_AUTO, DOC_ID, FAVORITE_CATEGORY, DOC_SEQ_NO, CAT_SEQ_NO
+                FROM GLOBAL_FAVORITE_MENU
+                WHERE USER_POID = ?
+                """;
+
+        Map<String, Long> idByKey = new HashMap<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, userPoid);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    long docSeqNo = readLongOrZero(rs, "DOC_SEQ_NO");
+                    long catSeqNo = readLongOrZero(rs, "CAT_SEQ_NO");
+                    String key = buildFavoriteKey(
+                            rs.getString("DOC_ID"),
+                            rs.getString("FAVORITE_CATEGORY"),
+                            docSeqNo,
+                            catSeqNo
+                    );
+                    idByKey.put(key, rs.getLong("ID_AUTO"));
+                }
+            }
+        }
+
+        for (FavoriteMenuEntity menu : menus) {
+            if (menu.getId() != null) {
+                continue;
+            }
+            String key = buildFavoriteKey(
+                    menu.getMenuId(),
+                    menu.getMenuGroup(),
+                    menu.getDocSeqNo() != null ? menu.getDocSeqNo() : 0L,
+                    menu.getCatSeqNo() != null ? menu.getCatSeqNo() : 0L
+            );
+            Long idAuto = idByKey.get(key);
+            if (idAuto != null) {
+                menu.setId(idAuto);
+            }
+        }
+    }
+
+    private long readLongOrZero(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        return rs.wasNull() ? 0L : value;
+    }
+
+    private String buildFavoriteKey(String docId, String category, long docSeqNo, long catSeqNo) {
+        return String.join("|",
+                docId != null ? docId : "",
+                category != null ? category : "",
+                String.valueOf(docSeqNo),
+                String.valueOf(catSeqNo)
+        );
+    }
+
     private void mapSeqColumns(ResultSet rs, FavoriteMenuEntity menu) throws SQLException {
+        if (hasColumn(rs, "ID_AUTO")) {
+            Long idAuto = rs.getLong("ID_AUTO");
+            if (!rs.wasNull()) {
+                menu.setId(idAuto);
+            }
+        }
         if (hasColumn(rs, "CAT_SEQ_NO")) {
             Long catSeqNo = rs.getLong("CAT_SEQ_NO");
             if (!rs.wasNull()) {
@@ -153,5 +227,46 @@ public class FavoriteMenuRepository {
         }
 
         return status;
+    }
+
+    public int updateFavoriteMenuOrder(Long userPoid, String menuGroup, String menuId,
+                                     long catSeqNo, long docSeqNo) throws SQLException {
+        String sql = """
+                UPDATE GLOBAL_FAVORITE_MENU
+                SET CAT_SEQ_NO = ?, DOC_SEQ_NO = ?
+                WHERE USER_POID = ? AND DOC_ID = ? AND FAVORITE_CATEGORY = ?
+                """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, catSeqNo);
+            ps.setLong(2, docSeqNo);
+            ps.setLong(3, userPoid);
+            ps.setString(4, menuId);
+            ps.setString(5, menuGroup);
+
+            return ps.executeUpdate();
+        }
+    }
+
+    public int updateFavoriteMenuOrderById(Long userPoid, Long idAuto,
+                                           long catSeqNo, long docSeqNo) throws SQLException {
+        String sql = """
+                UPDATE GLOBAL_FAVORITE_MENU
+                SET CAT_SEQ_NO = ?, DOC_SEQ_NO = ?
+                WHERE ID_AUTO = ? AND USER_POID = ?
+                """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, catSeqNo);
+            ps.setLong(2, docSeqNo);
+            ps.setLong(3, idAuto);
+            ps.setLong(4, userPoid);
+
+            return ps.executeUpdate();
+        }
     }
 }
