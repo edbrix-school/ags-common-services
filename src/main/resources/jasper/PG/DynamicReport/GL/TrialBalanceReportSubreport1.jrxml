@@ -164,7 +164,7 @@
          - EXCLUDE_OPENING now explicitly passed
          - $P{ORACLE_REF_CURSOR} removed (PostgreSQL handles refcursor internally) -->
 	<queryString language="sql">
-		<![CDATA[{call proc_gl_ledger_trial_bal_rpt( $P{PERIOD_DATE}::date, $P{PERIOD_DATE2}::date, ARRAY[$P{COMPANY_POID}::numeric], $P{LEVEL_LIMIT}, $P{EXCLUDE_OPENING} )}]]>
+		<![CDATA[SELECT * FROM fn_gl_ledger_trial_bal_rpt( $P{PERIOD_DATE}::date, $P{PERIOD_DATE2}::date, ARRAY[$P{COMPANY_POID}::numeric], $P{LEVEL_LIMIT}, $P{EXCLUDE_OPENING} )]]>
 	</queryString>
 	<field name="GL_POID" class="java.math.BigDecimal"/>
 	<field name="FLVL" class="java.math.BigDecimal"/>

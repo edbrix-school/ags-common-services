@@ -38,7 +38,7 @@
 		<parameter name="EXCLUDE_OPENING" class="java.lang.String"/>
 		<!-- CHANGE: language changed from plsql to sql; SP call updated for PostgreSQL -->
 		<queryString language="sql">
-			<![CDATA[{call proc_gl_ledger_trial_bal_rpt( $P{PERIOD_DATE}::date, $P{PERIOD_DATE2}::date, ARRAY[$P{COMPANY_POID}::numeric], $P{LEVEL_LIMIT}, $P{EXCLUDE_OPENING} )}]]>
+			<![CDATA[SELECT * FROM fn_gl_ledger_trial_bal_rpt( $P{PERIOD_DATE}::date, $P{PERIOD_DATE2}::date, ARRAY[$P{COMPANY_POID}::numeric], $P{LEVEL_LIMIT}, $P{EXCLUDE_OPENING} )]]>
 		</queryString>
 		<field name="GL_POID" class="java.lang.String"/>
 		<field name="FLVL" class="java.math.BigDecimal"/>

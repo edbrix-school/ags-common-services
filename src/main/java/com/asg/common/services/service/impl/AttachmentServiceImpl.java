@@ -10,6 +10,7 @@ import com.asg.common.services.dto.AttachmentDto;
 import com.asg.common.services.dto.AttachmentUploadDto;
 import com.asg.common.services.dto.UpdateRemarksRequest;
 import com.asg.common.services.dto.UploadResponse;
+import com.asg.common.services.client.DmsClient;
 import com.asg.common.services.entity.Attachment;
 import com.asg.common.services.repository.AttachmentRepository;
 import com.asg.common.services.service.AttachmentService;
@@ -26,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +45,8 @@ import java.util.stream.Collectors;
 public class AttachmentServiceImpl implements AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
+    private final DmsClient dmsClient;
+    private final jakarta.servlet.http.HttpServletRequest httpServletRequest;
 
     @Autowired
     private LoggingService loggingService;
@@ -100,16 +104,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
 
             try {
-                String storedName = "ASG_Attach_" + UUID.randomUUID() + "." +
-                        FilenameUtils.getExtension(originalName);
-
-                File dir = new File(basePath).getAbsoluteFile();
-                if (!dir.exists() && !dir.mkdirs()) {
-                    throw new AsgException("Cannot create directory: " + dir.getAbsolutePath(), 500);
-                }
-
-                File dest = new File(dir, storedName);
-                file.transferTo(dest);
+                String authToken = httpServletRequest.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
+                String storedName = dmsClient.uploadToDms(file, docId, docKeyPoid, authToken);
 
                 Long groupPoid = getGroupPoid();
                 Long companyPoid = 1L;
@@ -245,8 +241,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             throw new IllegalArgumentException("File Name Mapped is required for deletion");
         }
         
-        // Check if attachment exists before deletion
-        Optional<Attachment> attachment = attachmentRepository.findByDocIdAndDocKeyPoidAndFileNameMapped(docId, docKeyPoid, fileNameMapped);
+        // Check if attachment exists before deletion (includes archived attachments)
+        Optional<Attachment> attachment = attachmentRepository.findByDocIdAndDocKeyPoidAndFileNameMappedForArchive(docId, docKeyPoid, fileNameMapped);
         if (attachment.isEmpty()) {
             throw new ResourceNotFoundException("Attachment", "parameters", "docId=" + docId + ", docKeyPoid=" + docKeyPoid + ", fileNameMapped=" + fileNameMapped);
         }
@@ -444,19 +440,27 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
 
         String mappedFileName = attachment.getFileNameMapped();
+
+        if (mappedFileName != null && mappedFileName.startsWith("DMS_")) {
+            Long documentId = Long.valueOf(mappedFileName.substring(4));
+            String authToken = httpServletRequest.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
+            return dmsClient.downloadFromDms(documentId, attachment.getFileName(), authToken);
+        }
+
+        // Fallback: legacy local file system
+        if (attachmentsPath == null || attachmentsPath.trim().isEmpty()) {
+            throw new AsgException("AttachmentsPath is missing for login company", 500);
+        }
         File file;
-        
         if (mappedFileName.contains(".")) {
             file = new File(attachmentsPath, mappedFileName);
         } else {
             String extension = FilenameUtils.getExtension(attachment.getFileName());
             file = new File(attachmentsPath, mappedFileName + "." + extension);
         }
-        
         if (!file.exists() || !file.canRead()) {
             throw new ResourceNotFoundException("File not found on server", "path", file.getAbsolutePath());
         }
-
         return new FileSystemResource(file);
     }
 
