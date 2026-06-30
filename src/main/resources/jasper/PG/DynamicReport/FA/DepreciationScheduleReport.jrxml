@@ -1,0 +1,1335 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DepreciationScheduleReport" language="groovy" pageWidth="1190" pageHeight="842" orientation="Landscape" columnWidth="1150" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52dbeafb-019e-4995-babb-14d41f7901ce">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Depreciation" uuid="2e6eff22-5378-4797-8b52-99246327b0b9">
+		<parameter name="COMPANY" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="DEP_DATE" class="java.lang.String"/>
+		<parameter name="ASSET_TYPE" class="java.lang.String"/>
+		<!-- CHANGE: Replaced Oracle {call PROC_FA_DEPRECIATION_RPT_PRINT(..., ORACLE_REF_CURSOR)} with
+		     PostgreSQL wrapper function fn_fa_depreciation_rpt_print() that returns TABLE.
+		     COMPANY is multiselect array (numeric[]) in PostgreSQL; Oracle used single NUMBER.
+		     No schema prefix - schema resolved at runtime. -->
+		<queryString language="sql">
+			<![CDATA[SELECT * FROM fn_fa_depreciation_rpt_print(  string_to_array($P{COMPANY}, ',')::numeric[] , $P{DEP_DATE}::date, $P{ASSET_TYPE} )]]>
+		</queryString>
+		<field name="FA_CODE" class="java.lang.String"/>
+		<field name="ASSET_TYPE" class="java.lang.String"/>
+		<field name="DESCRIPTION" class="java.lang.String"/>
+		<field name="FA_CATG_DESCRIPTION" class="java.lang.String"/>
+		<field name="PURCHASE_DATE" class="java.sql.Timestamp"/>
+		<field name="GROSS_BLOCK_START" class="java.math.BigDecimal"/>
+		<field name="ADDITIONS" class="java.math.BigDecimal"/>
+		<field name="DELETION" class="java.math.BigDecimal"/>
+		<field name="GROSS_BLOCK_END" class="java.math.BigDecimal"/>
+		<field name="LIFE_YEAR" class="java.math.BigDecimal"/>
+		<field name="JAN" class="java.math.BigDecimal"/>
+		<field name="FEB" class="java.math.BigDecimal"/>
+		<field name="MAR" class="java.math.BigDecimal"/>
+		<field name="APR" class="java.math.BigDecimal"/>
+		<field name="MAY" class="java.math.BigDecimal"/>
+		<field name="JUN" class="java.math.BigDecimal"/>
+		<field name="JUL" class="java.math.BigDecimal"/>
+		<field name="AUG" class="java.math.BigDecimal"/>
+		<field name="SEP" class="java.math.BigDecimal"/>
+		<field name="OCT" class="java.math.BigDecimal"/>
+		<field name="NOV" class="java.math.BigDecimal"/>
+		<field name="DEC" class="java.math.BigDecimal"/>
+		<field name="TOTAL" class="java.math.BigDecimal"/>
+		<field name="DELETION_ACCUM" class="java.math.BigDecimal"/>
+		<field name="ACCUM_DEPRECIATION" class="java.math.BigDecimal"/>
+		<field name="NET_BOOK_START" class="java.math.BigDecimal"/>
+		<field name="NET_BOOK_END" class="java.math.BigDecimal"/>
+		<field name="VEHICLE_DETAIL" class="java.lang.String"/>
+		<variable name="GROSS_BLOCK_START" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{GROSS_BLOCK_START}]]></variableExpression>
+		</variable>
+		<variable name="NET_BOOK_START" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{NET_BOOK_START}]]></variableExpression>
+		</variable>
+		<variable name="ADDITIONS" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{ADDITIONS}]]></variableExpression>
+		</variable>
+		<variable name="DELETIONS" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{DELETION}]]></variableExpression>
+		</variable>
+		<variable name="GROSS_BLOCK_END" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{GROSS_BLOCK_END}]]></variableExpression>
+		</variable>
+		<variable name="JAN" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{JAN}]]></variableExpression>
+		</variable>
+		<variable name="FEB" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEB}]]></variableExpression>
+		</variable>
+		<variable name="MAR" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{MAR}]]></variableExpression>
+		</variable>
+		<variable name="APR" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{APR}]]></variableExpression>
+		</variable>
+		<variable name="MAY" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{MAY}]]></variableExpression>
+		</variable>
+		<variable name="JUN" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{JUN}]]></variableExpression>
+		</variable>
+		<variable name="JUL" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{JUL}]]></variableExpression>
+		</variable>
+		<variable name="AUG" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{AUG}]]></variableExpression>
+		</variable>
+		<variable name="SEP" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{SEP}]]></variableExpression>
+		</variable>
+		<variable name="OCT" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{OCT}]]></variableExpression>
+		</variable>
+		<variable name="NOV" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{NOV}]]></variableExpression>
+		</variable>
+		<variable name="DEC" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{DEC}]]></variableExpression>
+		</variable>
+		<variable name="TOTAL" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+		</variable>
+		<variable name="DELETION_ACCUM" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{DELETION_ACCUM}]]></variableExpression>
+		</variable>
+		<variable name="ACCUM_DEPRECIATION" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{ACCUM_DEPRECIATION}]]></variableExpression>
+		</variable>
+		<variable name="NET_BOOK_END" class="java.math.BigDecimal" resetType="Group" resetGroup="ASSET_WISE_GROUP" calculation="Sum">
+			<variableExpression><![CDATA[$F{NET_BOOK_END}]]></variableExpression>
+		</variable>
+		<variable name="GROSS_BLOCK_START_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{GROSS_BLOCK_START}]]></variableExpression>
+		</variable>
+		<variable name="ADDITIONS_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{ADDITIONS}]]></variableExpression>
+		</variable>
+		<variable name="DELETION_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DELETION}]]></variableExpression>
+		</variable>
+		<variable name="GROSS_BLOCK_END_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{GROSS_BLOCK_END}]]></variableExpression>
+		</variable>
+		<variable name="JAN_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{JAN}]]></variableExpression>
+		</variable>
+		<variable name="FEB_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEB}]]></variableExpression>
+		</variable>
+		<variable name="MAR_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{MAR}]]></variableExpression>
+		</variable>
+		<variable name="APR_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{APR}]]></variableExpression>
+		</variable>
+		<variable name="MAY_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{MAY}]]></variableExpression>
+		</variable>
+		<variable name="JUN_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{JUN}]]></variableExpression>
+		</variable>
+		<variable name="JUL_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{JUL}]]></variableExpression>
+		</variable>
+		<variable name="AUG_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{AUG}]]></variableExpression>
+		</variable>
+		<variable name="SEP_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{SEP}]]></variableExpression>
+		</variable>
+		<variable name="OCT_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{OCT}]]></variableExpression>
+		</variable>
+		<variable name="NOV_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{NOV}]]></variableExpression>
+		</variable>
+		<variable name="DEC_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DEC}]]></variableExpression>
+		</variable>
+		<variable name="TOTAL_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+		</variable>
+		<variable name="DELETION_ACCUM_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DELETION_ACCUM}]]></variableExpression>
+		</variable>
+		<variable name="ACCUM_DEPRECIATION_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{ACCUM_DEPRECIATION}]]></variableExpression>
+		</variable>
+		<variable name="NET_BOOK_START_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{NET_BOOK_START}]]></variableExpression>
+		</variable>
+		<variable name="NET_BOOK_END_GT" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{NET_BOOK_END}]]></variableExpression>
+		</variable>
+		<group name="ASSET_WISE_GROUP">
+			<groupExpression><![CDATA[$F{ASSET_TYPE}]]></groupExpression>
+		</group>
+	</subDataset>
+	<parameter name="DEP_DATE" class="java.lang.String"/>
+	<parameter name="ASSET_TYPE" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="COMPANY" class="java.lang.String"/>
+    <parameter name="COMPANY_POID" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="REPORT_DATE" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT DISTINCT COMPANY_NAME FROM (
+    SELECT
+        CASE WHEN $P{COMPANY} = '999' THEN 'All Companies'
+             ELSE GCM.COMPANY_NAME
+        END AS COMPANY_NAME
+    FROM GLOBAL_COMPANY_MASTER GCM
+    WHERE CAST($P{COMPANY} AS INTEGER) = 999
+       OR GCM.COMPANY_POID = CAST($P{COMPANY} AS INTEGER)
+) as subquery]]>
+	</queryString>
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<title>
+		<band height="131">
+			<staticText>
+				<reportElement x="0" y="80" width="322" height="29" uuid="6e0a5540-3fb6-4be5-8356-1fbc66e9ff7d"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="18" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Fixed Assets Schedules]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="34" y="110" width="106" height="20" uuid="32883090-e8b9-4124-abc0-525cbacfc231"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DEP_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="110" width="34" height="20" uuid="3a9218eb-c47c-463a-8a41-2d2d1f78151c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date:-]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="0" y="0" width="1150" height="70" uuid="dd6438aa-6e30-4ea5-87e9-c9908e56cead"/>
+				<subreportParameter name="LOGIN_DIV_POID"/>
+				<subreportParameter name="LOGIN_COMP_POID">
+					<subreportParameterExpression><![CDATA[$P{COMPANY}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUB_HEADER}]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<detail>
+		<band height="75" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table 3" style="table 3" x="0" y="0" width="1150" height="70" uuid="a67d62e3-d1ae-4b7e-819d-6870d2641dc1"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Depreciation" uuid="d0670e28-7370-463e-996d-561713dde634">
+						<datasetParameter name="COMPANY">
+							<datasetParameterExpression><![CDATA[$P{COMPANY}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="DEP_DATE">
+							<datasetParameterExpression><![CDATA[$P{DEP_DATE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ASSET_TYPE">
+							<datasetParameterExpression><![CDATA[$P{ASSET_TYPE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="1166" uuid="dda0bc68-8730-4388-8b3d-0446b36e2f80">
+						<jr:groupHeader groupName="ASSET_WISE_GROUP">
+							<jr:cell height="20" rowSpan="1">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="1166" height="20" uuid="f47ae8a7-8fcb-4a7d-a4ac-2c3afbb62145"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{ASSET_TYPE}]]></textFieldExpression>
+								</textField>
+							</jr:cell>
+						</jr:groupHeader>
+						<jr:column width="20" uuid="0f66449c-ef1d-46bb-ada5-d0569acc137d">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1"/>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1"/>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="20" height="30" uuid="ca0fba01-cd8c-475d-a086-2308e1b9c3ed"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Sl No]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="20" height="45" uuid="52a5eb5e-e5a0-4729-928f-8072fcca3780"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="81" uuid="f1bffaa9-0f1c-4877-8c4d-cfc10f6d8b04">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="81" height="30" uuid="e2f54af9-14c0-4d5d-9eab-1d6df293abe7"/>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Grand Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="81" height="20" uuid="d56af28d-f25b-422b-b7ad-713214bcc85e"/>
+										<textElement verticalAlignment="Middle">
+											<font isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<text><![CDATA[Sub Total]]></text>
+									</staticText>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="81" height="30" uuid="1b86e69f-ef26-4f7d-b985-ee7de377b775"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Description]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField isBlankWhenNull="true">
+									<reportElement positionType="Float" x="0" y="0" width="81" height="13" uuid="26588178-990b-4392-83fa-54a20db0779d"/>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FA_CODE}]]></textFieldExpression>
+								</textField>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement positionType="Float" x="0" y="13" width="81" height="13" uuid="fc40bda6-b9a6-44ca-ab2b-8d2f3272ac2e"/>
+									<textElement verticalAlignment="Middle">
+										<font size="8" isBold="false"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+								</textField>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement positionType="Float" x="0" y="26" width="81" height="19" uuid="70c59027-4357-4052-b5e9-c2c174cde3d9"/>
+									<textElement>
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{VEHICLE_DETAIL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="45" uuid="4592e346-3441-4203-abdb-2f68b0893df6">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1"/>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1"/>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="45" height="30" uuid="b6b61ebf-3e60-4e17-a846-dcd3b00a6eb0"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Purchase Date]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="45" height="45" uuid="158f2332-9387-4288-b3ae-cc810dcfff68"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="7"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{PURCHASE_DATE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="55" uuid="d9e37996-c9c6-4fe1-b16d-a1dfe46cbf90">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="55" height="30" uuid="78d404b4-59f2-48bf-8876-14940704dddf"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{GROSS_BLOCK_START_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField evaluationTime="Group" evaluationGroup="ASSET_WISE_GROUP" pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="55" height="20" uuid="b14549f9-52ef-4db9-a09d-eeee4f2aadad"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{GROSS_BLOCK_START}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="55" height="30" uuid="671c3230-5fd7-4563-b6ee-222447f6b765"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Gross Block Start]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="55" height="45" uuid="1e866e28-a02e-48b7-a007-57d14c0e9c99"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{GROSS_BLOCK_START}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58" uuid="becac219-14d5-440e-8764-3376a40e981c">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="30" uuid="7f1ff8a3-cdf1-44ad-b198-598cea26133c"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{ADDITIONS_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField evaluationTime="Group" evaluationGroup="ASSET_WISE_GROUP" pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="58" height="20" uuid="69bdaee0-c031-487b-bbf3-8e86c3b48c72"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{ADDITIONS}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="58" height="30" uuid="7915edd7-92a8-42ff-a050-4ad1e9a9b0c7"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Additions]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="45" uuid="32f3af14-99a3-4ef6-bffb-55922a45295d"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{ADDITIONS}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58" uuid="cca2690c-1edb-47e2-98fc-314d4646758b">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="30" uuid="326e7403-94a0-43cf-abc9-b0bcaacfb588"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{DELETION_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="58" height="20" uuid="05f85887-4ac0-426f-9e65-aeb75f9a8767"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{DELETIONS}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="58" height="30" uuid="1174b37e-97bf-432d-815e-82604e54fa82"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Deletion]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="45" uuid="81c4406e-c5cc-4eae-81a0-fd3fe698a564"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{DELETION}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="60" uuid="bd95d35b-43d0-4b5b-aa66-f2fb6de67a35">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="60" height="30" uuid="cbe2c4d8-e5ce-4893-9390-ddc4340b9ae1"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{GROSS_BLOCK_END_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="83a686ac-a31b-4ab4-a6d7-f3935e467bb8"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{GROSS_BLOCK_END}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="60" height="30" uuid="4d89a970-33bd-4145-82fb-53339eb99bac"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Gross Block End]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="60" height="45" uuid="6bb6dad5-a79a-4544-b8c9-1eb442e9236b"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="false"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{GROSS_BLOCK_END}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="25" uuid="f2c8b05f-836a-446d-bad9-4909577bece3">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1"/>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1"/>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="25" height="30" uuid="cf61b558-12cc-4c8d-b2e0-6e5542e2754b"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Life Year]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="25" height="45" uuid="a6b53148-a278-46cb-b0bf-fb9c1a8e72ae"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{LIFE_YEAR}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="9b2ec90a-1a34-4e6e-86a0-13a29effebe1">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="7f4fa5ca-72fc-4f2e-8269-e71fe76b6769"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{JAN_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="ab70234f-32ee-4b18-bd09-700bd089a820"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{JAN}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="8733d100-1d66-47cd-b9aa-70273aa122d1"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Jan]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="ec06f8f2-22df-4ff6-9252-18d78c475d68"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{JAN}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="9d99f0a5-1be3-4714-ad24-f94183088342">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="d26a73a8-f042-4bb0-b4b9-43c64a40a770"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{FEB_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="919270cf-a4fa-42c5-8aba-dc70f3febb20"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{FEB}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="d3212541-94e6-497c-afab-edc5f1720a57"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Feb]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="99b18b29-11bc-4cc8-b15d-cd0d7c2a89a0"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FEB}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="7e060a52-1f64-4676-a8cd-508694146440">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="90e22fea-e4d5-4347-ad14-d2964efdaf4c"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{MAR_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="391ff050-49d8-4770-8920-3b269af7223b"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{MAR}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="4fb5a86d-012f-41f4-838d-7ce9c41d6eef"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Mar]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="002d68ac-3eab-4056-b5d0-5fdee1167b21"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{MAR}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="d22d7c67-67cd-4d66-ba71-86fe1da8be93">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="a3600731-e05f-4b9f-a629-76fb7c32105a"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{APR_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="6f795f3a-4dcc-4e0c-ad05-42626ffb212d"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{APR}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="0497c446-a027-4034-95f7-419efe8ca2d0"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Apr]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="5a38a021-a267-4d3b-a78c-bc1eeef7d940"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{APR}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="5c141f45-4509-469a-bd7e-ad22bfc30fee">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="ee5e3856-c4ad-4864-a491-4a6f0a30e4bc"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{MAY_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="4f591c02-c1d2-4cfc-ab2c-039067c0b6f1"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{MAY}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="ba8a60a4-8e73-4011-97ab-ac038ac40f37"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[May]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="8f3e97ab-f2e7-4fda-9963-e0631ff44130"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{MAY}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="5584206f-f1c9-41d9-913e-9fd6ad5fcbc5">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="5ad8a7c6-e95b-4f7c-8aa7-ab927d76b441"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{JUN_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="ea23db7e-9df2-4549-b5c2-8c39a4134a23"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{JUN}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="0b750288-30f8-4f3d-9cc4-b47d32773949"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Jun]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="5886f274-2c99-4645-8b3e-02da16236f17"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{JUN}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="349dd405-4dbb-4d60-ac96-08f624b38b83">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="e6a7b941-527a-43a1-9bab-2e74d7932393"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{JUL_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="2a9cd1bc-ddbf-41be-8943-daa4f14ea2ec"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{JUL}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="ae838ec6-1b34-45fd-8573-8eef8b773332"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Jul]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="f59840d5-7b32-4c50-90d6-f82a6dad9c26"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{JUL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="49f12e34-647b-430f-a505-c9c080843048">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="979fbae1-6986-460c-a0d1-fcf397933f3e"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{AUG_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="1d1e33d6-9d87-4eac-a7f0-9eb2e24f3ab4"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{AUG}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="cba9acb7-8e37-4c96-9dc6-1f169ec32b5d"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Aug]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="e8b59119-6532-495e-afb2-7e78a2f326ec"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{AUG}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="fc22708f-2952-4c1c-b955-6d16bccb10b0">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="dd5823d7-b737-4e87-aae5-3e1a877c8d4b"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{SEP_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="12809358-6566-45ad-ac3d-1c3739560a39"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{SEP}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="f2c258d7-9169-4120-ab32-0fa48ff1432a"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Sep]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="2a3343f2-9b27-4784-ab1c-776fda23ec92"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{SEP}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="683a4678-5e95-4080-8286-8f2ebd3ed056">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="ecd4567b-734a-41c7-93bc-645fa573c4d7"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{OCT_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="165235ad-a438-4ee3-acbd-4364cf4ff3cc"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{OCT}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="9fe8f346-3388-427b-9338-aa07df7ddc0d"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Oct]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="4b114d8a-e571-47d3-b8fc-3d2c0b65a775"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{OCT}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="766ea586-c9a0-48cc-b209-b4fca2d59361">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="b4433eb8-fd55-4a58-b971-8f6c2c358d0d"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{NOV_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="c9d90555-6beb-4e31-9490-0e20a27ceb47"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{NOV}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="47f6b9bd-e2a8-40a6-9f1c-f9d49ea174d6"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Nov]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="f04683ab-a46b-436a-85d3-68807f903a07"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{NOV}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40" uuid="ef941190-ad91-45d1-9b4e-374f821270fc">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="30" uuid="b8d11a6d-0163-4407-8911-304f61b3ca7e"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{DEC_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="40" height="20" uuid="703618ea-c53f-465d-a9cc-2355895ffba5"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{DEC}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="2503e07a-7bd7-464a-9897-e38d7c8be38e"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Dec]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="40" height="45" uuid="63923483-bfa5-42ac-9d7e-4abf81bd5250"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{DEC}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58" uuid="483130ba-55f8-4264-a4de-e89b9f7e06eb">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="30" uuid="841d482e-cfa5-4c62-82ec-56691dcc62aa"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{TOTAL_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="58" height="20" uuid="25392a12-5c16-4efe-b6f8-11c95c353639"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{TOTAL}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="58" height="30" uuid="00c968b7-cf75-42f5-95b1-6daa7ff53096"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Total Deprec]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="45" uuid="04184c6f-cd1d-4363-83cc-5803db91cec6"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{TOTAL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="50" uuid="19f1a070-6456-49e8-99ac-5ed5669456c4">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="50" height="30" uuid="5f63f34e-c94f-4258-a75a-fde6b0f1799a"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{DELETION_ACCUM_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="825d4709-fe82-4b07-bb0d-a48b0af775ad"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{DELETION_ACCUM}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="50" height="30" uuid="d87fef19-02b6-43cc-963f-44648b47465d"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Deletion Accum]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="(#,##0.000)" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="50" height="45" uuid="f9f7c7e3-8f48-4c03-a5b2-0e24f445bd74"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{DELETION_ACCUM}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="60" uuid="b1613ba1-c505-4a4b-a02a-175ff257e7cb">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="60" height="30" uuid="a725d450-094e-48a1-a0d2-e5948f777f2c"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{ACCUM_DEPRECIATION_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="1a3fff5d-6cdd-45c7-8bdb-194edceb2f08"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{ACCUM_DEPRECIATION}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="60" height="30" uuid="5f8b0931-1360-4167-9b68-a401a8523c87"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Accum Depreciation]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="60" height="45" uuid="e7442012-52d1-4f98-b3d2-b506e7f7c1ef"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{ACCUM_DEPRECIATION}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58" uuid="1d345532-f9ce-4a10-a03b-88039588b1c1">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="30" uuid="f6568812-72a3-40d8-9dcd-36c3d5d767b7"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{NET_BOOK_START_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="58" height="20" uuid="6fa1045d-df65-4413-b1d4-d0571f900339"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{NET_BOOK_START}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="58" height="30" uuid="33dbf65f-7e17-498b-87da-90bbf0562143"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Net Book Start]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="45" uuid="543b46d8-3605-419a-aff3-3b5dcaa3f480"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="false"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{NET_BOOK_START}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58" uuid="a094a6b1-7d35-4035-bb1b-1b23534af0f1">
+							<jr:tableFooter style="table 3_CH" height="30" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="30" uuid="770a65c7-7229-4366-80ea-ca1ddde99be9"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{NET_BOOK_END_GT}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:groupFooter groupName="ASSET_WISE_GROUP">
+								<jr:cell style="table 3_TD" height="21" rowSpan="1">
+									<textField pattern="#,##0.000" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="58" height="20" uuid="980701b6-9567-4054-b241-8c33d6296fe0"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle">
+											<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{NET_BOOK_END}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:columnHeader style="table 3_TH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="58" height="30" uuid="da42692f-3821-4323-82ec-f5a1d27332ed"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									</textElement>
+									<text><![CDATA[Net Book End]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="table 3_TD" height="45" rowSpan="1">
+								<textField pattern="#,##0.000" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="58" height="45" uuid="b25cbe48-3e2e-4209-b96d-ed9d9b463ea2"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{NET_BOOK_END}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="27">
+			<textField isBlankWhenNull="true">
+				<reportElement x="1000" y="7" width="100" height="20" forecolor="#999999" uuid="4c91707f-e94a-4bbc-9be2-7bbb64a29f8e"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page-"+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEE, d MMM yyyy HH:mm" isBlankWhenNull="true">
+				<reportElement x="0" y="6" width="458" height="20" forecolor="#999999" uuid="9c71ff0c-c1db-4d02-b85d-f317beb3573d"/>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" isBlankWhenNull="true">
+				<reportElement x="1103" y="7" width="47" height="20" forecolor="#999999" uuid="d4924182-77f7-4b22-9af8-1829a8e9da4e"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" "+$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>
