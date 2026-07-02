@@ -27,6 +27,10 @@ public class DmsClient {
      * Returns stored key in format: DMS_{documentId}_{documentFileId}
      */
     public String uploadToDms(MultipartFile file, String docId, Long docKeyPoid, String authToken) {
+        return uploadToDms(file, docId, docKeyPoid, authToken, null, null);
+    }
+
+    public String uploadToDms(MultipartFile file, String docId, Long docKeyPoid, String authToken, Long categoryId, String tags) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -34,8 +38,10 @@ public class DmsClient {
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("title", file.getOriginalFilename());
+            body.add("doc_id", docId);
             body.add("description", docId + "_" + docKeyPoid);
-            body.add("tags", docId);
+            if (categoryId != null) body.add("category_id", categoryId.toString());
+            body.add("tags", tags != null ? tags : docId);
             body.add("files", new MultipartFileResource(file));
 
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);

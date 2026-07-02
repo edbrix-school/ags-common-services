@@ -314,6 +314,7 @@ public class CustomDashboardRepositoryImpl implements CustomDashboardRepository{
 
     private List<WeeklyTransactionDto> mapResultSet(ResultSet rs) {
         List<WeeklyTransactionDto> list = new ArrayList<>();
+        if (rs == null) return list;
 
         try {
             while (rs.next()) {

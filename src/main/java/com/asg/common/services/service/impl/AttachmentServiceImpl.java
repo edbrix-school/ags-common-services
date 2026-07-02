@@ -129,7 +129,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                     callEdiProc(groupPoid, companyPoid, docId, docKeyPoid, attachmentEDIJobPoid, loginUser);
                 }
 
-                uploaded.add(buildDto(docKeyPoid, originalName, storedName, remarks, checklistName,String.valueOf(createdBy != null ? createdBy : getUserPoid()), new Date(), true));
+                uploaded.add(buildDto(docId, docKeyPoid, newSeq, originalName, storedName, remarks, checklistName, String.valueOf(createdBy != null ? createdBy : getUserPoid()), new Date(), true));
                 existingFileNames.add(originalName);
                 
                 // Log attachment upload
@@ -607,12 +607,14 @@ public class AttachmentServiceImpl implements AttachmentService {
         return allowed.contains(ext);
     }
 
-    private AttachmentDto buildDto(Long docKeyPoid, String orig, String mapped, String remarks, String checklist,
+    private AttachmentDto buildDto(String docId, Long docKeyPoid, Long seqNo, String orig, String mapped, String remarks, String checklist,
                                    String createdBy, Date createdDate, boolean active) {
         AttachmentDto d = new AttachmentDto();
         d.setGroupPoid(getGroupPoid());
         d.setCompanyPoid(1L);
+        d.setDocId(docId);
         d.setDocKeyPoid(docKeyPoid);
+        d.setSeqNo(seqNo);
         d.setOriginalFileName(orig);
         d.setStoredFileName(mapped);
         d.setRemarks(remarks);
