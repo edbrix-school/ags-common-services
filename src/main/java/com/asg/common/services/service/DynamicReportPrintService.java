@@ -2,6 +2,7 @@ package com.asg.common.services.service;
 
 import com.asg.common.lib.service.PrintService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JasperReport;
 import oracle.jdbc.driver.OracleConnection;
 import oracle.sql.ARRAY;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DynamicReportPrintService {
 
     private final PrintService printService;
@@ -40,6 +42,7 @@ public class DynamicReportPrintService {
             convertDateParams(rptParams);
             params.putAll(rptParams);
         }
+        //params.forEach((k, v) -> log.debug("PARAM [{}] = [{}] type=[{}]", k, v, v != null ? v.getClass().getName() : "null"));
         return printService.fillReportToPdf(mainReport, params, dataSource);
     }
 
@@ -48,7 +51,7 @@ public class DynamicReportPrintService {
      */
     private void convertCompanyPoidParam(Map<String, Object> params, String docId) throws Exception {
         Object raw = params.get("COMPANY_POID");
-        if (docId.equals("600-201")) {
+        if (docId.equals("600-201") || docId.equals("600-203")) {
             raw = params.get("COMPANY");
         }
         if (raw instanceof List<?> list) {
@@ -59,43 +62,39 @@ public class DynamicReportPrintService {
             boolean contains999 = companyIds.contains(999L);
             if (companyIds.size() == 1 || contains999) {
                 // Backward Compatibility
-                params.put("COMPANY_POID", companyIds.getFirst());
+                params.put("COMPANY_POID", contains999 ? "999" : companyIds.getFirst());
                 // Adding CSV as well because we already changed query for Two Reports BillWise Statement and BillWise Statement FC
-                params.put("COMPANY_POID_CSV", companyIds.getFirst());
+                params.put("COMPANY_POID_CSV", contains999 ? "999" : companyIds.getFirst());
             } else {
                 // Multiple values - add as CSV, Add First ID in COMPANY_POID as well to maintain existing logic
                 params.put("COMPANY_POID", companyIds.getFirst());
                 params.put("COMPANY_POID_CSV", companyIds.stream()
                         .map(Object::toString)
                         .collect(Collectors.joining(",")));
+
             }
-            // 600-201: Asset Wise Depreciation Schedule Report - Instead of COMPANY_POID we are getting COMPANY so converting back to Support JRXML
-            if (docId.equals("600-201")) {
+            // Instead of COMPANY_POID we are getting COMPANY so converting back to Support JRXML
+            // 600-201: Asset Wise Depreciation Schedule Report
+            // 600-203: Asset Category Wise Depreciation Posting Report
+            if (docId.equals("600-201") || docId.equals("600-203")) {
                 params.put("COMPANY", params.get("COMPANY_POID"));
                 params.put("COMPANY_CSV", params.get("COMPANY_POID_CSV"));
             }
-        }
-        // 600-203: Asset Category Wise Depreciation Posting Report - FE Is sending COMPANY_POID but in JRXML it is used as COMPANY
-        if (docId.equals("600-203")) {
-            params.put("COMPANY", params.get("COMPANY_POID"));
-            params.put("COMPANY_CSV", params.get("COMPANY_POID_CSV"));
         }
     }
     
     private void convertDateParams(Map<String, Object> params) {
         params.entrySet().forEach(entry -> {
-            if ((entry.getKey().contains("DATE") || entry.getKey().contains("PERIOD") || entry.getKey().contains("PERIOD2")) && entry.getValue() instanceof String) {
-                String value = (String) entry.getValue();
+            if ((entry.getKey().contains("DATE") || entry.getKey().contains("PERIOD") || entry.getKey().contains("PERIOD2")) && entry.getValue() instanceof String value) {
                 if (value.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    entry.setValue(convertToOracleDate(value));
+                    if ("postgres".equalsIgnoreCase(dbConnection)) {
+                        entry.setValue(java.sql.Date.valueOf(value));
+                    } else {
+                        entry.setValue(LocalDate.parse(value).format(DateTimeFormatter.ofPattern("dd-MMM-yyyy")).toUpperCase());
+                    }
                 }
             }
         });
-    }
-    
-    private String convertToOracleDate(String isoDate) {
-        LocalDate date = LocalDate.parse(isoDate);
-        return date.format(DateTimeFormatter.ofPattern("dd-MMM-yyyy")).toUpperCase();
     }
     
     private JasperReport getReportConfig(String docId, Map<String, Object> params) throws Exception {

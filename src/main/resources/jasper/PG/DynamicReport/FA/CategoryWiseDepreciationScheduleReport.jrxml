@@ -85,6 +85,7 @@
 	</style>
 	<subDataset name="Depreciation" uuid="2e6eff22-5378-4797-8b52-99246327b0b9">
 		<parameter name="COMPANY" class="java.lang.String" isForPrompting="false"/>
+        <parameter name="COMPANY_CSV" class="java.lang.String" isForPrompting="false"/>
 		<parameter name="DEP_DATE" class="java.lang.String"/>
 		<parameter name="ASSET_TYPE" class="java.lang.String"/>
 		<!-- CHANGE: language changed from plsql to sql
@@ -93,7 +94,7 @@
 		     COMPANY is multiselect array (numeric[]) in PostgreSQL; Oracle used single NUMBER.
 		     No schema prefix - schema resolved at runtime. -->
 		<queryString language="sql">
-			<![CDATA[SELECT * FROM fn_fa_deprec_rpt_cate_print( string_to_array($P{COMPANY}, ',')::numeric[], $P{DEP_DATE}::date, $P{ASSET_TYPE} )]]>
+			<![CDATA[SELECT * FROM fn_fa_deprec_rpt_cate_print( $P{COMPANY}, $P{DEP_DATE}::date, $P{ASSET_TYPE} )]]>
 		</queryString>
 		<field name="ASSET_TYPE" class="java.lang.String"/>
 		<field name="GROSS_BLOCK_START" class="java.math.BigDecimal"/>
@@ -253,6 +254,7 @@
 	</parameter>
 	<parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
 	<parameter name="COMPANY" class="java.lang.String"/>
+    <parameter name="COMPANY_CSV" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
 	</parameter>

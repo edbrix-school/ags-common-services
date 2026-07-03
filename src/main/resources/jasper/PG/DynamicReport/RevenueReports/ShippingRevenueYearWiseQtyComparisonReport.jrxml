@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ShippingRevenueYearWiseQtyComparisonReport" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1be851cb-bc9d-47f8-9143-bc1c3aff8e64">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Export_20" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<style name="Import" mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box leftPadding="0" rightPadding="0">
+			<pen lineWidth="2.0"/>
+			<topPen lineWidth="1.0" lineColor="#999999"/>
+			<leftPen lineWidth="1.0" lineColor="#999999"/>
+			<bottomPen lineWidth="1.0" lineColor="#999999"/>
+			<rightPen lineWidth="1.0" lineStyle="Double" lineColor="#999999"/>
+		</box>
+	</style>
+	<style name="Export" mode="Opaque" backcolor="#FFFFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box>
+			<topPen lineWidth="1.0" lineColor="#999999"/>
+			<leftPen lineWidth="1.0" lineColor="#999999"/>
+			<bottomPen lineWidth="1.0" lineColor="#999999"/>
+			<rightPen lineWidth="1.0" lineColor="#999999"/>
+		</box>
+	</style>
+	<style name="Total" mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box>
+			<topPen lineWidth="1.0" lineColor="#999999"/>
+			<leftPen lineWidth="1.0" lineColor="#999999"/>
+			<bottomPen lineWidth="1.0" lineColor="#999999"/>
+			<rightPen lineWidth="1.0" lineColor="#999999"/>
+		</box>
+	</style>
+	<style name="Per" mode="Opaque" backcolor="#FFFFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box>
+			<topPen lineWidth="1.0" lineColor="#999999"/>
+			<leftPen lineWidth="1.0" lineColor="#999999"/>
+			<bottomPen lineWidth="1.0" lineColor="#999999"/>
+			<rightPen lineWidth="1.0" lineColor="#999999"/>
+		</box>
+	</style>
+	<style name="Header" mode="Opaque" forecolor="#000000" backcolor="#999999" isBlankWhenNull="true" fontSize="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box>
+			<topPen lineWidth="1.5" lineColor="#999999"/>
+			<leftPen lineWidth="1.5" lineColor="#999999"/>
+			<bottomPen lineWidth="1.5" lineColor="#999999"/>
+			<rightPen lineWidth="1.5" lineColor="#999999"/>
+		</box>
+	</style>
+	<subDataset name="QtyDetail" uuid="b68f31e0-54c2-4914-a8bc-467eb2cfe3ce">
+		<parameter name="COMPANY_POID" class="java.lang.String"/>
+        <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+		<parameter name="PERIOD" class="java.util.Date"/>
+		<parameter name="PERIOD2" class="java.util.Date"/>
+		<parameter name="LINE1" class="java.lang.String"/>
+		<parameter name="CUSTOMER" class="java.lang.String"/>
+		<parameter name="BL_TYPE" class="java.lang.String"/>
+		<parameter name="CNT_TYPE" class="java.lang.String"/>
+		<parameter name="COM_YEAR" class="java.lang.String"/>
+		<!-- CHANGE: language changed from plsql to sql
+		     Replaced Oracle {call PROC_DYN_CNT_YEAR_WISE_RPT_PRT(..., ORACLE_REF_CURSOR)} with
+		     PostgreSQL wrapper function fn_dyn_cnt_year_wise_rpt_prt() that returns TABLE.
+		     COMPANY_POID is multiselect array (numeric[]) in PostgreSQL; Oracle used single NUMBER.
+		     PERIOD and PERIOD2 cast to ::date.
+		     No schema prefix - schema resolved at runtime. -->
+        <queryString language="sql">
+<!--            <![CDATA[SELECT * FROM fn_dyn_cnt_year_wise_rpt_prt( $P{COMPANY_POID_CSV}, $P{PERIOD}, $P{PERIOD2}, $P{LINE1}, $P{CUSTOMER}, $P{BL_TYPE}, $P{CNT_TYPE}, $P{COM_YEAR} )]]>-->
+                <![CDATA[SELECT * FROM fn_dyn_cnt_year_wise_rpt_prt( string_to_array($P{COMPANY_POID_CSV}, ',')::numeric[], $P{PERIOD}, $P{PERIOD2}, $P{LINE1}, $P{CUSTOMER}, $P{BL_TYPE}, $P{CNT_TYPE}, $P{COM_YEAR} )]]>
+        </queryString>
+		<field name="YEARS" class="java.math.BigDecimal"/>
+		<field name="IMPORT_20_FT" class="java.math.BigDecimal"/>
+		<field name="IMPORT_40_FT" class="java.math.BigDecimal"/>
+		<field name="IMPORT_TUES" class="java.math.BigDecimal"/>
+		<field name="EXPORT_20_FT" class="java.math.BigDecimal"/>
+		<field name="EXPORT_40_FT" class="java.math.BigDecimal"/>
+		<field name="EXPORT_TUES" class="java.math.BigDecimal"/>
+		<field name="TOTAL_20_FT" class="java.math.BigDecimal"/>
+		<field name="TOTAL_40_FT" class="java.math.BigDecimal"/>
+		<field name="TOTAL_TUES" class="java.math.BigDecimal"/>
+		<field name="PER_YEAR_TO_YEAR" class="java.lang.String"/>
+		<field name="CUMULATIVE_GROWTH" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="COMPANY_POID" class="java.lang.String"/>
+    <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>	<parameter name="PERIOD" class="java.util.Date"/>
+	<parameter name="PERIOD2" class="java.util.Date"/>
+	<parameter name="LINE1" class="java.lang.String"/>
+	<parameter name="CUSTOMER" class="java.lang.String"/>
+	<parameter name="BL_TYPE" class="java.lang.String"/>
+	<parameter name="CNT_TYPE" class="java.lang.String"/>
+	<parameter name="COM_YEAR" class="java.lang.String"/>
+	<parameter name="REPORT_DATE" class="java.util.Date"/>
+	<!-- CHANGE: Main query updated
+	     - Replaced Oracle DECODE() with PostgreSQL CASE WHEN
+	     - COMPANY_POID is multiselect array; using ANY() for array comparison
+	     - GET_LINE_NAME_PARMETER_STR() kept as-is (confirm function exists in PostgreSQL) -->
+
+    <queryString language="sql">
+        <![CDATA[SELECT * FROM fn_rpt_header_company_line_customer( $P{COMPANY_POID_CSV}, $P{CUSTOMER}, $P{LINE1})]]>
+    </queryString>
+<!--    <queryString>-->
+<!--		<![CDATA[SELECT DISTINCT COMPANY_NAME, CUSTOMER, LINE, LINE_NAME-->
+<!--FROM (-->
+<!--    SELECT-->
+<!--        CASE WHEN 999 = ANY($P{COMPANY_POID_CSV}::numeric[]) THEN 'All Companies'-->
+<!--             ELSE GCM.COMPANY_NAME-->
+<!--        END AS COMPANY_NAME,-->
+<!--        $P{CUSTOMER} AS CUSTOMER,-->
+<!--        $P{LINE1} AS LINE,-->
+<!--        PRODUCTION.GET_LINE_NAME_PARMETER_STR($P{LINE1}) AS LINE_NAME-->
+<!--    FROM GLOBAL_COMPANY_MASTER GCM-->
+<!--    WHERE 999 = ANY($P{COMPANY_POID_CSV}::numeric[])-->
+<!--       OR GCM.COMPANY_POID = ANY($P{COMPANY_POID_CSV}::numeric[])-->
+<!--) AS subquery]]>-->
+<!--	</queryString>-->
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<field name="CUSTOMER" class="java.lang.String"/>
+	<field name="LINE" class="java.lang.String"/>
+	<field name="LINE_NAME" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="50"/>
+	</title>
+	<pageHeader>
+		<band height="67">
+			<staticText>
+				<reportElement x="552" y="0" width="250" height="20" uuid="01ba7602-8758-4654-8066-360a5727c03b"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Carrier Year Wise Qty Comparison]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="80" y="0" width="244" height="20" uuid="bbcfbda8-15ad-4235-8d52-729eed0457ea"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="12" y="0" width="68" height="20" uuid="f1631e59-ec88-4518-a49b-44091cd65d6e"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Company :-]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="12" y="20" width="46" height="15" uuid="3a12af76-7aec-4944-98fd-f954ad8fe528"/>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Period :-]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="58" y="20" width="64" height="15" uuid="5801e9dd-bf2c-4f04-9498-dcaec466f725"/>
+				<textElement>
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{PERIOD}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="122" y="20" width="22" height="15" uuid="2fccbf24-731b-4d05-a7cb-59cd5ee7d942"/>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[To :-]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="144" y="20" width="100" height="15" uuid="dc665ab3-07c3-4b1e-84f5-f70de826bfa3"/>
+				<textFieldExpression><![CDATA[$P{PERIOD2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="68" y="50" width="256" height="15" uuid="4353800b-8234-491e-a9ee-59f97352ea5c">
+					<printWhenExpression><![CDATA[$F{CUSTOMER}!="NULL"]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{CUSTOMER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="12" y="50" width="56" height="15" uuid="fe32a073-fb0e-4ce2-808e-0f658e3f7320">
+					<printWhenExpression><![CDATA[$F{CUSTOMER}!="NULL"]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Customer :-]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="12" y="35" width="46" height="15" uuid="57ee620b-a67b-4aa9-9961-28f097cfb9f9">
+					<printWhenExpression><![CDATA[$F{LINE_NAME}!="NULL"]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line :-]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="58" y="35" width="266" height="15" uuid="57c42ecc-22dc-4842-a7aa-b34477d803ee">
+					<printWhenExpression><![CDATA[$F{LINE_NAME}!="NULL"]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{LINE_NAME}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="64" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table" style="table" x="12" y="13" width="774" height="50" uuid="a378f24d-12d3-44c8-96e2-54d5f5be52e5"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="QtyDetail" uuid="22a24e94-e79e-4061-afff-7a99f7d76fba">
+						<datasetParameter name="COMPANY_POID">
+							<datasetParameterExpression><![CDATA[$P{COMPANY_POID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="PERIOD">
+							<datasetParameterExpression><![CDATA[$P{PERIOD}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="PERIOD2">
+							<datasetParameterExpression><![CDATA[$P{PERIOD2}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="LINE1">
+							<datasetParameterExpression><![CDATA[$P{LINE1}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="CUSTOMER">
+							<datasetParameterExpression><![CDATA[$P{CUSTOMER}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="BL_TYPE">
+							<datasetParameterExpression><![CDATA[$P{BL_TYPE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="CNT_TYPE">
+							<datasetParameterExpression><![CDATA[$P{CNT_TYPE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="COM_YEAR">
+							<datasetParameterExpression><![CDATA[$P{COM_YEAR}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="45" uuid="4e481fb9-7679-4d6c-afa0-fd7216ade593">
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="45" height="30" uuid="432acbbf-eb13-42d7-b8c2-15f882f928ac"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="1"/>
+								</textElement>
+								<text><![CDATA[Years]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="45" height="35" uuid="5b97f39e-5182-45b0-a1d1-49517cab9d22"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{YEARS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="5de278ef-295b-4dfa-8102-7a532b7923c1">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("IMPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("20FT")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="07d2d0c1-e225-41cd-af68-522af6fcce60"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Import
+ 20 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Import" x="0" y="0" width="70" height="35" uuid="9889d4b6-32aa-4dfd-b1ff-ce250f9b0dff"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{IMPORT_20_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="1e271d53-07e7-407e-bf13-f30f73f60b96">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("IMPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("40FT")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="bcc0699a-cc9c-4358-bf5f-0596e0d29114"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Import
+ 40 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Import" x="0" y="0" width="70" height="35" uuid="6856da31-6d9e-40a0-99ca-1d395dec7ae9"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{IMPORT_40_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="efc36192-6333-4810-a6b6-f6723b66c9aa">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("IMPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("TUES")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="f0ea9efb-41f8-4e52-aa28-7351392d82d2"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Import
+ Tues]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Import" x="0" y="0" width="70" height="35" uuid="baef79d3-1a6f-4963-9a84-97cdefa4e7df"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{IMPORT_TUES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="bf2c46ac-8409-40d2-97ca-d534c8605b38">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("EXPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("20FT")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="f0391574-e85c-46c9-8910-f0425b9255f8"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Export
+ 20 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Export" x="0" y="0" width="70" height="35" uuid="eaf0d072-2d73-4e44-b415-0735391572e5">
+									<printWhenExpression><![CDATA[$F{EXPORT_20_FT}!=0]]></printWhenExpression>
+								</reportElement>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{EXPORT_20_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="9fec0a29-8c9f-421a-953f-a3f0eef49c52">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("EXPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("40FT")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="a6a9408f-bd58-4868-bcb1-0b00f9a8345f"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Export
+ 40 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Export" x="0" y="0" width="70" height="35" uuid="e2a4d68a-eab0-46e2-b9fc-fd36c5d481f9"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{EXPORT_40_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="16633839-9f5a-4d6b-9f41-14bb467d8f45">
+						<printWhenExpression><![CDATA[($P{BL_TYPE}.equalsIgnoreCase("EXPORT")||$P{BL_TYPE}.equalsIgnoreCase("ALL"))&&($P{CNT_TYPE}.equalsIgnoreCase("TUES")||$P{CNT_TYPE}.equalsIgnoreCase("ALL"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="70" height="30" uuid="df992cbf-715d-4d34-888e-d7f73e665556"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Export
+ Tues]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Export" x="0" y="0" width="70" height="35" uuid="233cf44f-a4a8-412c-b675-82606490130c"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{EXPORT_TUES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60" uuid="92eaa538-7689-4a81-ba98-4ae93bcf6127">
+						<printWhenExpression><![CDATA[$P{BL_TYPE}.equalsIgnoreCase("ALL")&&($P{CNT_TYPE}.equalsIgnoreCase("ALL")||$P{CNT_TYPE}.equalsIgnoreCase("20FT"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="60" height="30" uuid="edad17d1-71c3-48f4-865a-2ac69ab2f66b"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Total
+20 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Total" x="0" y="0" width="60" height="35" uuid="1aa7d261-bfc7-4e6c-8128-e95a505d78e7"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TOTAL_20_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60" uuid="be2a114e-f8c2-476f-9e7a-4072def4d685">
+						<printWhenExpression><![CDATA[$P{BL_TYPE}.equalsIgnoreCase("ALL")&&($P{CNT_TYPE}.equalsIgnoreCase("ALL")||$P{CNT_TYPE}.equalsIgnoreCase("40FT"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="60" height="30" uuid="c21ec703-4219-4fcb-80d5-cd43d6a20544"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Total
+40 FT]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Total" x="0" y="0" width="60" height="35" uuid="e4737dfe-cdcb-4614-b947-bc8a58f419e8"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TOTAL_40_FT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60" uuid="1ce8b79a-e0a9-4066-a188-d65a6e5785d4">
+						<printWhenExpression><![CDATA[$P{BL_TYPE}.equalsIgnoreCase("ALL")&&($P{CNT_TYPE}.equalsIgnoreCase("ALL")||$P{CNT_TYPE}.equalsIgnoreCase("TUES"))]]></printWhenExpression>
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="60" height="30" uuid="b982e2a9-952f-4d92-a44d-4506deaaa729"/>
+								<textElement textAlignment="Center">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Total
+Tues]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Total" x="0" y="0" width="60" height="35" uuid="5592068d-4995-4ce9-b156-f3a96a097d5b"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TOTAL_TUES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="75" uuid="acd1e196-5c8f-4747-ac19-f1ade68130f9">
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="75" height="30" uuid="258165b1-5c9b-42ac-897e-e7b9e3468c30"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Year to Year
+       (%)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Per" x="0" y="0" width="75" height="35" uuid="8a11a56c-11eb-4459-9cb2-b3eb07c5bcbb"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PER_YEAR_TO_YEAR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="75" uuid="24fe0929-d650-471c-ad53-48fac4128853">
+						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="Header" x="0" y="0" width="75" height="30" uuid="70c94048-ae47-4c5e-8a77-3d9ced33b9a6"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Cumulative Growth(%)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="36" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement style="Per" x="0" y="0" width="75" height="35" uuid="931694da-0d2a-4a99-887c-b3d561cc63c7"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font isBold="true" pdfFontName="Helvetica-Bold"/>
+									<paragraph leftIndent="2" rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CUMULATIVE_GROWTH}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="33" splitType="Stretch">
+			<textField pattern="EEE, d MMM yyyy HH:mm:ss" isBlankWhenNull="true">
+				<reportElement x="12" y="3" width="312" height="19" forecolor="#999999" uuid="d0b465ac-380e-425f-9906-d13d8257cbfb"/>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="24" splitType="Stretch"/>
+	</summary>
+</jasperReport>
