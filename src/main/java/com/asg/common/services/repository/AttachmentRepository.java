@@ -87,6 +87,9 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
     
     @Query(value = "SELECT ATTACHMENT_CHECKLIST FROM GLOBAL_DOC_MASTER WHERE DOC_ID = :docId AND ACTIVE = 'Y' AND (DELETED = 'N' OR DELETED IS NULL)", nativeQuery = true)
     String getAttachmentChecklistRaw(@Param("docId") String docId);
+
+    @Query(value = "SELECT DOC_SHORT_NAME FROM GLOBAL_DOC_MASTER WHERE DOC_ID = :docId AND ACTIVE = 'Y' AND (DELETED = 'N' OR DELETED IS NULL)", nativeQuery = true)
+    String getDocShortName(@Param("docId") String docId);
     
     default List<String> getChecklistFromGlobalDocMaster(String docId) {
         String checklistStr = getAttachmentChecklistRaw(docId);

@@ -72,7 +72,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Transactional
     public UploadResponse uploadFiles(String docId, Long docKeyPoid, MultipartFile[] files,
                                       String remarks, String checklistName, Long createdBy,
-                                      boolean attachEDI, Long attachmentEDIJobPoid) {
+                                      boolean attachEDI, Long attachmentEDIJobPoid,
+                                      String docShortName, String docRef) {
 
         validateDoc(docId, docKeyPoid);
         if (files == null || files.length == 0) throw new IllegalArgumentException("No files provided");
@@ -105,7 +106,8 @@ public class AttachmentServiceImpl implements AttachmentService {
 
             try {
                 String authToken = httpServletRequest.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
-                String storedName = dmsClient.uploadToDms(file, docId, docKeyPoid, authToken);
+                String resolvedDocShortName = (docShortName != null) ? docShortName : attachmentRepository.getDocShortName(docId);
+                String storedName = dmsClient.uploadToDms(file, docId, docKeyPoid, authToken, null, resolvedDocShortName, docRef);
 
                 Long groupPoid = getGroupPoid();
                 Long companyPoid = 1L;
@@ -249,7 +251,18 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         // Get filename before deletion
         String originalFileName = attachment.get().getFileName();
-        
+
+        // If stored in DMS, delete from DMS first
+        if (fileNameMapped.startsWith("DMS_")) {
+            try {
+                Long documentId = Long.valueOf(fileNameMapped.substring(4));
+                String authToken = httpServletRequest.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
+                dmsClient.deleteFromDms(documentId, authToken);
+            } catch (Exception e) {
+                log.warn("DMS delete failed for {}, proceeding with local delete: {}", fileNameMapped, e.getMessage());
+            }
+        }
+
         attachmentRepository.deleteAttachment(getGroupPoid(), 1L, docId, docKeyPoid, fileNameMapped);
         
         // Log attachment deletion
@@ -679,7 +692,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Transactional
     public UploadResponse uploadFilesWithMetadata(String docId, Long docKeyPoid,
                                                   List<AttachmentUploadDto> attachments,
-                                                  Long createdBy) {
+                                                  Long createdBy, String docShortName, String docRef) {
         validateDoc(docId, docKeyPoid);
 
         List<AttachmentDto> uploaded = new ArrayList<>();
@@ -700,7 +713,8 @@ public class AttachmentServiceImpl implements AttachmentService {
                         req.getChecklistName(),
                         createdBy,
                         req.isAttachEDI(),
-                        req.getAttachmentEDIJobPoid()
+                        req.getAttachmentEDIJobPoid(),
+                        docShortName, docRef
                 );
 
                 uploaded.addAll(singleResp.getUploadedFiles());

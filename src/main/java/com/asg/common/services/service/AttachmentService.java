@@ -17,7 +17,8 @@ public interface AttachmentService {
     // -------------------- UPLOAD --------------------
     UploadResponse uploadFiles(String docId, Long docKeyPoid, MultipartFile[] files,
                                String remarks, String checklistName, Long createdBy,
-                               boolean attachEDI, Long attachmentEDIJobPoid);
+                               boolean attachEDI, Long attachmentEDIJobPoid,
+                               String docShortName, String docRef);
 
     // -------------------- LIST --------------------
     Page<AttachmentDto> getAttachments(String docId, Long docKeyPoid, boolean includeArchived, Pageable pageable);
@@ -65,7 +66,7 @@ public interface AttachmentService {
 
     UploadResponse uploadFilesWithMetadata(String docId, Long docKeyPoid,
                                            List<AttachmentUploadDto> attachments,
-                                           Long createdBy);
+                                           Long createdBy, String docShortName, String docRef);
     AttachmentDto getAttachmentBySeqNo(String docId, Long docKeyPoid, Long seqNo);
 
     List<AttachmentDto> getAllAttachments(String docId, Long docKeyPoid);

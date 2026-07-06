@@ -49,6 +49,8 @@ public class AttachmentController {
             @RequestParam(value = "remarks", required = false) String[] remarks,
             @RequestParam(value = "checklistName", required = false) String[] checklistNames,
             @RequestParam(value = "seqNo", required = false) Long[] seqNos,
+            @RequestParam(value = "docShortName", required = false) String docShortName,
+            @RequestParam(value = "docRef", required = false) String docRef,
             @ModelAttribute UploadRequestWrapper wrapper
     ) {
         try {
@@ -110,7 +112,7 @@ public class AttachmentController {
                     .anyMatch(dto -> dto.getRemarks() != null && !dto.getRemarks().isBlank());
 
             if (!allUploads.isEmpty()) {
-                uploadResponse = attachmentService.uploadFilesWithMetadata(docId, docKeyPoid, allUploads, currentUserPoid);
+                uploadResponse = attachmentService.uploadFilesWithMetadata(docId, docKeyPoid, allUploads, currentUserPoid, docShortName, docRef);
             }
 
             if (!structuredUpdates.isEmpty()) {

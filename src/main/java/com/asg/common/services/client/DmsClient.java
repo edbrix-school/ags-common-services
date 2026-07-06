@@ -27,10 +27,10 @@ public class DmsClient {
      * Returns stored key in format: DMS_{documentId}_{documentFileId}
      */
     public String uploadToDms(MultipartFile file, String docId, Long docKeyPoid, String authToken) {
-        return uploadToDms(file, docId, docKeyPoid, authToken, null, null);
+        return uploadToDms(file, docId, docKeyPoid, authToken, null, null, null);
     }
 
-    public String uploadToDms(MultipartFile file, String docId, Long docKeyPoid, String authToken, Long categoryId, String tags) {
+    public String uploadToDms(MultipartFile file, String docId, Long docKeyPoid, String authToken, Long categoryId, String docShortName, String docRef) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -39,10 +39,17 @@ public class DmsClient {
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("title", file.getOriginalFilename());
             body.add("doc_id", docId);
-            body.add("description", docId + "_" + docKeyPoid);
+            String description;
+            if (docShortName != null && docRef != null) description = docShortName + "-" + docRef;
+            else if (docShortName != null) description = docShortName;
+            else description = docId + "_" + docKeyPoid;
+            body.add("description", description);
             if (categoryId != null) body.add("category_id", categoryId.toString());
-            body.add("tags", tags != null ? tags : docId);
+            body.add("tags", docShortName != null ? docShortName : docId);
             body.add("files", new MultipartFileResource(file));
+
+            log.info("DMS upload payload => title: {}, doc_id: {}, description: {}, tags: {}, category_id: {}",
+                    file.getOriginalFilename(), docId, description, body.getFirst("tags"), body.getFirst("category_id"));
 
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
             ResponseEntity<Map> response = restTemplate.exchange(
@@ -83,6 +90,27 @@ public class DmsClient {
             }
         }
         throw new RuntimeException("DMS: could not fetch document_file_id for documentId=" + documentId);
+    }
+
+    /**
+     * Deletes a document from DMS using document_id.
+     * DELETE /api/documents/{documentId}
+     */
+    public void deleteFromDms(Long documentId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.AUTHORIZATION, authToken);
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    dmsBaseUrl + "/api/documents/" + documentId, HttpMethod.DELETE, request, Map.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("DMS delete failed with status: " + response.getStatusCode());
+            }
+            log.info("DMS document deleted => documentId: {}", documentId);
+        } catch (Exception e) {
+            log.error("DMS delete error for documentId {}: {}", documentId, e.getMessage(), e);
+            throw new RuntimeException("DMS delete failed: " + e.getMessage(), e);
+        }
     }
 
     /**
