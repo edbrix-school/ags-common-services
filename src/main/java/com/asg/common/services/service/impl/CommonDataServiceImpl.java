@@ -17,23 +17,23 @@ import com.asg.common.lib.service.LovDataService;
 import com.asg.common.services.client.TaxServiceClient;
 import com.asg.common.services.client.GLMasterServiceClient;
 import com.asg.common.services.client.StockServiceClient;
+import com.asg.common.services.dto.*;
 import com.asg.common.services.repository.GlobalTermsConditionRepository;
-import com.asg.common.services.dto.AddressDetailsListResponseDto;
-import com.asg.common.services.dto.AddressDetailsResponseDto;
-import com.asg.common.services.dto.AddressPoidResponseDto;
-import com.asg.common.services.dto.CurrencyRateResponseDto;
 import com.asg.common.services.service.CommonDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +50,7 @@ public class CommonDataServiceImpl implements CommonDataService {
     private final GlobalTermsConditionRepository globalTermsConditionRepository;
     private final LovDataService lovService;
     private final LoggingService loggingService;
+    private final JdbcTemplate jdbcTemplate;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -444,6 +445,31 @@ public class CommonDataServiceImpl implements CommonDataService {
         addressDetailsList.forEach(a -> a.setAddressTypeDet(typelovMap.get(a.getAddressType().toUpperCase())));
 
         return new AddressDetailsListResponseDto(addressDetailsList);
+    }
+
+    @Override
+    public CreditDaysReponseDto fetchCreditDaysByCustomerPoid(Long customerPoid, String blType) {
+        if (customerPoid == null) {
+            throw new ValidationException("Customer POID must be provided");
+        }
+        Integer creditDays = callProcGetCustomerCreditDays(customerPoid, blType);
+        return new CreditDaysReponseDto(creditDays);
+    }
+
+    private Integer callProcGetCustomerCreditDays(Long customerPoid, String blType) {
+        try {
+            String sql = "{call PROC_GET_CUSTOMER_CREDIT_DAYS(?, ?, ?)}";
+            return jdbcTemplate.execute(sql, (CallableStatement cs) -> {
+                cs.setLong(1, customerPoid);
+                cs.setString(2, blType != null ? blType : "IMPORT");
+                cs.registerOutParameter(3, Types.VARCHAR);
+                cs.execute();
+                String result = cs.getString(3);
+                return result != null ? Integer.parseInt(result) : null;
+            });
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private List<AddressDetailsResponseDto> mapAddressCursorToList(Object cursor) {

@@ -37,7 +37,13 @@ public class DmsClient {
             headers.set(HttpHeaders.AUTHORIZATION, authToken);
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("title", file.getOriginalFilename());
+            // DMS enforces global uniqueness on the stored filename, so the raw filename collides
+            // whenever the same file is uploaded from another screen (different docId/docKeyPoid) or
+            // re-uploaded after archive. Use a context-unique name for BOTH the title and the uploaded
+            // file part; the original filename is kept in our DB for display/download, so this only
+            // affects DMS-internal identity.
+            String uniqueDmsName = buildUniqueDmsTitle(file.getOriginalFilename(), docId, docKeyPoid);
+            body.add("title", uniqueDmsName);
             body.add("doc_id", docId);
             String description;
             if (docShortName != null && docRef != null) description = docShortName + "-" + docRef;
@@ -46,7 +52,7 @@ public class DmsClient {
             body.add("description", description);
             if (categoryId != null) body.add("category_id", categoryId.toString());
             body.add("tags", docShortName != null ? docShortName : docId);
-            body.add("files", new MultipartFileResource(file));
+            body.add("files", new MultipartFileResource(file, uniqueDmsName));
 
             log.info("DMS upload payload => title: {}, doc_id: {}, description: {}, tags: {}, category_id: {}",
                     file.getOriginalFilename(), docId, description, body.getFirst("tags"), body.getFirst("category_id"));
@@ -67,6 +73,23 @@ public class DmsClient {
             log.error("DMS upload error for file {}: {}", file.getOriginalFilename(), e.getMessage(), e);
             throw new RuntimeException("DMS upload failed: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Builds a globally-unique DMS title so uploads don't collide on filename across screens/documents.
+     * Keeps the original name and extension for readability, e.g. "report_600-203_45_1699999999999.pdf".
+     */
+    private String buildUniqueDmsTitle(String originalFilename, String docId, Long docKeyPoid) {
+        String name = (originalFilename == null || originalFilename.isBlank()) ? "file" : originalFilename;
+        String base = name;
+        String ext = "";
+        int dot = name.lastIndexOf('.');
+        if (dot > 0) {
+            base = name.substring(0, dot);
+            ext = name.substring(dot); // includes the leading '.'
+        }
+        String suffix = docId + "_" + docKeyPoid + "_" + System.currentTimeMillis();
+        return base + "_" + suffix + ext;
     }
 
     /**
@@ -147,9 +170,9 @@ public class DmsClient {
     private static class MultipartFileResource extends ByteArrayResource {
         private final String filename;
 
-        public MultipartFileResource(MultipartFile file) {
+        public MultipartFileResource(MultipartFile file, String filename) {
             super(getBytes(file));
-            this.filename = file.getOriginalFilename();
+            this.filename = filename;
         }
 
         private static byte[] getBytes(MultipartFile file) {

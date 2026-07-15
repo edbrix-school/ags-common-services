@@ -299,6 +299,39 @@ public class CommonDataServiceController {
     }
 
     @Operation(
+            summary = "Customer credit days by Customer Poid",
+            description = "Fetches credit days using customer poid via PROC_GET_CUSTOMER_CREDIT_DAYS procedure.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Credit days fetched successfully",
+                            content = @Content(schema = @Schema(implementation = AddressPoidResponseDto.class))
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Invalid input provided"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+                    @ApiResponse(responseCode = "404", description = "Credit days not found")
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/fetch-credit-days-by-customer-poid")
+    public ResponseEntity<?> fetchCreditDaysByCustomerPoid(
+            @Parameter(description = "Customer POID", required = true, example = "12345")
+            @RequestParam Long customerPoid,
+
+            @Parameter(description = "BL Type", required = false, example = "IMPORT")
+            @RequestParam(required = false, defaultValue = "IMPORT") String blType
+    ) {
+        CreditDaysReponseDto response = glMasterService.fetchCreditDaysByCustomerPoid(
+                customerPoid,
+                blType
+        );
+        if (response.getCreditDays() == null) {
+            return success("No credit days found for the given customer POID", response);
+        }
+        return success("Credit Days fetched successfully", response);
+    }
+
+    @Operation(
             summary = "Fetch Address Details by Master POID or Address POID",
             description = "Fetches complete address details using either addressMasterPoid or addressPoid via PROC_ADDRESS_GET_DETAILS_ALL procedure. " +
                     "At least one of the two parameters must be supplied. When both are provided, addressPoid takes priority.",

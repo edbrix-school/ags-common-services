@@ -8,6 +8,7 @@ import com.asg.common.lib.dto.response.StockDetailsResponse;
 import com.asg.common.lib.dto.response.TaxCalculationResponseDto;
 import com.asg.common.services.dto.AddressDetailsListResponseDto;
 import com.asg.common.services.dto.AddressPoidResponseDto;
+import com.asg.common.services.dto.CreditDaysReponseDto;
 import com.asg.common.services.dto.CurrencyRateResponseDto;
 
 import java.math.BigDecimal;
@@ -71,4 +72,8 @@ public interface CommonDataService {
             BigDecimal addressPoid
     );
 
+    CreditDaysReponseDto fetchCreditDaysByCustomerPoid(
+            Long customerPoid,
+            String blType
+    );
 }
