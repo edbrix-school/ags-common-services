@@ -2,7 +2,7 @@ package com.asg.common.services.service;
 
 import com.asg.common.services.dto.IsoPolicyAccessRequestDto;
 import com.asg.common.services.dto.IsoPolicyAccessResponseDto;
-import com.asg.common.services.dto.IsoPolicyDocumentDto;
+import com.asg.common.services.dto.IsoPolicyCategoryFolderDto;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ import java.util.List;
 public interface IsoPolicyAccessService {
 
     /**
-     * The ISO documents and policies published to the logged-in employee, each carrying its
-     * attachments — the document is the folder, its attachments are the files. Expired documents are
-     * excluded unless {@code includeExpired}.
+     * The ISO documents and policies published to the logged-in employee, grouped into category
+     * folders — each folder holds every file from the documents in that category. Expired documents
+     * are excluded unless {@code includeExpired}.
      */
-    List<IsoPolicyDocumentDto> getMyDocuments(boolean includeExpired);
+    List<IsoPolicyCategoryFolderDto> getMyDocuments(boolean includeExpired);
 
     /**
      * Appends one Access Log event for a single file: an open writes an {@code Accessed} row, an

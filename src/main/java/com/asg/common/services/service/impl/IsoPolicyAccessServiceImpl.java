@@ -5,6 +5,7 @@ import com.asg.common.lib.security.util.UserContext;
 import com.asg.common.services.dto.IsoPolicyAccessRequestDto;
 import com.asg.common.services.dto.IsoPolicyAccessResponseDto;
 import com.asg.common.services.dto.IsoPolicyAttachmentDto;
+import com.asg.common.services.dto.IsoPolicyCategoryFolderDto;
 import com.asg.common.services.dto.IsoPolicyDocumentDto;
 import com.asg.common.services.enums.IsoPolicyLogType;
 import com.asg.common.services.service.IsoPolicyAccessService;
@@ -19,13 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +60,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
     private static final String RESOURCE = "ISO Document / Policy";
     private static final String ATTACHMENT = "Attachment";
     private static final String YES = "Y";
+    private static final String UNCATEGORISED = "Uncategorised";
 
     /**
      * Who may see a document, as one predicate over {@code h} — bound to :employeePoid and
@@ -206,6 +207,22 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
             """;
 
     /**
+     * Whether this employee already has an {@code Acknowledged} row for this file at this exact
+     * version. Guards against a second acknowledgement of the same version — {@code DOC_VERSION} is
+     * part of the match so a new version still lets a fresh acknowledgement through.
+     */
+    private static final String SQL_ACK_EXISTS = """
+            SELECT 1
+              FROM ADMIN_ISO_COMP_POLICY_LOG_DTL
+             WHERE TRANSACTION_POID = :transactionPoid
+               AND EMPLOYEE_POID    = :employeePoid
+               AND ATTACHMENT_ID    = :attachmentId
+               AND UPPER(LOG_TYPE)  = 'ACKNOWLEDGED'
+               AND DOC_VERSION      = :docVersion
+             FETCH FIRST 1 ROWS ONLY
+            """;
+
+    /**
      * Appends one event. DET_ROW_ID comes from a sequence, not MAX+1: this table is written by every
      * employee opening every file, and two concurrent opens computing MAX+1 would collide on the
      * primary key. The values need not be contiguous — it is a log.
@@ -236,16 +253,16 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
     }
 
     /**
-     * The employee's visible documents, each carrying its files. The widget's tree is two levels —
-     * document (folder) -> attachment (file) — so this returns a flat list of documents and does not
-     * group them under a Category folder.
+     * The Home page Documents widget: category folders, each holding every file from the documents in
+     * that category. The tree is two levels — category (folder) -> attachment (file); the documents
+     * are collapsed away, their files lifted directly under the category.
      * <p>
      * Each file carries this employee's own access and acknowledgement state, aggregated from the
-     * event log.
+     * event log. Expired documents are excluded unless {@code includeExpired}.
      */
     @Override
     @Transactional(readOnly = true)
-    public List<IsoPolicyDocumentDto> getMyDocuments(boolean includeExpired) {
+    public List<IsoPolicyCategoryFolderDto> getMyDocuments(boolean includeExpired) {
         // A login with no employee record — an admin, say — simply owns no documents. The Home
         // widget renders empty rather than erroring.
         Optional<Employee> caller = findEmployee();
@@ -261,8 +278,28 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
 
         List<IsoPolicyDocumentDto> documents = rows.stream().map(this::toDocumentDto).toList();
         attachFiles(documents, me);
-        documents.forEach(this::rollUpAcknowledgement);
-        return documents;
+
+        // Lift every document's files up under its category. The document query is already ordered by
+        // CATEGORY then CREATED_DATE DESC, so a LinkedHashMap keeps the folders and their files in that
+        // order. Per-file acknowledgement state was set in toAttachmentDto against the file's own
+        // document version, so it survives the flattening.
+        Map<String, List<IsoPolicyAttachmentDto>> byCategory = new LinkedHashMap<>();
+        for (IsoPolicyDocumentDto document : documents) {
+            String category = document.getCategory() == null ? UNCATEGORISED : document.getCategory();
+            byCategory.computeIfAbsent(category, k -> new ArrayList<>()).addAll(document.getAttachments());
+        }
+
+        return byCategory.entrySet().stream().map(entry -> {
+            List<IsoPolicyAttachmentDto> files = entry.getValue();
+            IsoPolicyCategoryFolderDto folder = new IsoPolicyCategoryFolderDto();
+            folder.setCategoryCode(entry.getKey());
+            folder.setCategory(entry.getKey());
+            folder.setAttachments(files);
+            folder.setAttachmentCount(files.size());
+            folder.setAcknowledgementPendingCount(
+                    (int) files.stream().filter(IsoPolicyAttachmentDto::isAcknowledgementPending).count());
+            return folder;
+        }).toList();
     }
 
     @Override
@@ -282,11 +319,21 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
         String acknowledgementRequired = toStr(header[0]);
         String docVersion = toStr(header[1]);
 
-        if (logType == IsoPolicyLogType.Acknowledged && !YES.equalsIgnoreCase(acknowledgementRequired)) {
-            // IllegalArgumentException, not the lib's ValidationException: this service's
-            // GlobalExceptionHandler maps jakarta.xml.bind.ValidationException, so the lib one
-            // would fall through to the 500 handler instead of returning 400.
-            throw new IllegalArgumentException("This document does not require acknowledgement");
+        if (logType == IsoPolicyLogType.Acknowledged) {
+            if (!YES.equalsIgnoreCase(acknowledgementRequired)) {
+                // IllegalArgumentException, not the lib's ValidationException: this service's
+                // GlobalExceptionHandler maps jakarta.xml.bind.ValidationException, so the lib one
+                // would fall through to the 500 handler instead of returning 400.
+                throw new IllegalArgumentException("This document does not require acknowledgement");
+            }
+            // A file is acknowledged once per version. A second acknowledgement of the same version is
+            // rejected rather than appended, so the log cannot show one employee acknowledging one file
+            // twice at the same version. The version qualifier is deliberate: after the admin publishes
+            // a new version the employee owes a fresh acknowledgement, and that one must go through.
+            if (alreadyAcknowledged(transactionPoid, me.employeePoid(), attachmentId, docVersion)) {
+                throw new IllegalArgumentException("This file has already been acknowledged at version "
+                        + docVersion);
+            }
         }
 
         // Proves the file is live and belongs to this document, and gives us the name to snapshot.
@@ -357,35 +404,6 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
     }
 
     /**
-     * Rolls the per-file acknowledgement state up to the document. The document is acknowledged only
-     * when every one of its files is acknowledged at the current version; it is pending when any file
-     * is still outstanding.
-     * <p>
-     * A document with no files is neither: there is nothing to read, so it is not counted as owed.
-     */
-    private void rollUpAcknowledgement(IsoPolicyDocumentDto document) {
-        List<IsoPolicyAttachmentDto> files = document.getAttachments();
-
-        document.setLastAccessedTime(files.stream()
-                .map(IsoPolicyAttachmentDto::getLastAccessedTime)
-                .filter(Objects::nonNull)
-                .max(Comparator.naturalOrder())
-                .orElse(null));
-
-        if (!document.isAcknowledgementRequired() || files.isEmpty()) {
-            document.setAcknowledged(false);
-            document.setAcknowledgementPending(false);
-            document.setAcknowledgementPendingCount(0);
-            return;
-        }
-
-        int pending = (int) files.stream().filter(IsoPolicyAttachmentDto::isAcknowledgementPending).count();
-        document.setAcknowledgementPendingCount(pending);
-        document.setAcknowledgementPending(pending > 0);
-        document.setAcknowledged(pending == 0);
-    }
-
-    /**
      * Resolves the logged-in application user to their employee within the token's tenant, so an
      * event is always recorded against the caller and never against a caller-supplied employee id.
      */
@@ -449,6 +467,17 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
             throw new ResourceNotFoundException(ATTACHMENT, "attachmentId", attachmentId);
         }
         return toStr(rows.get(0));
+    }
+
+    private boolean alreadyAcknowledged(Long transactionPoid, Long employeePoid, Long attachmentId,
+                                        String docVersion) {
+        return !entityManager.createNativeQuery(SQL_ACK_EXISTS)
+                .setParameter("transactionPoid", transactionPoid)
+                .setParameter("employeePoid", employeePoid)
+                .setParameter("attachmentId", attachmentId)
+                .setParameter("docVersion", docVersion)
+                .getResultList()
+                .isEmpty();
     }
 
     private IsoPolicyDocumentDto toDocumentDto(Object[] row) {

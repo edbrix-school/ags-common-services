@@ -7,16 +7,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * One ISO document or policy as it appears to an employee in the Home page Documents widget.
- * <p>
- * The document <b>is</b> the folder — the widget has two levels, not three: document (folder) ->
- * attachment (file). There is deliberately no category folder above it.
+ * One ISO document or policy visible to an employee. This is an <b>internal</b> carrier, not a node
+ * in the Home page widget: the widget groups by category (folder) -> attachment (file), so a
+ * document is only the intermediate that ties its files to a category and a version. Its attachments
+ * are lifted out and grouped under their category folder; the document itself is not serialised.
  */
 @Data
 public class IsoPolicyDocumentDto {
-
-    /** Discriminator for the widget's tree: this node renders as a folder. */
-    private final String type = "folder";
 
     private Long transactionPoid;
     private String docRef;
