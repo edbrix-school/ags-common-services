@@ -120,15 +120,23 @@ public class AttachmentServiceImpl implements AttachmentService {
 
                 Long newSeq = maxSeq + 1L;
 
+                Long ediJobPoid = (attachEDI && attachmentEDIJobPoid != null) ? attachmentEDIJobPoid : 0L;
+
                 attachmentRepository.insertAttachment(
                         groupPoid, companyPoid, docId, docKeyPoid, newSeq,
                         originalName, remarks, checklistName, createdBy,
-                        storedName, attachEDI ? attachmentEDIJobPoid : 0L
+                        storedName, ediJobPoid
                 );
 
                 if (attachEDI) {
-                    String loginUser = UserContext.getUserId() != null ? UserContext.getUserId() : "82";
-                    callEdiProc(groupPoid, companyPoid, docId, docKeyPoid, attachmentEDIJobPoid, loginUser);
+                    // File is already uploaded/inserted at this point; a failure in EDI
+                    // processing must be reported without discarding the successful upload.
+                    try {
+                        triggerEdi(docKeyPoid);
+                    } catch (Exception ediEx) {
+                        log.error("EDI processing failed for docKeyPoid {}: {}", docKeyPoid, ediEx.getMessage(), ediEx);
+                        errors.add("File uploaded but EDI processing failed for " + originalName + ": " + ediEx.getMessage());
+                    }
                 }
 
                 uploaded.add(buildDto(docId, docKeyPoid, newSeq, originalName, storedName, remarks, checklistName, String.valueOf(createdBy != null ? createdBy : getUserPoid()), new Date(), true));
@@ -526,7 +534,9 @@ public class AttachmentServiceImpl implements AttachmentService {
             try (CallableStatement cs = conn.prepareCall("{call PROC_ATTACHMENTS_EDI_PROC_NEW(?, ?, ?, ?, ?, ?, ?)}")) {
                 Long groupPoid = UserContext.getCurrentUser() != null ? UserContext.getCurrentUser().getUserPoid() : 1L;
                 Long companyPoid = 1L;
-                String loginUser = UserContext.getUserId() != null ? UserContext.getUserId() : "82";
+                // PROC_UPDATE_LOG_SUMMARY expects a numeric user id, so pass the user POID
+                // (not the login name, which would fail with ORA-06502 char-to-number).
+                String loginUser = UserContext.getUserPoid() != null ? String.valueOf(UserContext.getUserPoid()) : "82";
 
                 cs.setLong(1, groupPoid);
                 cs.setLong(2, companyPoid);
@@ -671,11 +681,6 @@ public class AttachmentServiceImpl implements AttachmentService {
             case DELETED -> dto.isDeleted();
             case ALL -> true;
         };
-    }
-
-    private String callEdiProc(Long groupPoid, Long companyPoid, String docId, Long docKeyPoid, Long ediJobPoid, String loginUser) {
-        // Placeholder for actual logic
-        return "SUCCESS";
     }
 
     /** Strips all leading ddMMyyyyHHmm_ timestamp prefixes from a filename. */
