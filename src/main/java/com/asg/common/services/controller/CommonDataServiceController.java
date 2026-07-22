@@ -319,7 +319,7 @@ public class CommonDataServiceController {
             @RequestParam Long customerPoid,
 
             @Parameter(description = "BL Type", required = false, example = "IMPORT")
-            @RequestParam(required = false, defaultValue = "IMPORT") String blType
+            @RequestParam(required = false, defaultValue = "BOTH") String blType
     ) {
         CreditDaysReponseDto response = glMasterService.fetchCreditDaysByCustomerPoid(
                 customerPoid,
