@@ -9,6 +9,7 @@ public class UploadResponse {
     private final List<AttachmentDto> uploadedFiles;
     private final List<String> errors;
     private final boolean hasErrors;
+    private String ediResult;
 
     public UploadResponse(List<AttachmentDto> uploadedFiles, List<String> errors) {
         this.uploadedFiles = uploadedFiles;

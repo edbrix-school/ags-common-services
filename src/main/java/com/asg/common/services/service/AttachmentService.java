@@ -60,7 +60,7 @@ public interface AttachmentService {
     String resolveContentType(String filename);
 
     // -------------------- EDI --------------------
-    void triggerEdi(Long docKeyPoid);
+    String triggerEdi(Long docKeyPoid, Long jobPoid);
 
     String getBasePath();
 

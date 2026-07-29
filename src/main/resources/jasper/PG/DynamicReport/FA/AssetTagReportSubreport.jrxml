@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AssetTagReportSubreport" language="groovy" columnCount="2" pageWidth="595" pageHeight="99" columnWidth="297" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="b84dcdd2-5586-4d40-9cf8-58192c4f5975">
+	<property name="ireport.zoom" value="1.9487171000000014"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="P_RPT_SELECTED_VALUES_LIST" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT FAM.FA_POID,FAM.FA_CODE,FAM.FA_DESCRIPTION AS DESCRIPTION,
+       CASE WHEN HEM.EMPLOYEE_NAME IS NOT NULL THEN HEM.EMPLOYEE_NAME
+            WHEN HEM.EMPLOYEE_NAME IS NULL THEN FAM.FA_OWNER
+       END AS OWNER,FAM.WARRANTY_PERIOD,NVL(ASM.SUPPLIER_NAME,FAM.AMC_SUPPLIER) AS AMC_SUPPLIER,FAM.LOCATION_POID,
+FAM.PURCHASE_DATE, FAM.SERIAL_NO, FAM.MODEL_NO,ADD_MONTHS(FAM.PURCHASE_DATE,FAM.WARRANTY_PERIOD) AS EXP_DATE,FAM.BRAND
+FROM FIXED_ASSET_MASTER FAM
+LEFT JOIN FIXED_ASSET_CATEGORY_MASTER CM ON FAM.FA_CATEGORY_POID = CM.FA_CATEGORY_POID
+LEFT JOIN HR_EMPLOYEE_MASTER HEM ON HEM.EMPLOYEE_POID=FAM.EMPLOYEE_POID
+LEFT JOIN AP_SUPPLIER_MASTER ASM ON ASM.SUPPLIER_POID=FAM.SUPPLIER_POID
+WHERE FAM.FA_POID IN(SELECT * FROM TABLE(FUNC_GLOB_SPLIT_STRING($P{P_RPT_SELECTED_VALUES_LIST},','))) AND CM.ASSET_TYPE='OFFICE_EQUIPMENTS'
+      AND NVL(FAM.ACTIVE,'Y')='Y'
+      AND FAM.COMPANY_POID LIKE (CASE WHEN 999 IS NULL OR 999 = 999 THEN '%'
+                                 ELSE TO_CHAR(999) END )
+ORDER BY FAM.LOCATION_POID ASC ,FAM.FA_DESCRIPTION DESC]]>
+	</queryString>
+	<field name="FA_POID" class="java.math.BigDecimal"/>
+	<field name="FA_CODE" class="java.lang.String"/>
+	<field name="DESCRIPTION" class="java.lang.String"/>
+	<field name="OWNER" class="java.lang.String"/>
+	<field name="WARRANTY_PERIOD" class="java.lang.String"/>
+	<field name="AMC_SUPPLIER" class="java.lang.String"/>
+	<field name="LOCATION_POID" class="java.math.BigDecimal"/>
+	<field name="PURCHASE_DATE" class="java.sql.Timestamp"/>
+	<field name="SERIAL_NO" class="java.lang.String"/>
+	<field name="MODEL_NO" class="java.lang.String"/>
+	<field name="EXP_DATE" class="java.sql.Timestamp"/>
+	<field name="BRAND" class="java.lang.String"/>
+	<detail>
+		<band height="99" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="9" y="10" width="90" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="98d35344-46e8-4c35-b155-a1ab058b45bf"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FA_CODE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="9" y="25" width="58" height="12" forecolor="#000000" uuid="eef95f8f-8744-4b8a-9957-57b1f68eb14b"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Description ]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="74" y="25" width="196" height="12" forecolor="#000000" uuid="beaa8a81-33b6-4031-9a7b-635874ec7231"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement mode="Transparent" x="9" y="5" width="265" height="87" forecolor="#000000" uuid="b614c493-5994-4554-ab0b-8582611fd58b"/>
+				<graphicElement>
+					<pen lineWidth="1.75" lineStyle="Double"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="9" y="37" width="58" height="12" forecolor="#000000" uuid="7acacd16-a3e1-4d85-8364-7e47f827be45"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[User ]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="74" y="37" width="196" height="12" forecolor="#000000" uuid="38f9636d-b60c-45cf-973b-036a86d6278b"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{OWNER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="9" y="48" width="58" height="12" forecolor="#000000" uuid="f5df1474-791a-4693-8ca3-3ec9857a8706"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Serial No ]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="74" y="48" width="196" height="12" forecolor="#000000" uuid="9bdfa9c6-577b-4441-8e6e-14eb778bafb7"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SERIAL_NO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="9" y="60" width="58" height="12" forecolor="#000000" uuid="689a7e7b-e44c-40d2-a33d-c13fb19485eb"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Purchase Date ]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="74" y="60" width="58" height="12" forecolor="#000000" uuid="3be88972-384f-43ed-af3d-0293b0629b3b"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+					<paragraph leftIndent="1"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PURCHASE_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="132" y="60" width="58" height="12" forecolor="#000000" uuid="f625f659-4ea3-424e-9dd2-a7f38f6ee698"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Warranty Till :]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="190" y="60" width="80" height="12" forecolor="#000000" uuid="a5624067-5f4a-4a17-afe2-7b0fafe8294e"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EXP_DATE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="66" y="25" width="7" height="12" forecolor="#000000" uuid="9480e73e-52c1-4ba2-99a9-30feb5f5d560"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="66" y="37" width="7" height="12" forecolor="#000000" uuid="e842973c-d26f-435f-b5e3-d21267656d28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="66" y="48" width="7" height="12" forecolor="#000000" uuid="3b47d22e-bd5a-42a6-b139-e54e66edebec"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="66" y="60" width="7" height="12" forecolor="#000000" uuid="440f1554-ec7e-4bb7-8b66-b7d67a482cdd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="71" width="58" height="12" forecolor="#000000" uuid="98c13104-f0fb-4369-b489-195d4e5c1090"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[AMC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="66" y="71" width="7" height="12" forecolor="#000000" uuid="0025da94-efe9-4fed-b2d4-d8d005e397e3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="74" y="71" width="196" height="12" forecolor="#000000" uuid="f96fe568-f9d2-49be-861f-2d2e97c5a00c"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{AMC_SUPPLIER}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement mode="Transparent" x="195" y="13" width="75" height="12" forecolor="#FF0000" backcolor="#FFFFFF" uuid="e04f6e4e-0960-41ab-9f8d-dda04c5c233b"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="false" checksumRequired="false" barHeight="35">
+					<jr:codeExpression><![CDATA[$F{FA_POID}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

@@ -22,7 +22,7 @@
     <queryString>
         <![CDATA[SELECT COMPANY_POID, COMPANY_NAME, ADDRESS, LOGO_IMAGE
 FROM GLOBAL_COMPANY_MASTER
-WHERE COMPANY_POID =  $P{LOGIN_COMP_POID}]]>
+WHERE COMPANY_POID =  CAST($P{LOGIN_COMP_POID} AS numeric)]]>
     </queryString>
     <field name="COMPANY_POID" class="java.math.BigDecimal"/>
     <field name="COMPANY_NAME" class="java.lang.String"/>

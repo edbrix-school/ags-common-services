@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="51f26c1c-332c-43f0-beb9-5722768520c7">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#E6DAC3"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="LOGIN_COMP_POID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGIN_USER_ID" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["\\\\10.100.1.24\\adflibrary\\deployed\\Reports\\Templates\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGIN_COMP_NAME" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Company Name"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="REPORT_NAME" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Report Name"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="REPORT_FILTERS" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="REPORT_DATE" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[SELECT COMPANY_POID, COMPANY_NAME, ADDRESS, LOGO_IMAGE
+FROM GLOBAL_COMPANY_MASTER]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<textField>
+				<reportElement x="307" y="25" width="248" height="21" uuid="04209bf3-7d92-4d39-8544-d5220c75973a"/>
+				<textElement textAlignment="Right">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="555" height="46" uuid="85ad36a0-203e-43c5-9f7d-45ef483a2ebb"/>
+				<textElement verticalAlignment="Middle">
+					<font size="24"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{LOGIN_COMP_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="55" width="555" height="20" uuid="e5f93424-5ed8-48a1-a00e-2ba25ed975b9"/>
+				<textElement>
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_FILTERS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="21" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="555" height="1" uuid="9ec55f57-eda0-48ce-a06e-ffab81edbcc6"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="28" splitType="Prevent">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="15" uuid="6979ffce-27d2-4b83-82e4-886c2188c707"/>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="12" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1" uuid="d289b3ef-2b1e-48fd-b978-d9a4aded8371"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="24" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="24" forecolor="#D0B48E" backcolor="#F2EBDF" uuid="8b1180ce-6a31-4b82-b985-f1fd348cce31"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="515" y="0" width="40" height="20" forecolor="#736343" uuid="8604751d-7ff5-4237-9dee-51e29b91227a"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="435" y="0" width="80" height="20" forecolor="#736343" uuid="0b31d69c-cec1-46a4-a09d-30b993d5509a"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="0" y="0" width="197" height="20" forecolor="#736343" uuid="01f830d4-0446-4fc5-8cf6-3a69a838af6a"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

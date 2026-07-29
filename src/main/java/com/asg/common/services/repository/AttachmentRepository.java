@@ -26,9 +26,9 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
             @Param("P_FILE_NAME") String fileName,
             @Param("P_FILE_REMARKS") String remarks,
             @Param("P_CHECKLIST_NAME") String checklistName,
-            @Param("P_USER_POID") Long createdBy,
+            @Param("P_CREATED_BY") String createdBy,
             @Param("P_FILE_NAME_MAPPED") String fileNameMapped,
-            @Param("P_ATTACHMENT_EDI_JOB_POID") Long attachmentEDIJobPoid
+            @Param("P_JOB_POID") Long jobPoid
     );
 
     // -------------------- UPDATE REMARKS / CHECKLIST --------------------
@@ -71,26 +71,13 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
     @org.springframework.data.jpa.repository.Modifying
     void activateAttachment(@Param("docId") String docId, @Param("docKeyPoid") Long docKeyPoid, @Param("fileNameMapped") String fileNameMapped);
 
-    // -------------------- LOAD ACTIVE ATTACHMENTS --------------------
-    @Procedure(procedureName = "PROC_ATTACHMENTS_LOADLIST_ALL")
-    List<Attachment> loadAttachments(
-            @Param("P_GROUP_POID") Long groupPoid,
-            @Param("P_COMPANY_POID") Long companyPoid,
-            @Param("P_DOC_ID") String docId,
-            @Param("P_DOC_KEY_POID") Long docKeyPoid,
-            @Param("P_PARAMETERS") String parameters // optional, can pass null
-    );
-
     // -------------------- CHECKLIST VALUES --------------------
-    @Procedure(procedureName = "PROC_ATTACHMENTS_LOADCHECKLIST")
-    List<String> loadChecklistValues(@Param("P_DOC_ID") String docId);
-    
     @Query(value = "SELECT ATTACHMENT_CHECKLIST FROM GLOBAL_DOC_MASTER WHERE DOC_ID = :docId AND ACTIVE = 'Y' AND (DELETED = 'N' OR DELETED IS NULL)", nativeQuery = true)
     String getAttachmentChecklistRaw(@Param("docId") String docId);
 
     @Query(value = "SELECT DOC_SHORT_NAME FROM GLOBAL_DOC_MASTER WHERE DOC_ID = :docId AND ACTIVE = 'Y' AND (DELETED = 'N' OR DELETED IS NULL)", nativeQuery = true)
     String getDocShortName(@Param("docId") String docId);
-    
+
     default List<String> getChecklistFromGlobalDocMaster(String docId) {
         String checklistStr = getAttachmentChecklistRaw(docId);
         if (checklistStr == null || checklistStr.trim().isEmpty()) {
@@ -102,11 +89,12 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
                 .collect(Collectors.toList());
     }
 
-    // -------------------- HELPER --------------------
+    @Query(value = "SELECT VOYAGE_TRANSACTION_POID FROM SHIP_BL_MANIFEST_HDR WHERE TRANSACTION_POID = :blPoid AND ROWNUM = 1", nativeQuery = true)
+    Long findVoyagePoidByBlPoid(@Param("blPoid") Long blPoid);
+
     @Query("SELECT a FROM Attachment a WHERE a.docId = :docId AND a.docKeyPoid = :docKeyPoid AND a.fileNameMapped = :fileNameMapped AND (a.active IS NULL OR a.active = 'Y') AND (a.deleted IS NULL OR a.deleted = 'N')")
     Optional<Attachment> findByDocIdAndDocKeyPoidAndFileNameMapped(@Param("docId") String docId, @Param("docKeyPoid") Long docKeyPoid, @Param("fileNameMapped") String fileNameMapped);
-    
+
     @Query("SELECT a FROM Attachment a WHERE a.docId = :docId AND a.docKeyPoid = :docKeyPoid AND a.fileNameMapped = :fileNameMapped AND (a.deleted IS NULL OR a.deleted = 'N')")
     Optional<Attachment> findByDocIdAndDocKeyPoidAndFileNameMappedForArchive(@Param("docId") String docId, @Param("docKeyPoid") Long docKeyPoid, @Param("fileNameMapped") String fileNameMapped);
 }
-

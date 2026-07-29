@@ -27,17 +27,17 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.Types;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.asg.common.lib.security.util.UserContext.getUserId;
 
 @Slf4j
 @Service
@@ -65,8 +65,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         return basePath;
     }
 
-    // private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_LOCAL_DATE_TIME; // Not used in attachment functionality
-
     // UPLOAD FILES
     @Override
     @Transactional
@@ -85,6 +83,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         List<AttachmentDto> uploaded = new ArrayList<>();
         List<String> errors = new ArrayList<>();
+        String[] ediResultHolder = {null};
 
         for (MultipartFile file : files) {
             String originalName = sanitizeFilename(file.getOriginalFilename());
@@ -120,19 +119,17 @@ public class AttachmentServiceImpl implements AttachmentService {
 
                 Long newSeq = maxSeq + 1L;
 
-                Long ediJobPoid = (attachEDI && attachmentEDIJobPoid != null) ? attachmentEDIJobPoid : 0L;
-
                 attachmentRepository.insertAttachment(
                         groupPoid, companyPoid, docId, docKeyPoid, newSeq,
-                        originalName, remarks, checklistName, createdBy,
-                        storedName, ediJobPoid
+                        originalName, remarks, checklistName,
+                        createdBy != null ? String.valueOf(createdBy) : getUserId(),
+                        storedName,
+                        (attachEDI && attachmentEDIJobPoid != null) ? attachmentEDIJobPoid : 0L
                 );
 
                 if (attachEDI) {
-                    // File is already uploaded/inserted at this point; a failure in EDI
-                    // processing must be reported without discarding the successful upload.
                     try {
-                        triggerEdi(docKeyPoid);
+                        ediResultHolder[0] = triggerEdi(docKeyPoid, attachmentEDIJobPoid);
                     } catch (Exception ediEx) {
                         log.error("EDI processing failed for docKeyPoid {}: {}", docKeyPoid, ediEx.getMessage(), ediEx);
                         errors.add("File uploaded but EDI processing failed for " + originalName + ": " + ediEx.getMessage());
@@ -152,7 +149,9 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
         }
 
-        return new UploadResponse(uploaded, errors);
+        UploadResponse response = new UploadResponse(uploaded, errors);
+        response.setEdiResult(ediResultHolder[0]);
+        return response;
     }
 
 
@@ -374,7 +373,6 @@ public class AttachmentServiceImpl implements AttachmentService {
                     throw new ResourceNotFoundException("Attachment", "seqNo", u.getSeqNo().toString());
                 }
             }
-            // -------- FIX : Resolve filename by seqNo only --------
             AttachmentDto existingAttachment = getAttachmentBySeqNo(
                     actualDocId,
                     u.getDocKeyPoid(),
@@ -427,16 +425,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         entityManager.flush();
     }
 
-    /*@Override
-    @Transactional
-    public void updateSeqNo(String docId, Long docKeyPoid, List<UpdateSeqRequest> updates) {
-        validateDoc(docId, docKeyPoid);
-
-        for (UpdateSeqRequest u : updates) {
-            attachmentRepository.updateSeqNo(getGroupPoid(), 1L, docId, docKeyPoid,
-                    u.getFileNameMapped(), u.getNewSeqNo());
-        }
-    }*/
     
     @Override
     @Transactional(readOnly = true)
@@ -468,10 +456,6 @@ public class AttachmentServiceImpl implements AttachmentService {
             return dmsClient.downloadFromDms(documentId, attachment.getFileName(), authToken);
         }
 
-        // Fallback: legacy local file system
-        if (attachmentsPath == null || attachmentsPath.trim().isEmpty()) {
-            throw new AsgException("AttachmentsPath is missing for login company", 500);
-        }
         File file;
         if (mappedFileName.contains(".")) {
             file = new File(attachmentsPath, mappedFileName);
@@ -523,36 +507,49 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     // EDI TRIGGER
     @Override
-    @Transactional
-    public void triggerEdi(Long docKeyPoid) {
-        if (docKeyPoid == null || docKeyPoid <= 0) return;
+    public String triggerEdi(Long docKeyPoid, Long jobPoid) {
+        if (docKeyPoid == null || docKeyPoid <= 0) return null;
 
         try {
-            Session session = entityManager.unwrap(Session.class);
-            Connection conn = session.doReturningWork(c -> c);
+            Long groupPoid = getGroupPoid();
+            Long companyPoid = 1L;
+            String loginUser = UserContext.getUserPoid() != null ? String.valueOf(UserContext.getUserPoid()) : "82";
 
-            try (CallableStatement cs = conn.prepareCall("{call PROC_ATTACHMENTS_EDI_PROC_NEW(?, ?, ?, ?, ?, ?, ?)}")) {
-                Long groupPoid = UserContext.getCurrentUser() != null ? UserContext.getCurrentUser().getUserPoid() : 1L;
-                Long companyPoid = 1L;
-                // PROC_UPDATE_LOG_SUMMARY expects a numeric user id, so pass the user POID
-                // (not the login name, which would fail with ORA-06502 char-to-number).
-                String loginUser = UserContext.getUserPoid() != null ? String.valueOf(UserContext.getUserPoid()) : "82";
-
-                cs.setLong(1, groupPoid);
-                cs.setLong(2, companyPoid);
-                cs.setString(3, "100-101");
-                cs.setLong(4, docKeyPoid);
-                cs.setLong(5, docKeyPoid);
-                cs.registerOutParameter(6, Types.VARCHAR);
-                cs.setString(7, loginUser);
-
-                cs.execute();
-
-                String status = cs.getString(6);
-                if (status != null && status.contains("ERROR")) {
-                    throw new AsgException("EDI failed: " + status, 500);
-                }
+            // P_JOB_POID must be the voyage poid — look it up from BL manifest if not provided
+            Long resolvedJobPoid = jobPoid;
+            if (resolvedJobPoid == null) {
+                resolvedJobPoid = attachmentRepository.findVoyagePoidByBlPoid(docKeyPoid);
             }
+            if (resolvedJobPoid == null) {
+                resolvedJobPoid = docKeyPoid; // last resort fallback
+            }
+
+            log.info("Triggering EDI: docKeyPoid={}, resolvedJobPoid={}, loginUser={}", docKeyPoid, resolvedJobPoid, loginUser);
+
+            final Long finalJobPoid = resolvedJobPoid;
+            final String[] result = {null};
+
+            Session session = entityManager.unwrap(Session.class);
+            session.doWork(conn -> {
+                try (CallableStatement cs = conn.prepareCall("{call PROC_ATTACHMENTS_EDI_PROC_NEW(?, ?, ?, ?, ?, ?, ?)}")) {
+                    cs.setLong(1, groupPoid);
+                    cs.setLong(2, companyPoid);
+                    cs.setString(3, "100-101");
+                    cs.setLong(4, docKeyPoid);
+                    cs.setLong(5, finalJobPoid);
+                    cs.registerOutParameter(6, Types.VARCHAR);
+                    cs.setString(7, loginUser);
+                    cs.execute();
+                    result[0] = cs.getString(6);
+                }
+            });
+
+            if (result[0] != null && result[0].contains("ERROR")) {
+                throw new AsgException("EDI failed: " + result[0], 500);
+            }
+            return result[0];
+        } catch (AsgException e) {
+            throw e;
         } catch (Exception e) {
             throw new AsgException("EDI error: " + e.getMessage(), 500, e);
         }
@@ -582,28 +579,16 @@ public class AttachmentServiceImpl implements AttachmentService {
 
 
     private String resolveAttachmentsPath(String docId) {
-        if ("Masters".equals(docId)) {
-            return basePath;
-        } else {
-            // For other document types, use basePath as fallback
-            // In production, this would query parameter table for company-specific path
-            return basePath;
-        }
+        return basePath;
     }
 
     // ================== Helper Methods ==================
     private Long getGroupPoid() {
-        return UserContext.getCurrentUser() != null
-                ? UserContext.getCurrentUser().getUserPoid()
-                : 1L;
+        return UserContext.getGroupPoid() != null ? UserContext.getGroupPoid() : 1L;
     }
 
     private Long getUserPoid() {
         return UserContext.getUserPoid() != null ? UserContext.getUserPoid() : 1L;
-    }
-
-    private String getUserId() {
-        return UserContext.getUserId() != null ? UserContext.getUserId() : "82";
     }
 
     private void validateDocId(String docId) {
@@ -662,14 +647,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         d.setCreatedDate(row[9] != null ? row[9].toString() : null);
         d.setStoredFileName(row[10] != null ? row[10].toString() : null);
         
-        // Map ACTIVE and DELETED columns (now available from native query)
         String activeValue = row.length > 11 && row[11] != null ? row[11].toString().trim() : null;
         String deletedValue = row.length > 12 && row[12] != null ? row[12].toString().trim() : null;
-
-        // ACTIVE: 'Y' = true, 'N' = false, null = true (default active)
         d.setActive(activeValue == null || "Y".equalsIgnoreCase(activeValue));
-        
-        // DELETED: 'Y' = true, 'N' or null = false
         d.setDeleted("Y".equalsIgnoreCase(deletedValue));
 
         return d;
@@ -683,10 +663,8 @@ public class AttachmentServiceImpl implements AttachmentService {
         };
     }
 
-    /** Strips all leading ddMMyyyyHHmm_ timestamp prefixes from a filename. */
     private String stripTimestampPrefixes(String fileName) {
         if (fileName == null) return null;
-        // Pattern: 12 digits followed by underscore (ddMMyyyyHHmm_)
         while (fileName.matches("^\\d{12}_.*")) {
             fileName = fileName.substring(13);
         }
