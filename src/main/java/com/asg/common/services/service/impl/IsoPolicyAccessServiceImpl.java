@@ -497,6 +497,9 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
 
     private IsoPolicyAttachmentDto toAttachmentDto(Object[] row, IsoPolicyDocumentDto document) {
         IsoPolicyAttachmentDto dto = new IsoPolicyAttachmentDto();
+        // The document is collapsed away by the category grouping, so its key rides on the file:
+        // without it the client has no transactionPoid to POST the access / acknowledgement against.
+        dto.setTransactionPoid(document.getTransactionPoid());
         dto.setAttachmentId(toLong(row[1]));
         dto.setFileName(toStr(row[2]));
         dto.setStoredFileName(toStr(row[3]));

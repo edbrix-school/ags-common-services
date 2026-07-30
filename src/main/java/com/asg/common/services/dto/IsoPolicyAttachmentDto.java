@@ -18,6 +18,14 @@ public class IsoPolicyAttachmentDto {
     private final String type = "file";
 
     /**
+     * The owning document ({@code ADMIN_ISO_COMP_POLICY_HDR.TRANSACTION_POID}). Carried on the file
+     * because the widget's tree collapses the document away — category folder -> file — so this node
+     * is the only place the client can learn which document the file belongs to. It is the path
+     * variable of the event-log endpoint: {@code POST /v1/iso-policy-access/{transactionPoid}}.
+     */
+    private Long transactionPoid;
+
+    /**
      * The attachment id ({@code GLOBAL_ATTACHMENTS.SEQNO}). Pass this back to the event-log endpoint
      * when recording an access or acknowledgement.
      */
