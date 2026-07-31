@@ -1,496 +1,502 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BillwiseLedgerStatementFC" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e283d998-408e-4292-94c4-1f2bdb88a025">
-	<property name="ireport.zoom" value="2.1435888100000025"/>
-	<property name="ireport.x" value="128"/>
-	<property name="ireport.y" value="10"/>
-	<subDataset name="GL_DESC" uuid="e667b798-0503-431d-9911-fefb33d97005">
-		<parameter name="GL_POID" class="java.lang.String"/>
-		<queryString>
-			<![CDATA[SELECT GL_CODE || ' / ' || GL_DESCRIPTION GL_DESC
+  <property name="ireport.zoom" value="2.1435888100000025"/>
+  <property name="ireport.x" value="128"/>
+  <property name="ireport.y" value="10"/>
+  <subDataset name="GL_DESC" uuid="e667b798-0503-431d-9911-fefb33d97005">
+    <parameter name="GL_POID" class="java.lang.String"/>
+    <queryString>
+      <![CDATA[SELECT GL_CODE || ' / ' || GL_DESCRIPTION GL_DESC
 FROM GL_MASTER
-WHERE GL_POID = $P{GL_POID}]]>
-		</queryString>
-		<field name="GL_DESC" class="java.lang.String"/>
-	</subDataset>
-	<subDataset name="ContactPerson" uuid="6b1d2bfe-50e2-4a88-9c03-00d3fbca3e74">
-		<parameter name="Company_poid" class="java.lang.String"/>
-		<queryString>
-			<![CDATA[SELECT COMPANY_CODE || ' / ' || COMPANY_NAME as COMPANY_NAME,CONTACT_PERSON
+WHERE GL_POID = $P{GL_POID}::numeric]]>
+    </queryString>
+    <field name="GL_DESC" class="java.lang.String"/>
+  </subDataset>
+  <subDataset name="ContactPerson" uuid="6b1d2bfe-50e2-4a88-9c03-00d3fbca3e74">
+    <parameter name="Company_poid" class="java.lang.String"/>
+    <queryString>
+      <![CDATA[SELECT COMPANY_CODE || ' / ' || COMPANY_NAME as COMPANY_NAME,CONTACT_PERSON
 FROM GLOBAL_COMPANY_MASTER
-WHERE COMPANY_POID =   $P{Company_poid}]]>
-		</queryString>
-		<field name="COMPANY_NAME" class="java.lang.String"/>
-		<field name="CONTACT_PERSON" class="java.lang.String"/>
-		<group name="group1">
-			<groupExpression><![CDATA[$P{Company_poid}]]></groupExpression>
-		</group>
-	</subDataset>
-	<parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="SUB_FOOTER" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="SUB_CONTACT" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="PERIOD_DATE" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="GL_POID" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="COMPANY_POID" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
-	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
-	</parameter>
-	<parameter name="PRINT_OPTION" class="java.lang.String"/>
-	<parameter name="LOGIN_COMP_POID" class="java.lang.String"/>
-	<parameter name="DOC_ID" class="java.lang.String"/>
-	<parameter name="AS_ON_DATE" class="java.lang.String"/>
-	<parameter name="DR_CR_OPTION" class="java.lang.String"/>
-	<parameter name="LINE" class="java.lang.String"/>
-	<parameter name="COST_POID" class="java.lang.String"/>
-	<parameter name="CUR_CODE" class="java.lang.String"/>
-	<parameter name="CUR_RATE" class="java.lang.String"/>
-	<queryString language="plsql">
-		<![CDATA[{call PROC_GL_BILLWISE_STMNT_FC_PRNT(
-			$P{COMPANY_POID_CSV}, 
-			$P{GL_POID}, $P{AS_ON_DATE}, $P{DR_CR_OPTION}, $P{PRINT_OPTION}, 
-			$P{LINE}, $P{COST_POID}, $P{CUR_CODE}, $P{CUR_RATE}, $P{ORACLE_REF_CURSOR}
-		)}]]>
-	</queryString>
-	<field name="DOC_COMPANY" class="java.lang.String"/>
-	<field name="DOC_COMPANY_NUM" class="java.math.BigDecimal"/>
-	<field name="DOC_DATE" class="java.lang.String"/>
-	<field name="DOC_ID" class="java.lang.String"/>
-	<field name="BILL_REF" class="java.lang.String"/>
-	<field name="REMARKS" class="java.lang.String"/>
-	<field name="BILL_AMT" class="java.math.BigDecimal"/>
-	<field name="DRCR" class="java.lang.String"/>
-	<field name="BAL_AMT" class="java.math.BigDecimal"/>
-	<field name="DR_CR" class="java.lang.String"/>
-	<field name="DUE_DATE" class="java.lang.String"/>
-	<field name="DUE_DAYS" class="java.math.BigDecimal"/>
-	<field name="FC_BILL_AMT" class="java.math.BigDecimal"/>
-	<field name="FC_BAL_AMT" class="java.math.BigDecimal"/>
-	<field name="RESULT" class="java.lang.String"/>
-	<field name="RESULT_STATUS" class="java.lang.String"/>
-	<field name="CURRENCY_CODE" class="java.lang.String"/>
-	<variable name="BILL_AMT_1" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
-		<variableExpression><![CDATA[$F{FC_BILL_AMT}]]></variableExpression>
-	</variable>
-	<variable name="BAL_AMT_1" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
-		<variableExpression><![CDATA[$F{FC_BAL_AMT}]]></variableExpression>
-	</variable>
-	<variable name="DR_CR_BILL" class="java.lang.String" resetType="Group" resetGroup="company">
-		<variableExpression><![CDATA[($V{BILL_AMT_1}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
-	</variable>
-	<variable name="DR_CR_BAL" class="java.lang.String">
-		<variableExpression><![CDATA[($V{BAL_AMT_1}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
-	</variable>
-	<variable name="OverDue_Amt" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
-		<variableExpression><![CDATA[$F{DUE_DAYS}.compareTo(BigDecimal.ZERO) > BigDecimal.ZERO ? $F{FC_BAL_AMT}:null]]></variableExpression>
-	</variable>
-	<variable name="DR_CR_Overdue" class="java.lang.String" resetType="Group" resetGroup="company">
-		<variableExpression><![CDATA[($V{OverDue_Amt}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
-	</variable>
-	<variable name="BILL_AMT_2" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
-		<variableExpression><![CDATA[$F{FC_BILL_AMT}]]></variableExpression>
-		<initialValueExpression><![CDATA[]]></initialValueExpression>
-	</variable>
-	<group name="company" isStartNewPage="true" isResetPageNumber="true">
-		<groupExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></groupExpression>
-		<groupHeader>
-			<band height="201">
-				<subreport>
-					<reportElement x="31" y="0" width="524" height="84" uuid="e735ba24-2aef-4bdb-9e3c-3fdb928d0246"/>
-					<subreportParameter name="LOGIN_COMP_POID">
-						<subreportParameterExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA[$P{SUB_HEADER}]]></subreportExpression>
-				</subreport>
-				<componentElement>
-					<reportElement x="31" y="119" width="302" height="20" uuid="a08b8d5d-d178-4b9b-8ce8-8c8361c36abe"/>
-					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
-						<datasetRun subDataset="GL_DESC" uuid="9cdbed32-bffb-4a1f-83ad-878d7d5e8ba3">
-							<datasetParameter name="GL_POID">
-								<datasetParameterExpression><![CDATA[$P{GL_POID}]]></datasetParameterExpression>
-							</datasetParameter>
-							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-						</datasetRun>
-						<jr:listContents height="20" width="302">
-							<textField isBlankWhenNull="true">
-								<reportElement x="0" y="2" width="302" height="16" uuid="2766f7ea-0d7e-4a7f-b19f-64e1800f3e67"/>
-								<textElement>
-								<font size="10" pdfFontName="Helvetica"/>
-								</textElement>
-								<textFieldExpression><![CDATA[$F{GL_DESC}]]></textFieldExpression>
-							</textField>
-						</jr:listContents>
-					</jr:list>
-				</componentElement>
-				<textField evaluationTime="Group" evaluationGroup="company" pattern="#,##0.00" isBlankWhenNull="true">
-					<reportElement x="441" y="159" width="90" height="18" uuid="8e82172c-affc-4898-8253-6b3dc36df24f"/>
-					<textElement textAlignment="Right"/>
-					<textFieldExpression><![CDATA[$V{OverDue_Amt}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="351" y="159" width="85" height="18" uuid="b6ddf98a-c7a3-449b-8f54-a30c57366c6f"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Overdue Amount]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="351" y="139" width="82" height="18" uuid="963006ec-0444-4f51-b2a0-98bbca9dc9fb"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Total Amount]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="149" y="99" width="263" height="20" uuid="df4bcf4b-3a54-4ecf-9b31-5e02a53261c4"/>
-					<textElement>
-						<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Ledger Bill wise Balance Report]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="351" y="179" width="85" height="18" uuid="d6707978-fd7f-40f1-a244-c702e17f34f3"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[As on Date]]></text>
-				</staticText>
-				<textField evaluationTime="Group" evaluationGroup="company" isBlankWhenNull="true">
-					<reportElement x="533" y="159" width="19" height="18" uuid="847c6cfd-1059-4c3c-bc2a-301acce77dd5"/>
-					<textFieldExpression><![CDATA[$V{DR_CR_Overdue}]]></textFieldExpression>
-				</textField>
-				<elementGroup/>
-				<subreport>
-					<reportElement x="271" y="84" width="62" height="15" uuid="77890eae-7b4e-4135-b46b-83acd4471991"/>
-					<subreportParameter name="company_poid">
-						<subreportParameterExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA[$P{SUB_CONTACT}]]></subreportExpression>
-				</subreport>
-				<staticText>
-					<reportElement x="205" y="84" width="61" height="12" uuid="cf7dc16e-1b72-4de2-8f03-ef91f74090ae"/>
-					<textElement>
-						<font size="8"/>
-					</textElement>
-					<text><![CDATA[Contact Person : ]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement x="443" y="178" width="100" height="20" uuid="d2c27cb1-7722-41c3-a13c-ecee6bf3ffc5"/>
-					<textElement textAlignment="Right"/>
-					<textFieldExpression><![CDATA[$P{AS_ON_DATE}]]></textFieldExpression>
-				</textField>
-				<textField evaluationTime="Group" evaluationGroup="company" pattern="#,##0.00" isBlankWhenNull="true">
-					<reportElement x="443" y="139" width="88" height="18" uuid="6f7c6141-d5d9-4408-82cb-f451c852687c"/>
-					<textElement textAlignment="Right">
-						<font size="10"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{BAL_AMT_1}]]></textFieldExpression>
-				</textField>
-				<textField evaluationTime="Group" evaluationGroup="company" isBlankWhenNull="true">
-					<reportElement x="533" y="139" width="19" height="18" uuid="a7f16db5-10ec-4812-bcf7-e9554657241e"/>
-					<textElement>
-						<font size="10"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{DR_CR_BAL}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="412" y="119" width="63" height="18" uuid="f1b1e06f-9c9b-4aa4-bdec-84395d67c537"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Currency  -]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement x="31" y="179" width="277" height="20" forecolor="#FF0000" uuid="0a27c8ff-4ad8-41e9-893d-f90c42caeff2">
-						<printWhenExpression><![CDATA[$F{RESULT_STATUS}.equalsIgnoreCase("ERROR")]]></printWhenExpression>
-					</reportElement>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$F{RESULT}]]></textFieldExpression>
-				</textField>
-				<textField isBlankWhenNull="true">
-					<reportElement x="475" y="119" width="30" height="18" uuid="30126c39-6270-44df-a077-c48985e51823"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$F{CURRENCY_CODE}]]></textFieldExpression>
-				</textField>
-			</band>
-			<band height="21">
-				<staticText>
-					<reportElement x="31" y="0" width="62" height="18" uuid="ee14a4fd-6a70-45d6-8299-9211a0a9db96"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Date]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="455" y="0" width="65" height="18" uuid="21f9a20e-bd6c-4439-88e5-f992e3b5f218"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Due Date]]></text>
-				</staticText>
-				<line>
-					<reportElement x="31" y="18" width="524" height="1" uuid="70bd983d-cac2-4d2d-88d5-894a586e98d1"/>
-					<graphicElement>
-						<pen lineWidth="0.5"/>
-					</graphicElement>
-				</line>
-				<staticText>
-					<reportElement x="520" y="0" width="35" height="18" uuid="60879b48-9969-45ff-b1f7-540df576fba0"/>
-					<textElement textAlignment="Center">
-						<font size="6" isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Over
+WHERE COMPANY_POID = $P{Company_poid}::numeric]]>
+    </queryString>
+    <field name="COMPANY_NAME" class="java.lang.String"/>
+    <field name="CONTACT_PERSON" class="java.lang.String"/>
+    <group name="group1">
+      <groupExpression><![CDATA[$P{Company_poid}]]></groupExpression>
+    </group>
+  </subDataset>
+  <parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
+  <parameter name="SUB_FOOTER" class="net.sf.jasperreports.engine.JasperReport"/>
+  <parameter name="SUB_CONTACT" class="net.sf.jasperreports.engine.JasperReport"/>
+  <parameter name="PERIOD_DATE" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA[]]></defaultValueExpression>
+  </parameter>
+  <parameter name="GL_POID" class="java.lang.String">
+    <defaultValueExpression><![CDATA[]]></defaultValueExpression>
+  </parameter>
+  <parameter name="COMPANY_POID" class="java.lang.String">
+    <defaultValueExpression><![CDATA[]]></defaultValueExpression>
+  </parameter>
+  <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+  <parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="PRINT_OPTION" class="java.lang.String"/>
+  <parameter name="LOGIN_COMP_POID" class="java.lang.String"/>
+  <parameter name="DOC_ID" class="java.lang.String"/>
+  <parameter name="AS_ON_DATE" class="java.lang.String"/>
+  <parameter name="DR_CR_OPTION" class="java.lang.String"/>
+  <parameter name="LINE" class="java.lang.String"/>
+  <parameter name="COST_POID" class="java.lang.String"/>
+  <parameter name="CUR_CODE" class="java.lang.String"/>
+  <parameter name="CUR_RATE" class="java.lang.String"/>
+  <queryString language="sql">
+    <![CDATA[SELECT * FROM production.fn_gl_billwise_stmnt_fc_prnt(
+    string_to_array($P{COMPANY_POID_CSV}, ',')::numeric[],
+    $P{GL_POID}::numeric,
+    $P{AS_ON_DATE}::date,
+    $P{DR_CR_OPTION},
+    $P{PRINT_OPTION},
+    $P{LINE},
+    $P{COST_POID},
+    $P{CUR_CODE},
+    $P{CUR_RATE}
+)]]>
+  </queryString>
+  <field name="DOC_COMPANY" class="java.lang.String"/>
+  <field name="DOC_COMPANY_NUM" class="java.math.BigDecimal"/>
+  <field name="DOC_DATE" class="java.lang.String"/>
+  <field name="DOC_ID" class="java.lang.String"/>
+  <field name="BILL_REF" class="java.lang.String"/>
+  <field name="REMARKS" class="java.lang.String"/>
+  <field name="BILL_AMT" class="java.math.BigDecimal"/>
+  <field name="DRCR" class="java.lang.String"/>
+  <field name="BAL_AMT" class="java.math.BigDecimal"/>
+  <field name="DR_CR" class="java.lang.String"/>
+  <field name="DUE_DATE" class="java.lang.String"/>
+  <field name="DUE_DAYS" class="java.math.BigDecimal"/>
+  <field name="FC_BILL_AMT" class="java.math.BigDecimal"/>
+  <field name="FC_BAL_AMT" class="java.math.BigDecimal"/>
+  <field name="RESULT" class="java.lang.String"/>
+  <field name="RESULT_STATUS" class="java.lang.String"/>
+  <field name="CURRENCY_CODE" class="java.lang.String"/>
+  <variable name="BILL_AMT_1" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
+    <variableExpression><![CDATA[$F{FC_BILL_AMT}]]></variableExpression>
+  </variable>
+  <variable name="BAL_AMT_1" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
+    <variableExpression><![CDATA[$F{FC_BAL_AMT}]]></variableExpression>
+  </variable>
+  <variable name="DR_CR_BILL" class="java.lang.String" resetType="Group" resetGroup="company">
+    <variableExpression><![CDATA[($V{BILL_AMT_1}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
+  </variable>
+  <variable name="DR_CR_BAL" class="java.lang.String">
+    <variableExpression><![CDATA[($V{BAL_AMT_1}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
+  </variable>
+  <variable name="OverDue_Amt" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
+    <variableExpression><![CDATA[$F{DUE_DAYS}.compareTo(BigDecimal.ZERO) > BigDecimal.ZERO ? $F{FC_BAL_AMT}:null]]></variableExpression>
+  </variable>
+  <variable name="DR_CR_Overdue" class="java.lang.String" resetType="Group" resetGroup="company">
+    <variableExpression><![CDATA[($V{OverDue_Amt}.compareTo(BigDecimal.ZERO) >= 0) ? "Dr":"Cr"]]></variableExpression>
+  </variable>
+  <variable name="BILL_AMT_2" class="java.math.BigDecimal" resetType="Group" resetGroup="company" calculation="Sum">
+    <variableExpression><![CDATA[$F{FC_BILL_AMT}]]></variableExpression>
+    <initialValueExpression><![CDATA[]]></initialValueExpression>
+  </variable>
+  <group name="company" isStartNewPage="true" isResetPageNumber="true">
+    <groupExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></groupExpression>
+    <groupHeader>
+      <band height="201">
+        <subreport>
+          <reportElement x="31" y="0" width="524" height="84" uuid="e735ba24-2aef-4bdb-9e3c-3fdb928d0246"/>
+          <subreportParameter name="LOGIN_COMP_POID">
+            <subreportParameterExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></subreportParameterExpression>
+          </subreportParameter>
+          <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          <subreportExpression><![CDATA[$P{SUB_HEADER}]]></subreportExpression>
+        </subreport>
+        <componentElement>
+          <reportElement x="31" y="119" width="302" height="20" uuid="a08b8d5d-d178-4b9b-8ce8-8c8361c36abe"/>
+          <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+            <datasetRun subDataset="GL_DESC" uuid="9cdbed32-bffb-4a1f-83ad-878d7d5e8ba3">
+              <datasetParameter name="GL_POID">
+                <datasetParameterExpression><![CDATA[$P{GL_POID}]]></datasetParameterExpression>
+              </datasetParameter>
+              <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+            </datasetRun>
+            <jr:listContents height="20" width="302">
+              <textField isBlankWhenNull="true">
+                <reportElement x="0" y="2" width="302" height="16" uuid="2766f7ea-0d7e-4a7f-b19f-64e1800f3e67"/>
+                <textElement>
+                <font size="10" pdfFontName="Helvetica"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{GL_DESC}]]></textFieldExpression>
+              </textField>
+            </jr:listContents>
+          </jr:list>
+        </componentElement>
+        <textField evaluationTime="Group" evaluationGroup="company" pattern="#,##0.00" isBlankWhenNull="true">
+          <reportElement x="441" y="159" width="90" height="18" uuid="8e82172c-affc-4898-8253-6b3dc36df24f"/>
+          <textElement textAlignment="Right"/>
+          <textFieldExpression><![CDATA[$V{OverDue_Amt}]]></textFieldExpression>
+        </textField>
+        <staticText>
+          <reportElement x="351" y="159" width="85" height="18" uuid="b6ddf98a-c7a3-449b-8f54-a30c57366c6f"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Overdue Amount]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="351" y="139" width="82" height="18" uuid="963006ec-0444-4f51-b2a0-98bbca9dc9fb"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Total Amount]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="149" y="99" width="263" height="20" uuid="df4bcf4b-3a54-4ecf-9b31-5e02a53261c4"/>
+          <textElement>
+            <font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Ledger Bill wise Balance Report]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="351" y="179" width="85" height="18" uuid="d6707978-fd7f-40f1-a244-c702e17f34f3"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[As on Date]]></text>
+        </staticText>
+        <textField evaluationTime="Group" evaluationGroup="company" isBlankWhenNull="true">
+          <reportElement x="533" y="159" width="19" height="18" uuid="847c6cfd-1059-4c3c-bc2a-301acce77dd5"/>
+          <textFieldExpression><![CDATA[$V{DR_CR_Overdue}]]></textFieldExpression>
+        </textField>
+        <elementGroup/>
+        <subreport>
+          <reportElement x="271" y="84" width="62" height="15" uuid="77890eae-7b4e-4135-b46b-83acd4471991"/>
+          <subreportParameter name="company_poid">
+            <subreportParameterExpression><![CDATA[$F{DOC_COMPANY_NUM}]]></subreportParameterExpression>
+          </subreportParameter>
+          <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          <subreportExpression><![CDATA[$P{SUB_CONTACT}]]></subreportExpression>
+        </subreport>
+        <staticText>
+          <reportElement x="205" y="84" width="61" height="12" uuid="cf7dc16e-1b72-4de2-8f03-ef91f74090ae"/>
+          <textElement>
+            <font size="8"/>
+          </textElement>
+          <text><![CDATA[Contact Person : ]]></text>
+        </staticText>
+        <textField isBlankWhenNull="true">
+          <reportElement x="443" y="178" width="100" height="20" uuid="d2c27cb1-7722-41c3-a13c-ecee6bf3ffc5"/>
+          <textElement textAlignment="Right"/>
+          <textFieldExpression><![CDATA[$P{AS_ON_DATE}]]></textFieldExpression>
+        </textField>
+        <textField evaluationTime="Group" evaluationGroup="company" pattern="#,##0.00" isBlankWhenNull="true">
+          <reportElement x="443" y="139" width="88" height="18" uuid="6f7c6141-d5d9-4408-82cb-f451c852687c"/>
+          <textElement textAlignment="Right">
+            <font size="10"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{BAL_AMT_1}]]></textFieldExpression>
+        </textField>
+        <textField evaluationTime="Group" evaluationGroup="company" isBlankWhenNull="true">
+          <reportElement x="533" y="139" width="19" height="18" uuid="a7f16db5-10ec-4812-bcf7-e9554657241e"/>
+          <textElement>
+            <font size="10"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{DR_CR_BAL}]]></textFieldExpression>
+        </textField>
+        <staticText>
+          <reportElement x="412" y="119" width="63" height="18" uuid="f1b1e06f-9c9b-4aa4-bdec-84395d67c537"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Currency  -]]></text>
+        </staticText>
+        <textField isBlankWhenNull="true">
+          <reportElement x="31" y="179" width="277" height="20" forecolor="#FF0000" uuid="0a27c8ff-4ad8-41e9-893d-f90c42caeff2">
+            <printWhenExpression><![CDATA[$F{RESULT_STATUS}.equalsIgnoreCase("ERROR")]]></printWhenExpression>
+          </reportElement>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$F{RESULT}]]></textFieldExpression>
+        </textField>
+        <textField isBlankWhenNull="true">
+          <reportElement x="475" y="119" width="30" height="18" uuid="30126c39-6270-44df-a077-c48985e51823"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$F{CURRENCY_CODE}]]></textFieldExpression>
+        </textField>
+      </band>
+      <band height="21">
+        <staticText>
+          <reportElement x="31" y="0" width="62" height="18" uuid="ee14a4fd-6a70-45d6-8299-9211a0a9db96"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Date]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="455" y="0" width="65" height="18" uuid="21f9a20e-bd6c-4439-88e5-f992e3b5f218"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Due Date]]></text>
+        </staticText>
+        <line>
+          <reportElement x="31" y="18" width="524" height="1" uuid="70bd983d-cac2-4d2d-88d5-894a586e98d1"/>
+          <graphicElement>
+            <pen lineWidth="0.5"/>
+          </graphicElement>
+        </line>
+        <staticText>
+          <reportElement x="520" y="0" width="35" height="18" uuid="60879b48-9969-45ff-b1f7-540df576fba0"/>
+          <textElement textAlignment="Center">
+            <font size="6" isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Over
 Due Days]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="285" y="0" width="63" height="18" uuid="8b9b27d2-a419-4bde-951a-dd0776b1dba8"/>
-					<textElement textAlignment="Right">
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Total Amt]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="370" y="0" width="64" height="18" uuid="8147ed78-cca8-4050-b97b-06813b3ee16d"/>
-					<textElement textAlignment="Right">
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Pending Amt]]></text>
-				</staticText>
-				<line>
-					<reportElement x="31" y="0" width="524" height="1" uuid="64219069-a87d-40f4-a603-b8b86a6bd3a4"/>
-					<graphicElement>
-						<pen lineWidth="0.5"/>
-					</graphicElement>
-				</line>
-				<staticText>
-					<reportElement x="173" y="0" width="112" height="18" uuid="08c1dd9c-97d2-445e-aa30-7253b72a6d78"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Narration]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="93" y="0" width="80" height="18" uuid="3fa4845d-5eea-4201-a16c-5c0507f33bc7"/>
-					<textElement>
-						<font isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Ref]]></text>
-				</staticText>
-			</band>
-		</groupHeader>
-		<groupFooter>
-			<band height="22">
-				<textField pattern="#,##0.00" isBlankWhenNull="true">
-					<reportElement x="370" y="0" width="62" height="18" uuid="17768937-1638-4afa-8e9f-a8715833526f"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{BAL_AMT_1}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="219" y="0" width="33" height="18" uuid="a8c84c43-fa64-4329-893b-0a4fdad16319"/>
-					<textElement>
-						<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
-					</textElement>
-					<text><![CDATA[Total :]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement x="434" y="1" width="20" height="18" uuid="08b64236-40a8-4bc5-aef0-f71c39f0c283"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{DR_CR_BAL}]]></textFieldExpression>
-				</textField>
-				<line>
-					<reportElement x="31" y="0" width="521" height="1" uuid="90f8b707-0782-4f64-9d44-a450fce49041"/>
-					<graphicElement>
-						<pen lineWidth="0.5"/>
-					</graphicElement>
-				</line>
-				<textField pattern="#,##0.00" isBlankWhenNull="true">
-					<reportElement x="290" y="1" width="58" height="18" uuid="4c1505ce-e604-468f-a146-810fd58bce61"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{BILL_AMT_1}]]></textFieldExpression>
-				</textField>
-				<textField isBlankWhenNull="true">
-					<reportElement x="349" y="1" width="17" height="18" uuid="af574a8c-76ec-4ee1-9c3c-a7ce91fb3129"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$V{DR_CR_BILL}]]></textFieldExpression>
-				</textField>
-			</band>
-		</groupFooter>
-	</group>
-	<background>
-		<band splitType="Stretch"/>
-	</background>
-	<columnHeader>
-		<band height="20">
-			<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1]]></printWhenExpression>
-			<line>
-				<reportElement x="27" y="0" width="524" height="1" uuid="0ea40f90-1770-4e94-854d-29a5178e87a1"/>
-				<graphicElement>
-					<pen lineWidth="0.5"/>
-				</graphicElement>
-			</line>
-			<staticText>
-				<reportElement x="285" y="0" width="65" height="18" uuid="88191561-f204-4060-bcc1-45196d8a671c"/>
-				<textElement textAlignment="Right">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Total Amt]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="89" y="0" width="80" height="18" uuid="5f77c1b4-7625-4d62-a1dd-a44d90b7d4bd"/>
-				<textElement>
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Ref]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="516" y="0" width="35" height="18" uuid="c7a2a44d-b907-4ce0-9b5f-176de9be5cb6"/>
-				<textElement textAlignment="Center">
-					<font size="6" isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Over
+        </staticText>
+        <staticText>
+          <reportElement x="285" y="0" width="63" height="18" uuid="8b9b27d2-a419-4bde-951a-dd0776b1dba8"/>
+          <textElement textAlignment="Right">
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Total Amt]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="370" y="0" width="64" height="18" uuid="8147ed78-cca8-4050-b97b-06813b3ee16d"/>
+          <textElement textAlignment="Right">
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Pending Amt]]></text>
+        </staticText>
+        <line>
+          <reportElement x="31" y="0" width="524" height="1" uuid="64219069-a87d-40f4-a603-b8b86a6bd3a4"/>
+          <graphicElement>
+            <pen lineWidth="0.5"/>
+          </graphicElement>
+        </line>
+        <staticText>
+          <reportElement x="173" y="0" width="112" height="18" uuid="08c1dd9c-97d2-445e-aa30-7253b72a6d78"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Narration]]></text>
+        </staticText>
+        <staticText>
+          <reportElement x="93" y="0" width="80" height="18" uuid="3fa4845d-5eea-4201-a16c-5c0507f33bc7"/>
+          <textElement>
+            <font isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Ref]]></text>
+        </staticText>
+      </band>
+    </groupHeader>
+    <groupFooter>
+      <band height="22">
+        <textField pattern="#,##0.00" isBlankWhenNull="true">
+          <reportElement x="370" y="0" width="62" height="18" uuid="17768937-1638-4afa-8e9f-a8715833526f"/>
+          <textElement textAlignment="Right">
+            <font size="9"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{BAL_AMT_1}]]></textFieldExpression>
+        </textField>
+        <staticText>
+          <reportElement x="219" y="0" width="33" height="18" uuid="a8c84c43-fa64-4329-893b-0a4fdad16319"/>
+          <textElement>
+            <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Total :]]></text>
+        </staticText>
+        <textField isBlankWhenNull="true">
+          <reportElement x="434" y="1" width="20" height="18" uuid="08b64236-40a8-4bc5-aef0-f71c39f0c283"/>
+          <textElement>
+            <font size="9"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{DR_CR_BAL}]]></textFieldExpression>
+        </textField>
+        <line>
+          <reportElement x="31" y="0" width="521" height="1" uuid="90f8b707-0782-4f64-9d44-a450fce49041"/>
+          <graphicElement>
+            <pen lineWidth="0.5"/>
+          </graphicElement>
+        </line>
+        <textField pattern="#,##0.00" isBlankWhenNull="true">
+          <reportElement x="290" y="1" width="58" height="18" uuid="4c1505ce-e604-468f-a146-810fd58bce61"/>
+          <textElement textAlignment="Right">
+            <font size="9"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{BILL_AMT_1}]]></textFieldExpression>
+        </textField>
+        <textField isBlankWhenNull="true">
+          <reportElement x="349" y="1" width="17" height="18" uuid="af574a8c-76ec-4ee1-9c3c-a7ce91fb3129"/>
+          <textElement>
+            <font size="9"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$V{DR_CR_BILL}]]></textFieldExpression>
+        </textField>
+      </band>
+    </groupFooter>
+  </group>
+  <background>
+    <band splitType="Stretch"/>
+  </background>
+  <columnHeader>
+    <band height="20">
+      <printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1]]></printWhenExpression>
+      <line>
+        <reportElement x="27" y="0" width="524" height="1" uuid="0ea40f90-1770-4e94-854d-29a5178e87a1"/>
+        <graphicElement>
+          <pen lineWidth="0.5"/>
+        </graphicElement>
+      </line>
+      <staticText>
+        <reportElement x="285" y="0" width="65" height="18" uuid="88191561-f204-4060-bcc1-45196d8a671c"/>
+        <textElement textAlignment="Right">
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Total Amt]]></text>
+      </staticText>
+      <staticText>
+        <reportElement x="89" y="0" width="80" height="18" uuid="5f77c1b4-7625-4d62-a1dd-a44d90b7d4bd"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Ref]]></text>
+      </staticText>
+      <staticText>
+        <reportElement x="516" y="0" width="35" height="18" uuid="c7a2a44d-b907-4ce0-9b5f-176de9be5cb6"/>
+        <textElement textAlignment="Center">
+          <font size="6" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Over
 Due Days]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="169" y="0" width="112" height="18" uuid="2f2fac18-6751-4d5f-b5b9-ed278ed7be87"/>
-				<textElement>
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Narration]]></text>
-			</staticText>
-			<line>
-				<reportElement x="27" y="0" width="524" height="1" uuid="2a80bb21-afe8-405b-bd30-84e73a0fc3c9"/>
-				<graphicElement>
-					<pen lineWidth="0.5"/>
-				</graphicElement>
-			</line>
-			<staticText>
-				<reportElement x="370" y="0" width="64" height="18" uuid="5011a1fe-868b-4287-8e56-4e604da26af0"/>
-				<textElement textAlignment="Right">
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Pending Amt]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="451" y="0" width="65" height="18" uuid="8cbf3c27-fa9d-49f8-8817-e3933e0f1e5d"/>
-				<textElement>
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Due Date]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="27" y="0" width="62" height="18" uuid="a2193531-1e1d-434c-8c4c-0ec272895efd"/>
-				<textElement>
-					<font isBold="true" pdfFontName="Helvetica-Bold"/>
-				</textElement>
-				<text><![CDATA[Date]]></text>
-			</staticText>
-			<line>
-				<reportElement x="27" y="18" width="524" height="1" uuid="491cf58b-5a5e-430b-8307-3f3420bbfc72"/>
-				<graphicElement>
-					<pen lineWidth="0.5"/>
-				</graphicElement>
-			</line>
-		</band>
-	</columnHeader>
-	<detail>
-		<band height="20" splitType="Stretch">
-			<textField isBlankWhenNull="true">
-				<reportElement x="434" y="-2" width="20" height="19" uuid="6bea3ee2-a14f-4f63-828b-2f5599faca6d"/>
-				<textElement>
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{DR_CR}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="455" y="-2" width="65" height="20" uuid="d654fec5-58ce-4281-8bf9-2775f7a62127"/>
-				<textElement>
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{DUE_DATE}]]></textFieldExpression>
-			</textField>
-			<textField pattern="###,###,###,##0.00" isBlankWhenNull="true">
-				<reportElement x="285" y="-2" width="65" height="20" uuid="a15c5dee-a7ed-4c08-81d0-7a9966e563e1"/>
-				<textElement textAlignment="Right">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{FC_BILL_AMT}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="349" y="-2" width="17" height="17" uuid="16c09c93-cf55-4d26-b5e7-951807b1ecad"/>
-				<textElement textAlignment="Center">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{DRCR}]]></textFieldExpression>
-			</textField>
-			<textField pattern="###,###,###,##0.00" isBlankWhenNull="true">
-				<reportElement x="366" y="-2" width="66" height="20" uuid="f580e9c3-58db-4f0f-a16f-21f0b46828fd"/>
-				<textElement textAlignment="Right">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{FC_BAL_AMT}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="173" y="-2" width="112" height="20" uuid="74b58635-321e-4577-8bd7-9901788de079"/>
-				<textElement>
-					<font size="7"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{REMARKS}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="520" y="-2" width="32" height="20" uuid="c36cd333-b2b8-4cec-9f58-e189ab202f1a"/>
-				<textElement textAlignment="Center">
-					<font size="10"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{DUE_DAYS}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="31" y="-2" width="62" height="20" uuid="9f8d75a1-22f5-418c-9e34-7dcf27af7871"/>
-				<textElement>
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{DOC_DATE}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="93" y="-2" width="80" height="20" uuid="7d1646d0-d313-4ef0-b78e-8cf7fd503e27"/>
-				<textElement>
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{BILL_REF}]]></textFieldExpression>
-			</textField>
-		</band>
-	</detail>
-	<pageFooter>
-		<band height="28">
-			<subreport>
-				<reportElement x="31" y="0" width="524" height="28" uuid="6f1ac375-4de4-4344-b5ab-73a9310dd418"/>
-				<subreportParameter name="DOC_ID">
-					<subreportParameterExpression><![CDATA[$P{DOC_ID}]]></subreportParameterExpression>
-				</subreportParameter>
-				<subreportParameter name="LOGIN_COMP_POID">
-					<subreportParameterExpression><![CDATA[$P{LOGIN_COMP_POID}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SUB_FOOTER}]]></subreportExpression>
-			</subreport>
-		</band>
-	</pageFooter>
+      </staticText>
+      <staticText>
+        <reportElement x="169" y="0" width="112" height="18" uuid="2f2fac18-6751-4d5f-b5b9-ed278ed7be87"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Narration]]></text>
+      </staticText>
+      <line>
+        <reportElement x="27" y="0" width="524" height="1" uuid="2a80bb21-afe8-405b-bd30-84e73a0fc3c9"/>
+        <graphicElement>
+          <pen lineWidth="0.5"/>
+        </graphicElement>
+      </line>
+      <staticText>
+        <reportElement x="370" y="0" width="64" height="18" uuid="5011a1fe-868b-4287-8e56-4e604da26af0"/>
+        <textElement textAlignment="Right">
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Pending Amt]]></text>
+      </staticText>
+      <staticText>
+        <reportElement x="451" y="0" width="65" height="18" uuid="8cbf3c27-fa9d-49f8-8817-e3933e0f1e5d"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Due Date]]></text>
+      </staticText>
+      <staticText>
+        <reportElement x="27" y="0" width="62" height="18" uuid="a2193531-1e1d-434c-8c4c-0ec272895efd"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Date]]></text>
+      </staticText>
+      <line>
+        <reportElement x="27" y="18" width="524" height="1" uuid="491cf58b-5a5e-430b-8307-3f3420bbfc72"/>
+        <graphicElement>
+          <pen lineWidth="0.5"/>
+        </graphicElement>
+      </line>
+    </band>
+  </columnHeader>
+  <detail>
+    <band height="20" splitType="Stretch">
+      <textField isBlankWhenNull="true">
+        <reportElement x="434" y="-2" width="20" height="19" uuid="6bea3ee2-a14f-4f63-828b-2f5599faca6d"/>
+        <textElement>
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DR_CR}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="455" y="-2" width="65" height="20" uuid="d654fec5-58ce-4281-8bf9-2775f7a62127"/>
+        <textElement>
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DUE_DATE}]]></textFieldExpression>
+      </textField>
+      <textField pattern="###,###,###,##0.00" isBlankWhenNull="true">
+        <reportElement x="285" y="-2" width="65" height="20" uuid="a15c5dee-a7ed-4c08-81d0-7a9966e563e1"/>
+        <textElement textAlignment="Right">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{FC_BILL_AMT}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="349" y="-2" width="17" height="17" uuid="16c09c93-cf55-4d26-b5e7-951807b1ecad"/>
+        <textElement textAlignment="Center">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DRCR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="###,###,###,##0.00" isBlankWhenNull="true">
+        <reportElement x="366" y="-2" width="66" height="20" uuid="f580e9c3-58db-4f0f-a16f-21f0b46828fd"/>
+        <textElement textAlignment="Right">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{FC_BAL_AMT}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="173" y="-2" width="112" height="20" uuid="74b58635-321e-4577-8bd7-9901788de079"/>
+        <textElement>
+          <font size="7"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{REMARKS}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="520" y="-2" width="32" height="20" uuid="c36cd333-b2b8-4cec-9f58-e189ab202f1a"/>
+        <textElement textAlignment="Center">
+          <font size="10"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DUE_DAYS}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="31" y="-2" width="62" height="20" uuid="9f8d75a1-22f5-418c-9e34-7dcf27af7871"/>
+        <textElement>
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DOC_DATE}]]></textFieldExpression>
+      </textField>
+      <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+        <reportElement x="93" y="-2" width="80" height="20" uuid="7d1646d0-d313-4ef0-b78e-8cf7fd503e27"/>
+        <textElement>
+          <font size="8"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{BILL_REF}]]></textFieldExpression>
+      </textField>
+    </band>
+  </detail>
+  <pageFooter>
+    <band height="28">
+      <subreport>
+        <reportElement x="31" y="0" width="524" height="28" uuid="6f1ac375-4de4-4344-b5ab-73a9310dd418"/>
+        <subreportParameter name="DOC_ID">
+          <subreportParameterExpression><![CDATA[$P{DOC_ID}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="LOGIN_COMP_POID">
+          <subreportParameterExpression><![CDATA[$P{LOGIN_COMP_POID}]]></subreportParameterExpression>
+        </subreportParameter>
+        <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+        <subreportExpression><![CDATA[$P{SUB_FOOTER}]]></subreportExpression>
+      </subreport>
+    </band>
+  </pageFooter>
 </jasperReport>
