@@ -38,6 +38,10 @@ import java.util.stream.Collectors;
  * state ("has this employee acknowledged the current version of this file?") is an aggregate over
  * those rows, computed in {@link #SQL_ATTACHMENTS}.
  * <p>
+ * The ATTACHMENT_ID alone does not identify a file for all time — SEQNO is assigned MAX+1 per
+ * document over a hard-deleted table, so ids are recycled — and every match on it is therefore
+ * qualified by the attachment's CREATED_DATE. See {@link #SQL_ATTACHMENTS}.
+ * <p>
  * The tables involved — ADMIN_ISO_COMP_POLICY_* , HR_EMPLOYEE_MASTER and GLOBAL_ATTACHMENTS — are
  * owned by other services, so this deliberately maps no JPA entities for them: mirroring another
  * service's table as an entity means two definitions of one table that can silently drift apart.
@@ -145,11 +149,20 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
      * The join key is ATTACHMENT_ID (= GLOBAL_ATTACHMENTS.SEQNO), never the file name. Names are
      * neither unique nor stable: replacing Policy.pdf with a corrected Policy.pdf would otherwise
      * carry the old acknowledgement onto the new file.
+     * <p>
+     * The id is not stable either, so it is qualified by CREATED_DATE — which is why the attachments
+     * are joined inside the CTE rather than only outside it: the filter has to apply before the
+     * aggregation. GLOBAL_ATTACHMENTS is hard-deleted (PROC_ATTACHMENTS_DELETE) and SEQNO is assigned
+     * MAX+1 per document, so deleting the last file and uploading another hands out the same id. An
+     * event can only be logged while its file is live, so any log row older than the attachment row's
+     * CREATED_DATE belongs to a previous occupant of that id. Without the check the new file inherits
+     * the dead one's acknowledgements — and the employee is then locked out of acknowledging it for
+     * real, because SQL_ACK_EXISTS matches the stale row.
      */
     private static final String SQL_ATTACHMENTS = """
             WITH hist AS (
-                SELECT l.TRANSACTION_POID,
-                       l.ATTACHMENT_ID,
+                SELECT a.DOC_KEY_POID AS TRANSACTION_POID,
+                       a.SEQNO        AS ATTACHMENT_ID,
                        MAX(l.CREATED_DATE) AS LAST_EVENT_TIME,
                        COUNT(CASE WHEN UPPER(l.LOG_TYPE) = 'ACCESSED' THEN 1 END) AS ACCESS_COUNT,
                        MAX(CASE WHEN UPPER(l.LOG_TYPE) = 'ACKNOWLEDGED' THEN l.CREATED_DATE END) AS ACK_TIME,
@@ -157,10 +170,15 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                            KEEP (DENSE_RANK LAST ORDER BY
                                  CASE WHEN UPPER(l.LOG_TYPE) = 'ACKNOWLEDGED' THEN l.CREATED_DATE END
                                  NULLS FIRST) AS ACK_VERSION
-                  FROM ADMIN_ISO_COMP_POLICY_LOG_DTL l
+                  FROM GLOBAL_ATTACHMENTS a
+                  JOIN ADMIN_ISO_COMP_POLICY_LOG_DTL l
+                         ON l.TRANSACTION_POID = a.DOC_KEY_POID
+                        AND l.ATTACHMENT_ID    = a.SEQNO
+                        AND l.CREATED_DATE    >= a.CREATED_DATE
                  WHERE l.EMPLOYEE_POID = :employeePoid
-                   AND l.TRANSACTION_POID IN (:docKeyPoids)
-                 GROUP BY l.TRANSACTION_POID, l.ATTACHMENT_ID
+                   AND a.DOC_ID        = :docId
+                   AND a.DOC_KEY_POID IN (:docKeyPoids)
+                 GROUP BY a.DOC_KEY_POID, a.SEQNO
             )
             SELECT a.DOC_KEY_POID, a.SEQNO, a.FILE_NAME, a.FILE_NAME_MAPPED, a.FILE_REMARKS,
                    a.CHECKLIST_NAME, a.CREATED_BY, a.CREATED_DATE,
@@ -193,11 +211,12 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
 
     /**
      * Confirms the attachment is a live file <b>on this document</b>, and returns the name to
-     * snapshot onto the event. Without the DOC_KEY_POID check a caller could log an access against
-     * any file in the system by passing its id.
+     * snapshot onto the event plus the upload timestamp that identifies this particular file behind
+     * a recycled SEQNO. Without the DOC_KEY_POID check a caller could log an access against any file
+     * in the system by passing its id.
      */
     private static final String SQL_ATTACHMENT = """
-            SELECT FILE_NAME
+            SELECT FILE_NAME, CREATED_DATE
               FROM GLOBAL_ATTACHMENTS
              WHERE DOC_ID       = :docId
                AND DOC_KEY_POID = :transactionPoid
@@ -207,9 +226,13 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
             """;
 
     /**
-     * Whether this employee already has an {@code Acknowledged} row for this file at this exact
-     * version. Guards against a second acknowledgement of the same version — {@code DOC_VERSION} is
-     * part of the match so a new version still lets a fresh acknowledgement through.
+     * Whether this employee already has an {@code Acknowledged} row for <b>this</b> file at this
+     * exact version. Guards against a second acknowledgement of the same version — {@code
+     * DOC_VERSION} is part of the match so a new version still lets a fresh acknowledgement through.
+     * <p>
+     * {@code CREATED_DATE >= :attachmentUploadedOn} keeps the guard from firing on a previous
+     * occupant of a recycled SEQNO — see {@link #SQL_ATTACHMENTS}. Without it, replacing a file
+     * leaves the dead file's acknowledgement blocking the live one.
      */
     private static final String SQL_ACK_EXISTS = """
             SELECT 1
@@ -219,6 +242,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                AND ATTACHMENT_ID    = :attachmentId
                AND UPPER(LOG_TYPE)  = 'ACKNOWLEDGED'
                AND DOC_VERSION      = :docVersion
+               AND CREATED_DATE    >= :attachmentUploadedOn
              FETCH FIRST 1 ROWS ONLY
             """;
 
@@ -250,6 +274,15 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
 
     /** The logged-in caller, resolved server-side. Never built from anything in the request. */
     private record Employee(Long employeePoid, Long departmentPoid) {
+    }
+
+    /**
+     * A live file on the document being logged against. {@code uploadedOn} is
+     * {@code GLOBAL_ATTACHMENTS.CREATED_DATE} — set by PROC_ATTACHMENTS_INSERT to SYSTIMESTAMP on
+     * every insert and never updated afterwards, so it distinguishes this file from an earlier one
+     * that held the same recycled SEQNO.
+     */
+    private record LiveAttachment(String fileName, Timestamp uploadedOn) {
     }
 
     /**
@@ -319,6 +352,11 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
         String acknowledgementRequired = toStr(header[0]);
         String docVersion = toStr(header[1]);
 
+        // Proves the file is live and belongs to this document, and gives us the name to snapshot.
+        // Runs before the acknowledgement gates because they need its upload timestamp to tell this
+        // file apart from a previous occupant of the same recycled SEQNO.
+        LiveAttachment file = liveAttachment(transactionPoid, attachmentId);
+
         if (logType == IsoPolicyLogType.Acknowledged) {
             if (!YES.equalsIgnoreCase(acknowledgementRequired)) {
                 // IllegalArgumentException, not the lib's ValidationException: this service's
@@ -330,14 +368,14 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
             // rejected rather than appended, so the log cannot show one employee acknowledging one file
             // twice at the same version. The version qualifier is deliberate: after the admin publishes
             // a new version the employee owes a fresh acknowledgement, and that one must go through.
-            if (alreadyAcknowledged(transactionPoid, me.employeePoid(), attachmentId, docVersion)) {
+            if (alreadyAcknowledged(transactionPoid, me.employeePoid(), attachmentId, docVersion,
+                    file.uploadedOn())) {
                 throw new IllegalArgumentException("This file has already been acknowledged at version "
                         + docVersion);
             }
         }
 
-        // Proves the file is live and belongs to this document, and gives us the name to snapshot.
-        String attachmentName = liveAttachmentName(transactionPoid, attachmentId);
+        String attachmentName = file.fileName();
 
         entityManager.createNativeQuery(SQL_INSERT_EVENT)
                 .setParameter("transactionPoid", transactionPoid)
@@ -457,7 +495,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
         return (Object[]) rows.get(0);
     }
 
-    private String liveAttachmentName(Long transactionPoid, Long attachmentId) {
+    private LiveAttachment liveAttachment(Long transactionPoid, Long attachmentId) {
         List<?> rows = entityManager.createNativeQuery(SQL_ATTACHMENT)
                 .setParameter("docId", attachmentDocId)
                 .setParameter("transactionPoid", transactionPoid)
@@ -466,16 +504,20 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
         if (rows.isEmpty()) {
             throw new ResourceNotFoundException(ATTACHMENT, "attachmentId", attachmentId);
         }
-        return toStr(rows.get(0));
+        // Two columns, so Hibernate hands back an Object[] — a single-column select would have been
+        // a bare scalar.
+        Object[] row = (Object[]) rows.get(0);
+        return new LiveAttachment(toStr(row[0]), (Timestamp) row[1]);
     }
 
     private boolean alreadyAcknowledged(Long transactionPoid, Long employeePoid, Long attachmentId,
-                                        String docVersion) {
+                                        String docVersion, Timestamp attachmentUploadedOn) {
         return !entityManager.createNativeQuery(SQL_ACK_EXISTS)
                 .setParameter("transactionPoid", transactionPoid)
                 .setParameter("employeePoid", employeePoid)
                 .setParameter("attachmentId", attachmentId)
                 .setParameter("docVersion", docVersion)
+                .setParameter("attachmentUploadedOn", attachmentUploadedOn)
                 .getResultList()
                 .isEmpty();
     }
