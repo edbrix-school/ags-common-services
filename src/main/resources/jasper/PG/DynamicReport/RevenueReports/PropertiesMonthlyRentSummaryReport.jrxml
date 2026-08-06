@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PropertiesMonthlyRentSummaryReport" language="groovy" pageWidth="861" pageHeight="595" orientation="Landscape" columnWidth="821" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9237c557-a1b8-4166-8eee-0b1d1da8ae35">
+<property name="ireport.zoom" value="1.3310000000000006"/>
+<property name="ireport.x" value="0"/>
+<property name="ireport.y" value="0"/>
+<style name="table">
+<box>
+<pen lineWidth="1.0" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<style name="style1" mode="Opaque" backcolor="#FFFFFF" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+<style name="SubTotalStyle" mode="Opaque" backcolor="#BEE1FF" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<topPen lineWidth="1.0" lineColor="#999999"/>
+<leftPen lineWidth="1.0" lineColor="#999999"/>
+<bottomPen lineWidth="1.0" lineColor="#999999"/>
+<rightPen lineWidth="1.0" lineColor="#999999"/>
+</box>
+</style>
+<style name="GrandTotalStyle" mode="Opaque" forecolor="#FFFFFF" backcolor="#99CCFF" pattern="" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<topPen lineWidth="1.0" lineColor="#999999"/>
+<leftPen lineWidth="1.0" lineColor="#999999"/>
+<bottomPen lineWidth="1.0" lineColor="#999999"/>
+<rightPen lineWidth="1.0" lineColor="#999999"/>
+</box>
+</style>
+<subDataset name="RentSummary" uuid="59e0170a-16b4-4d40-ad66-d9f863d14560">
+	<parameter name="COMPANY_POID" class="java.lang.String"/>
+	<parameter name="PERIOD" class="java.lang.String"/>
+	<parameter name="PERIOD2" class="java.lang.String"/>
+	<parameter name="LEVEL_LIMIT" class="java.lang.String"/>
+	<parameter name="PROFIT_TYPE" class="java.lang.String"/>
+	<!-- CHANGE: language changed from plsql to sql
+	     Replaced Oracle {call PROC_GL_COST_CENTRE_FLAT_R_PRT(..., ORACLE_REF_CURSOR)} with
+	     PostgreSQL wrapper function fn_gl_cost_centre_flat_r_prt() that returns TABLE.
+	     COMPANY_POID is multiselect array (numeric[]) in PostgreSQL; Oracle used single NUMBER.
+	     The multiselect value arrives as text ("[1, 2]" / "1,2"), so it is normalised to numeric[]
+	     the same way as DivisionWiseComparisonPeriodSubreport does.
+	     PERIOD and PERIOD2 cast to ::date.
+	     PROFIT_TYPE hardcoded as 'GROSS_PROFIT' in Oracle call — kept as parameter pass-through.
+	     No schema prefix - schema resolved at runtime. -->
+	<queryString language="sql">
+		<![CDATA[SELECT * FROM fn_gl_cost_centre_flat_r_prt(
+	('{' || TRANSLATE(CAST($P{COMPANY_POID} AS TEXT), '[] ', '') || '}')::numeric[],
+	$P{PERIOD}::date,
+	$P{PERIOD2}::date,
+	'GROSS_PROFIT',
+	$P{LEVEL_LIMIT}
+)]]>
+	</queryString>
+	<field name="LVL" class="java.math.BigDecimal"/>
+	<field name="DESCRIPTION" class="java.lang.String"/>
+	<field name="JAN" class="java.math.BigDecimal"/>
+	<field name="FEB" class="java.math.BigDecimal"/>
+	<field name="MAR" class="java.math.BigDecimal"/>
+	<field name="APR" class="java.math.BigDecimal"/>
+	<field name="MAY" class="java.math.BigDecimal"/>
+	<field name="JUN" class="java.math.BigDecimal"/>
+	<field name="JUL" class="java.math.BigDecimal"/>
+	<field name="AUG" class="java.math.BigDecimal"/>
+	<field name="SEP" class="java.math.BigDecimal"/>
+	<field name="OCT" class="java.math.BigDecimal"/>
+	<field name="NOV" class="java.math.BigDecimal"/>
+	<field name="DEC" class="java.math.BigDecimal"/>
+	<field name="TOTAL" class="java.math.BigDecimal"/>
+	<field name="RN" class="java.math.BigDecimal"/>
+	<field name="COST_GROUP" class="java.lang.String"/>
+	<variable name="JAN_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{JAN}]]></variableExpression>
+	</variable>
+	<variable name="FEB_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{FEB}]]></variableExpression>
+	</variable>
+	<variable name="MAR_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{MAR}]]></variableExpression>
+	</variable>
+	<variable name="APR_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{APR}]]></variableExpression>
+	</variable>
+	<variable name="MAY_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{MAY}]]></variableExpression>
+	</variable>
+	<variable name="JUN_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{JUN}]]></variableExpression>
+	</variable>
+	<variable name="JUL_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{JUL}]]></variableExpression>
+	</variable>
+	<variable name="AUG_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{AUG}]]></variableExpression>
+	</variable>
+	<variable name="SEP_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{SEP}]]></variableExpression>
+	</variable>
+	<variable name="OCT_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{OCT}]]></variableExpression>
+	</variable>
+	<variable name="NOV_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{NOV}]]></variableExpression>
+	</variable>
+	<variable name="DEC_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEC}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL_ST" class="java.math.BigDecimal" resetType="Group" resetGroup="COST_GROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+	</variable>
+	<variable name="JAN_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{JAN}]]></variableExpression>
+	</variable>
+	<variable name="FEB_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{FEB}]]></variableExpression>
+	</variable>
+	<variable name="MAR_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{MAR}]]></variableExpression>
+	</variable>
+	<variable name="APR_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{APR}]]></variableExpression>
+	</variable>
+	<variable name="MAY_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{MAY}]]></variableExpression>
+	</variable>
+	<variable name="JUN_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{JUN}]]></variableExpression>
+	</variable>
+	<variable name="JUL_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{JUL}]]></variableExpression>
+	</variable>
+	<variable name="AUG_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{AUG}]]></variableExpression>
+	</variable>
+	<variable name="SEP_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{SEP}]]></variableExpression>
+	</variable>
+	<variable name="OCT_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{OCT}]]></variableExpression>
+	</variable>
+	<variable name="NOV_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{NOV}]]></variableExpression>
+	</variable>
+	<variable name="DEC_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEC}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL_GT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+	</variable>
+	<group name="COST_GROUP" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{COST_GROUP}]]></groupExpression>
+	</group>
+</subDataset>
+<parameter name="COMPANY_POID" class="java.lang.String"/>
+<parameter name="PERIOD" class="java.lang.String"/>
+<parameter name="PERIOD2" class="java.lang.String"/>
+<parameter name="LEVEL_LIMIT" class="java.lang.String"/>
+<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+	<defaultValueExpression><![CDATA["//shippingbahrain.com/data/ERP_REPORTS/Reports/"]]></defaultValueExpression>
+</parameter>
+<parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
+<parameter name="REPORT_DATE" class="java.util.Date"/>
+<!-- CHANGE: Main query updated
+     - Replaced Oracle DECODE() with PostgreSQL CASE WHEN
+     - COMPANY_POID is a java.lang.String parameter, so JDBC binds it as varchar.
+       Comparing it directly to the integer literal 999 raised
+       "operator does not exist: character varying = integer".
+     - COMPANY_POID is multiselect (comma-separated); normalised once in CTE "p"
+       into numeric[] via translate()+string_to_array(), then compared with ANY().
+       translate() strips braces/spaces so both '1,2,3' and '{1,2,3}' work.
+     - COMPANY_POID=999 check → 999 = ANY(p.poids)
+     - COMPANY_POID LIKE '%999%' check → 999 = ANY(p.poids)
+     - No schema prefix - schema resolved at runtime -->
+<queryString>
+	<![CDATA[WITH p AS (
+    SELECT string_to_array(translate(CAST($P{COMPANY_POID} AS TEXT), '{} ', ''), ',')::numeric[] AS poids
+)
+SELECT DISTINCT COMPANY_NAME, COMPANY_POID
+FROM (
+    SELECT
+        CASE
+            WHEN 999 = ANY(p.poids) THEN 'All Companies'
+            ELSE GCM.COMPANY_NAME
+        END AS COMPANY_NAME,
+        CASE
+            WHEN 999 = ANY(p.poids) THEN 1::numeric
+            ELSE GCM.COMPANY_POID
+        END AS COMPANY_POID
+    FROM GLOBAL_COMPANY_MASTER GCM
+    CROSS JOIN p
+    WHERE 999 = ANY(p.poids)
+       OR GCM.COMPANY_POID = ANY(p.poids)
+) sub
+]]>
+</queryString>
+<field name="COMPANY_NAME" class="java.lang.String"/>
+<field name="COMPANY_POID" class="java.math.BigDecimal"/>
+<background>
+<band splitType="Stretch"/>
+</background>
+<pageHeader>
+<band height="116" splitType="Stretch">
+<textField isBlankWhenNull="true">
+<reportElement x="75" y="80" width="285" height="20" uuid="a0b5f51c-9dab-4dd8-b8df-ae1fb1d82cf5"/>
+<textElement>
+<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="0" y="80" width="75" height="20" uuid="a2ac49ed-00cc-4b1c-88c6-12e479c59bda"/>
+<textElement>
+<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<text><![CDATA[Company :-]]></text>
+</staticText>
+<staticText>
+<reportElement x="0" y="100" width="48" height="15" uuid="09e93499-e798-45d0-88bc-c9bac8d7d193"/>
+<textElement>
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<text><![CDATA[Period :-]]></text>
+</staticText>
+<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+<reportElement x="48" y="100" width="64" height="15" uuid="2117d8af-fce6-4797-a44a-7e52412a3f85"/>
+<textElement>
+<font isBold="false"/>
+</textElement>
+<textFieldExpression><![CDATA[$P{PERIOD}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="112" y="100" width="25" height="15" uuid="93756d3c-764d-41a9-8bca-4fd67a5f28e3"/>
+<textElement>
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<text><![CDATA[To :-]]></text>
+</staticText>
+<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+<reportElement x="137" y="100" width="112" height="15" uuid="3de38ff8-705f-42b7-82ab-4f53c2ac4308"/>
+<textElement>
+<font isBold="false"/>
+</textElement>
+<textFieldExpression><![CDATA[$P{PERIOD2}]]></textFieldExpression>
+</textField>
+<subreport>
+<reportElement x="0" y="0" width="597" height="70" uuid="a0d7f3bc-2eca-463c-98e5-33eaf426273b"/>
+<subreportParameter name="LOGIN_DIV_POID"/>
+<subreportParameter name="LOGIN_COMP_POID">
+	<subreportParameterExpression><![CDATA[$F{COMPANY_POID}]]></subreportParameterExpression>
+</subreportParameter>
+<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+<subreportExpression><![CDATA[$P{SUB_HEADER}]]></subreportExpression>
+</subreport>
+<staticText>
+<reportElement x="552" y="80" width="269" height="20" uuid="8ae05a30-8b0e-46ae-ba72-d6899daf80d3"/>
+<textElement textAlignment="Right">
+<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<text><![CDATA[Properties Monthly Rent Summary]]></text>
+</staticText>
+</band>
+</pageHeader>
+<detail>
+<band height="44" splitType="Stretch">
+<componentElement>
+<reportElement key="table" style="table" x="0" y="3" width="292" height="38" uuid="0d9b5c9c-4e01-42e9-aa32-27883cf95d06"/>
+<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+<datasetRun subDataset="RentSummary" uuid="50238c3f-70a2-4b36-b97d-dc91d4c852d8">
+	<datasetParameter name="COMPANY_POID">
+		<datasetParameterExpression><![CDATA[$P{COMPANY_POID}]]></datasetParameterExpression>
+	</datasetParameter>
+	<datasetParameter name="PERIOD">
+		<datasetParameterExpression><![CDATA[$P{PERIOD}]]></datasetParameterExpression>
+	</datasetParameter>
+	<datasetParameter name="PERIOD2">
+		<datasetParameterExpression><![CDATA[$P{PERIOD2}]]></datasetParameterExpression>
+	</datasetParameter>
+	<datasetParameter name="LEVEL_LIMIT">
+		<datasetParameterExpression><![CDATA[$P{LEVEL_LIMIT}]]></datasetParameterExpression>
+	</datasetParameter>
+	<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+</datasetRun>
+<jr:columnGroup width="832" uuid="8e7d7443-e7b3-4160-abb8-966311311b68">
+<jr:groupHeader groupName="COST_GROUP">
+<jr:cell height="20" rowSpan="1">
+<textField isBlankWhenNull="true">
+<reportElement x="0" y="0" width="832" height="20" uuid="55d8616a-5b79-4599-9bc3-b451b1478cf1"/>
+<textElement textAlignment="Center" verticalAlignment="Middle">
+<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{COST_GROUP}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupHeader>
+<jr:column width="105" uuid="f10cfbd3-00b8-4487-9539-78ab65ae4d8c">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="105" height="30" uuid="3f7841ec-1e9c-4f12-8ee6-1c089c1a21df"/>
+<textElement verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="1"/>
+</textElement>
+<text><![CDATA[Grand Total]]></text>
+</staticText>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField isBlankWhenNull="true">
+<reportElement x="0" y="0" width="105" height="30" uuid="b349096a-73af-46d8-a90d-a544c0aca989"/>
+<textElement textAlignment="Left" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA["Sub Total"]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="105" height="20" uuid="e21ecf1e-2c07-4f5f-85d1-8e75019e44b8"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Description]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField isBlankWhenNull="true">
+<reportElement x="0" y="0" width="105" height="15" uuid="b4ff9434-16dc-4d05-81db-3c662acb610d"/>
+<textElement>
+<font size="8" isBold="false"/>
+<paragraph leftIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="53" uuid="96ab2d4b-ecb1-4af4-b129-29e9fbfc4331">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="76f95b9a-634a-4780-aa70-423ddac207c8"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JAN_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="922ce486-da55-49a2-b44e-85e669cf2c0c"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JAN_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="53" height="20" uuid="a0f68d3f-258a-4e2a-85bd-ba0c59064eed"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[JAN]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="15" uuid="a3e202f0-5632-49d7-b8f4-e4a2318a7e67"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{JAN}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="53" uuid="584d4e5c-1951-4831-8193-27b1781a932f">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="502c1369-9dd8-41a3-bf14-625c1249a59c"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{FEB_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="b7b9349d-5b39-421a-acfe-70f45e4687a7"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{FEB_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="53" height="20" uuid="a41f4179-7446-4300-84ce-e030006f8b54"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[FEB]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="15" uuid="a8e39002-558a-4e1b-80d2-1cd925c84b32"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{FEB}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="53" uuid="6377c033-f55b-4cb5-b071-454ecc164429">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="4890e0e5-83ec-4539-bbc7-2e713b049e41"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{MAR_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="886f1743-492e-44e1-b0da-777e0bafbbaf"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{MAR_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="53" height="20" uuid="d86e64ab-0353-442a-af3b-856cc9ebfe9a"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[MAR]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="15" uuid="3e7c387c-f3ab-42ff-9c2d-35057b614743"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{MAR}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="53" uuid="a8d2cc7c-13e1-4ff6-9529-a25930bd8d07">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="64280bf5-42e4-4555-96f4-72d84c8c8979"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{APR_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="30" uuid="4f2b1a49-9788-454c-948e-5de77974739c"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{APR_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="53" height="20" uuid="1fcb3066-f9d3-4879-b031-530739709951"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[APR]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="53" height="15" uuid="2abe8775-0f33-4276-9a93-afcb43d5b3aa"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{APR}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="bda36069-1a25-4792-b75d-44d896996e89">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="491d1a87-168d-4819-a573-64f0158f4e34"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{MAY_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="c6b47778-1eab-427d-b82f-eea6e7599e01"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{MAY_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="857f0beb-32a5-44a9-aa6c-5dce3652ce20"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[MAY]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="8277f592-389e-404e-b291-b7c188506bdf"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{MAY}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="9798030b-8987-4023-ae68-89a3a25c4701">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="fc38feec-73ea-405b-b31c-c24be6bda7aa"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JUN_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="2e20a17a-fe37-4d0a-8b45-0a368bf537fd"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JUN_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="7604c8e9-0304-4c6a-82b4-f957b3b55678"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[JUN]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="08449856-5920-480f-9e0d-4363a6270ce5"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{JUN}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="2c2e72d8-c280-4f64-906a-ce66e4134da4">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="fcdb0ecf-e4e2-4e40-85f6-b76c2b574be6"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JUL_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="cede6982-ac79-4843-9586-64deb77c7cf4"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{JUL_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="92d9fc86-fe2e-4420-9acf-5733ce26024f"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[JUL]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="7cc1d171-0773-4991-8d9b-ce93e8e605d6"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{JUL}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="64fa7042-35f4-4c53-9b75-85605f29d139">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="e8b036fe-fae7-4c2b-9f9d-5b25c8837d12"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{AUG_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="4abef793-3cfc-48ef-9a05-a64c3c6c3ce9"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{AUG_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="41ab1cf7-703d-4bca-a430-b9bef278d2ca"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[AUG]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="689eca08-b23e-4ed9-9762-063d16491bf3"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{AUG}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="72f68a70-3c77-4453-ae71-92b66282bf5c">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="aefe37fa-9cc8-4cdb-b77a-bbacff324cf7"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{SEP_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="8bc49708-30d8-4975-aa7f-f5ddda9150ac"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{SEP_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="6cef1e8b-9a4c-4e8a-b8a3-fb87a4ed7c25"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[SEP]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="25d96d0b-c698-4213-b63c-3c0fa16b2c68"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{SEP}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="dd6019c6-7341-4046-9961-f68abd2740c7">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="d48faa6c-62cf-4061-b787-43d94a4444aa"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{OCT_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="fb0da748-f8c7-4117-96d4-ffa9f435be95"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{OCT_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="831bcf1b-fc83-4dd2-bd0d-667b07110a9c"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[OCT]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="6614d87b-ea5c-48b2-8db1-fd9f54b50941"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{OCT}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="8ca18de3-1569-49d4-bb79-3aaeee30710f">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="b1502890-1cb2-481f-aa25-a93f2d750783"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{NOV_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="f8272b82-9eb9-415e-b0f3-d618f7f2682c"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{NOV_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="a4e954a1-ba6b-4de7-8f22-69be8843276b"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[NOV]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="e3168f12-db62-42ec-8328-b08db71203ca"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{NOV}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="7119940d-eb1c-4e1d-b237-9bff7abb8c9d">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="015273fa-d6ae-41ce-a419-00e19518be53"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{DEC_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="3a46e422-59fb-43b5-b8fc-943e9162b0cc"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{DEC_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="20" uuid="dac07131-0476-48c6-b2a1-91544cb031d2"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[DEC]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="15" uuid="03e0e016-b93e-45b9-b34f-b3349f674c52"/>
+<textElement textAlignment="Right">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{DEC}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="75" uuid="1c5e7caa-7973-4d09-9d11-26dc9a4db350">
+<jr:tableFooter style="GrandTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="75" height="30" uuid="e23e1ca3-1799-451f-8eef-409c7649f4d5"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_GT}]]></textFieldExpression>
+</textField>
+</jr:tableFooter>
+<jr:groupFooter groupName="COST_GROUP">
+<jr:cell style="SubTotalStyle" height="30" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="75" height="30" uuid="5ddd4ee7-9daf-454c-81bb-7afaa44449be"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="1"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_ST}]]></textFieldExpression>
+</textField>
+</jr:cell>
+</jr:groupFooter>
+<jr:columnHeader style="table_CH" height="21" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="75" height="20" uuid="94d2a638-7c62-4ec4-bc2e-0085de72a491"/>
+<textElement>
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Total]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:detailCell style="table_TD" height="16" rowSpan="1">
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="75" height="15" uuid="964ee16d-ab77-4f95-87e8-6a771ffe044a"/>
+<textElement textAlignment="Right">
+<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{TOTAL}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+</jr:columnGroup>
+</jr:table>
+</componentElement>
+</band>
+</detail>
+<pageFooter>
+<band height="36" splitType="Stretch">
+<textField pattern="EEE, d MMM yyyy HH:mm:ss" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="292" height="20" forecolor="#999999" uuid="a0bd69fa-e75e-46cf-9796-263ffbdd7ddc"/>
+<textElement>
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
+</textField>
+<textField isBlankWhenNull="true">
+<reportElement x="713" y="0" width="58" height="20" forecolor="#999999" uuid="36ae91c3-b91f-42eb-977a-945d0dca8a27"/>
+<textElement textAlignment="Right">
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<textFieldExpression><![CDATA["Page-"+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+</textField>
+<textField evaluationTime="Report" isBlankWhenNull="true">
+<reportElement x="771" y="0" width="28" height="20" forecolor="#999999" uuid="25065097-ee9e-4da9-9fbb-3015ec1adaf1"/>
+<textElement>
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+</textElement>
+<textFieldExpression><![CDATA[" "+$V{PAGE_NUMBER}]]></textFieldExpression>
+</textField>
+</band>
+</pageFooter>
+<summary>
+<band height="24" splitType="Stretch"/>
+</summary>
+</jasperReport>

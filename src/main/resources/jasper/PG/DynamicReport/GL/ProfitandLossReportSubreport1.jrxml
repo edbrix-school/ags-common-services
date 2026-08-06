@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ProfitandLossReportSubreport1" language="groovy" pageWidth="802" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="02cd35d8-f1d1-4451-99aa-679f8c91a1f2">
+<property name="ireport.zoom" value="1.0000000000000004"/>
+<property name="ireport.x" value="0"/>
+<property name="ireport.y" value="0"/>
+<style name="style1" pattern="" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0">
+<pen lineWidth="0.25" lineStyle="Dotted"/>
+<topPen lineWidth="0.25" lineStyle="Dotted"/>
+<leftPen lineWidth="0.25" lineStyle="Dotted"/>
+<bottomPen lineWidth="0.25" lineStyle="Dotted"/>
+<rightPen lineWidth="0.25" lineStyle="Dotted"/>
+</box>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==1]]></conditionExpression>
+<style mode="Opaque" forecolor="#000000" backcolor="#CCCCCC" fill="Solid" hAlign="Left" vAlign="Top" pattern="#,##0.000" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<pen lineColor="#000000"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==2]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="15"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==98]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<pen lineColor="#000000"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==99]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==3 && $F{LVL}==3]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="30"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==3]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="40"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==4 && $F{LVL}==4]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="40"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==4]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="50"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==5 && $F{LVL}==5]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="55"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==5]]></conditionExpression>
+<style isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="60"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==97]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+</conditionalStyle>
+</style>
+<style name="style2" isDefault="true" isBlankWhenNull="true" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<pen lineWidth="0.25" lineStyle="Dotted"/>
+<topPen lineWidth="0.25" lineStyle="Dotted"/>
+<leftPen lineWidth="0.25" lineStyle="Dotted"/>
+<bottomPen lineWidth="0.25" lineStyle="Dotted"/>
+<rightPen lineWidth="0.25" lineStyle="Dotted"/>
+</box>
+</style>
+<style name="style3">
+<box>
+<pen lineWidth="0.25" lineStyle="Dotted"/>
+<topPen lineWidth="0.25" lineStyle="Dotted"/>
+<leftPen lineWidth="0.25" lineStyle="Dotted"/>
+<bottomPen lineWidth="0.25" lineStyle="Dotted"/>
+<rightPen lineWidth="0.25" lineStyle="Dotted"/>
+</box>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==1]]></conditionExpression>
+<style mode="Opaque" forecolor="#000000" backcolor="#CCCCCC" hAlign="Right" vAlign="Middle" pattern="#,##0.000" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==2]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0" rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==3 && $F{LVL}==3]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0" rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==98]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<pen lineColor="#000000"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==99]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==97]]></conditionExpression>
+<style mode="Opaque" backcolor="#CCCCCC" hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==3]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0" rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==4 && $F{LVL}==4]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0" rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==4]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==5 && $F{LVL}==5]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box leftPadding="0" rightPadding="0"/>
+</style>
+</conditionalStyle>
+<conditionalStyle>
+<conditionExpression><![CDATA[$F{FLVL}==0 && $F{LVL}==5]]></conditionExpression>
+<style hAlign="Right" vAlign="Middle" isBlankWhenNull="true" fontSize="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box rightPadding="0"/>
+</style>
+</conditionalStyle>
+</style>
+<parameter name="PERIOD" class="java.lang.String"/>
+<parameter name="PERIOD2" class="java.lang.String"/>
+<parameter name="COMPANY_POID" class="java.lang.String"/>
+<!-- COMPANY_POID holds only the first selected company; COMPANY_POID_CSV carries the full multiselect list -->
+<parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+<parameter name="COST_POID" class="java.lang.String"/>
+<parameter name="LEVEL_LIMIT" class="java.lang.String"/>
+<queryString language="sql">
+<![CDATA[SELECT * FROM fn_gl_ledger_profit_loss_rpt($P{PERIOD}::date, $P{PERIOD2}::date, string_to_array(translate(CAST($P{COMPANY_POID_CSV} AS TEXT), '{} ', ''), ',')::numeric[], $P{COST_POID}::varchar, $P{LEVEL_LIMIT}::varchar)]]>
+</queryString>
+<field name="GL_POID" class="java.math.BigDecimal"/>
+<field name="FLVL" class="java.math.BigDecimal"/>
+<field name="LVL" class="java.math.BigDecimal"/>
+<field name="GL_CODE" class="java.lang.String"/>
+<field name="DESCRIPTION" class="java.lang.String"/>
+<field name="OPENING_BALANCE_DR" class="java.math.BigDecimal"/>
+<field name="OPENING_BALANCE_CR" class="java.math.BigDecimal"/>
+<field name="DR_AMT" class="java.math.BigDecimal"/>
+<field name="CR_AMT" class="java.math.BigDecimal"/>
+<field name="CLOSING_BALANCE_DR" class="java.math.BigDecimal"/>
+<field name="CLOSING_BALANCE_CR" class="java.math.BigDecimal"/>
+<columnHeader>
+<band height="21" splitType="Stretch">
+<staticText>
+<reportElement style="style2" x="0" y="0" width="250" height="20" uuid="1bea2c9a-5bae-44c8-ac7d-4d267dbc5166"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Description]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="250" y="0" width="85" height="20" uuid="22117462-5e06-453e-8f05-6c8a8d1baf97"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Opening Bal DR]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="420" y="0" width="95" height="20" uuid="fa78aa46-271f-46ed-ab70-84ef96a88b94"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[DR Amt]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="515" y="0" width="95" height="20" uuid="337bb31c-b58e-4f75-b8ca-7788b667fd05"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[CR Amt]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="610" y="0" width="92" height="20" uuid="9f230402-4c50-45be-870d-7248fbd6d7f9"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Closing Bal DR]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="702" y="0" width="100" height="20" uuid="bdfef98f-bec9-446f-bda3-9c2dbf18c5d4"/>
+<textElement verticalAlignment="Middle">
+<font size="9"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Closing Bal CR]]></text>
+</staticText>
+<staticText>
+<reportElement style="style2" x="335" y="0" width="85" height="20" uuid="123a8986-d50e-4a62-a2a7-0b8ef321fe91"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Opening Bal CR]]></text>
+</staticText>
+<line>
+<reportElement x="0" y="20" width="802" height="1" uuid="cf92ad89-4d1f-43f2-af05-d511c3d53624"/>
+<graphicElement>
+<pen lineWidth="1.0" lineStyle="Solid"/>
+</graphicElement>
+</line>
+<line>
+<reportElement x="0" y="0" width="802" height="1" uuid="09a87052-26d7-40ea-8070-c0ecd7df0a00"/>
+</line>
+</band>
+</columnHeader>
+<detail>
+<band height="15" splitType="Stretch">
+<textField isBlankWhenNull="true">
+<reportElement style="style1" x="0" y="0" width="250" height="15" uuid="cb835f91-c906-4b2e-8dd4-5c61d8c1c157"/>
+<textElement verticalAlignment="Middle"/>
+<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="250" y="0" width="85" height="15" uuid="2769eaa0-70e3-4c9b-9b1d-3f18396c0fb8"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{OPENING_BALANCE_DR}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="420" y="0" width="95" height="15" uuid="0bb73c02-e050-437d-bddd-a24713ace3be"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{DR_AMT}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="515" y="0" width="95" height="15" uuid="5b418c62-ff80-4523-a80b-218574ce065a"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{CR_AMT}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="610" y="0" width="92" height="15" uuid="8b089a63-2bf0-4004-9384-8f60b10a7def"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{CLOSING_BALANCE_DR}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="702" y="0" width="100" height="15" uuid="5e8f94f8-61cd-4e89-ae2a-51a96acdac69"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{CLOSING_BALANCE_CR}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0.000" isBlankWhenNull="true">
+<reportElement style="style3" x="335" y="0" width="85" height="15" uuid="27eccf8f-992a-41df-bba6-d8efdf01705e"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="9"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{OPENING_BALANCE_CR}]]></textFieldExpression>
+</textField>
+</band>
+</detail>
+</jasperReport>

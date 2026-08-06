@@ -62,14 +62,12 @@ public class DynamicReportPrintService {
             boolean contains999 = companyIds.contains(999L);
             if (companyIds.size() == 1 || contains999) {
                 // Backward Compatibility
-                // Every JRXML declares COMPANY_POID/COMPANY_POID_CSV as java.lang.String,
-                // so always hand JasperReports a String - a raw Long fails parameter type validation.
-                params.put("COMPANY_POID", contains999 ? "999" : String.valueOf(companyIds.getFirst()));
+                params.put("COMPANY_POID", contains999 ? "999" : companyIds.getFirst());
                 // Adding CSV as well because we already changed query for Two Reports BillWise Statement and BillWise Statement FC
-                params.put("COMPANY_POID_CSV", contains999 ? "999" : String.valueOf(companyIds.getFirst()));
+                params.put("COMPANY_POID_CSV", contains999 ? "999" : companyIds.getFirst());
             } else {
                 // Multiple values - add as CSV, Add First ID in COMPANY_POID as well to maintain existing logic
-                params.put("COMPANY_POID", String.valueOf(companyIds.getFirst()));
+                params.put("COMPANY_POID", companyIds.getFirst());
                 params.put("COMPANY_POID_CSV", companyIds.stream()
                         .map(Object::toString)
                         .collect(Collectors.joining(",")));

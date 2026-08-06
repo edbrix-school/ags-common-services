@@ -3,6 +3,7 @@ package com.asg.common.services.service.impl;
 import com.asg.common.lib.enums.AttachmentFilterType;
 import com.asg.common.lib.enums.LogDetailsEnum;
 import com.asg.common.lib.exception.AsgException;
+import com.asg.common.lib.exception.CustomException;
 import com.asg.common.lib.exception.ResourceNotFoundException;
 import com.asg.common.lib.security.util.UserContext;
 import com.asg.common.lib.service.LoggingService;
@@ -479,7 +480,12 @@ public class AttachmentServiceImpl implements AttachmentService {
             file = new File(attachmentsPath, mappedFileName + "." + extension);
         }
         if (!file.exists() || !file.canRead()) {
-            throw new ResourceNotFoundException("File not found on server", "path", file.getAbsolutePath());
+            String displayName = attachment.getFileName() != null ? attachment.getFileName() : mappedFileName;
+            log.error("Attachment file not found on server. docId={}, docKeyPoid={}, fileNameMapped={}, path={}",
+                    docId, docKeyPoid, mappedFileName, file.getAbsolutePath());
+            throw new CustomException(
+                    "Unable to open attachment '" + displayName + "'. The file is not available on the server.",
+                    404);
         }
         return new FileSystemResource(file);
     }
