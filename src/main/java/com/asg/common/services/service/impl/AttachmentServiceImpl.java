@@ -167,7 +167,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public Page<AttachmentDto> getAttachmentsByFilter(String docId, Long docKeyPoid, AttachmentFilterType filterType, Pageable pageable) {
-        validateDoc(docId, docKeyPoid);
+        validateDocId(docId);
+        if (docKeyPoid == null || docKeyPoid <= 0) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
 
         List<Object[]> rows = attachmentRepository.fetchAttachmentsByFilter(getGroupPoid(), 1L, docId, docKeyPoid, filterType);
 
@@ -187,7 +190,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public List<AttachmentDto> getDeletedAttachments(String docId, Long docKeyPoid) {
-        validateDoc(docId, docKeyPoid);
+        validateDocId(docId);
+        if (docKeyPoid == null || docKeyPoid <= 0) {
+            return Collections.emptyList();
+        }
 
         return attachmentRepository.fetchDeletedAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
                 .stream()
@@ -201,7 +207,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public List<AttachmentDto> getActiveAttachments(String docId, Long docKeyPoid) {
-        validateDoc(docId, docKeyPoid);
+        validateDocId(docId);
+        if (docKeyPoid == null || docKeyPoid <= 0) {
+            return Collections.emptyList();
+        }
 
         return attachmentRepository.fetchAllAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
                 .stream()
@@ -213,7 +222,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public List<AttachmentDto> getAllAttachments(String docId, Long docKeyPoid) {
-        validateDoc(docId, docKeyPoid);
+        validateDocId(docId);
+        if (docKeyPoid == null || docKeyPoid <= 0) {
+            return Collections.emptyList();
+        }
 
         return attachmentRepository.fetchAllAttachments(getGroupPoid(), UserContext.getCompanyPoid(), docId, docKeyPoid)
                 .stream()
@@ -226,7 +238,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public Page<AttachmentDto> getActiveAttachments(String docId, Long docKeyPoid, Pageable pageable) {
-        validateDoc(docId, docKeyPoid);
+        validateDocId(docId);
+        if (docKeyPoid == null || docKeyPoid <= 0) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
 
         List<AttachmentDto> dtos = attachmentRepository.fetchActiveAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
                 .stream()
