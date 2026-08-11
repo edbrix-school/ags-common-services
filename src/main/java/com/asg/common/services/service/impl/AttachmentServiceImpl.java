@@ -110,7 +110,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 String storedName = dmsClient.uploadToDms(file, docId, docKeyPoid, authToken, null, resolvedDocShortName, docRef);
 
                 Long groupPoid = getGroupPoid();
-                Long companyPoid = 1L;
+                Long companyPoid = getCompanyPoid();
 
                 Long maxSeq = existing.stream()
                         .map(AttachmentDto::getSeqNo)
@@ -173,7 +173,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
-        List<Object[]> rows = attachmentRepository.fetchAttachmentsByFilter(getGroupPoid(), 1L, docId, docKeyPoid, filterType);
+        List<Object[]> rows = attachmentRepository.fetchAttachmentsByFilter(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid, filterType);
 
         List<AttachmentDto> dtos = rows.stream()
                 .map(this::mapRowToDto)
@@ -196,7 +196,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             return Collections.emptyList();
         }
 
-        return attachmentRepository.fetchDeletedAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
+        return attachmentRepository.fetchDeletedAttachments(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid)
                 .stream()
                 .map(this::mapRowToDto)
                 .filter(dto -> dto.isDeleted())
@@ -213,7 +213,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             return Collections.emptyList();
         }
 
-        return attachmentRepository.fetchAllAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
+        return attachmentRepository.fetchAllAttachments(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid)
                 .stream()
                 .map(this::mapRowToDto)
                 .sorted(Comparator.comparing(AttachmentDto::getSeqNo, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -228,7 +228,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             return Collections.emptyList();
         }
 
-        return attachmentRepository.fetchAllAttachments(getGroupPoid(), UserContext.getCompanyPoid(), docId, docKeyPoid)
+        return attachmentRepository.fetchAllAttachments(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid)
                 .stream()
                 .map(this::mapRowToDto)
                 .sorted(Comparator.comparing(AttachmentDto::getSeqNo, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -244,7 +244,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
-        List<AttachmentDto> dtos = attachmentRepository.fetchActiveAttachments(getGroupPoid(), 1L, docId, docKeyPoid)
+        List<AttachmentDto> dtos = attachmentRepository.fetchActiveAttachments(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid)
                 .stream()
                 .map(this::mapRowToDto)
                 .sorted(Comparator.comparing(AttachmentDto::getSeqNo, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -286,7 +286,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
         }
 
-        attachmentRepository.deleteAttachment(getGroupPoid(), 1L, docId, docKeyPoid, fileNameMapped);
+        attachmentRepository.deleteAttachment(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid, fileNameMapped);
         
         // Log attachment deletion
         String logDetail = String.format("%s File: %s", LogDetailsEnum.ATTACHMENT_DELETED.getDescription(), originalFileName);
@@ -303,7 +303,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         if (existingAttachments.isEmpty()) {
             throw new ResourceNotFoundException("Attachments", "parameters", "docId=" + docId + ", docKeyPoid=" + docKeyPoid);
         }
-        attachmentRepository.deleteAttachment(getGroupPoid(), 1L, docId, docKeyPoid, "(ALL)");
+        attachmentRepository.deleteAttachment(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid, "(ALL)");
         String logDetail = LogDetailsEnum.ATTACHMENTS_DELETED.getDescription();
         loggingService.createLogSummaryEntry(docId, docKeyPoid.toString(), logDetail);
     }
@@ -318,7 +318,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         String originalFileName = stripTimestampPrefixes(attachmentInfo.getOriginalFileName());
         
         // Call existing archive procedure
-        attachmentRepository.archiveAttachment(getGroupPoid(), 1L, docId, docKeyPoid, fileNameMapped);
+        attachmentRepository.archiveAttachment(getGroupPoid(), getCompanyPoid(), docId, docKeyPoid, fileNameMapped);
         
         // Log attachment archiving
         String logDetail = String.format("%s File: %s", LogDetailsEnum.ATTACHMENT_ARCHIVED.getDescription(), originalFileName);
@@ -411,7 +411,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                             : existingAttachment.getOriginalFileName();
 
             attachmentRepository.updateAttachment(
-                    getGroupPoid(), 1L, actualDocId, u.getDocKeyPoid(), u.getSeqNo(),
+                    getGroupPoid(), getCompanyPoid(), actualDocId, u.getDocKeyPoid(), u.getSeqNo(),
                     existingAttachment.getOriginalFileName(),
                     u.getRemarks(), u.getChecklistName(),
                     getUserPoid(), fileNameMapped
@@ -533,7 +533,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         try {
             Long groupPoid = getGroupPoid();
-            Long companyPoid = 1L;
+            Long companyPoid = getCompanyPoid();
             String loginUser = UserContext.getUserPoid() != null ? String.valueOf(UserContext.getUserPoid()) : "82";
 
             // P_JOB_POID must be the voyage poid — look it up from BL manifest if not provided
@@ -608,6 +608,10 @@ public class AttachmentServiceImpl implements AttachmentService {
         return UserContext.getGroupPoid() != null ? UserContext.getGroupPoid() : 1L;
     }
 
+    private Long getCompanyPoid() {
+        return UserContext.getCompanyPoid() != null ? UserContext.getCompanyPoid() : 1L;
+    }
+
     private Long getUserPoid() {
         return UserContext.getUserPoid() != null ? UserContext.getUserPoid() : 1L;
     }
@@ -640,7 +644,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                    String createdBy, Date createdDate, boolean active) {
         AttachmentDto d = new AttachmentDto();
         d.setGroupPoid(getGroupPoid());
-        d.setCompanyPoid(1L);
+        d.setCompanyPoid(getCompanyPoid());
         d.setDocId(docId);
         d.setDocKeyPoid(docKeyPoid);
         d.setSeqNo(seqNo);
