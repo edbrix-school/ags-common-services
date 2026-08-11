@@ -49,6 +49,10 @@ public class AttachmentController {
             @RequestParam(value = "remarks", required = false) String[] remarks,
             @RequestParam(value = "checklistName", required = false) String[] checklistNames,
             @RequestParam(value = "seqNo", required = false) Long[] seqNos,
+            @RequestParam(value = "attachEDI", required = false) Boolean[] attachEDIs,
+            @RequestParam(value = "attachmentEDIJobPoid", required = false) Long[] attachmentEDIJobPoids,
+            @RequestParam(value = "jobPoid", required = false) Long[] jobPoids,
+            @RequestParam(value = "jobId", required = false) Long[] jobIds,
             @RequestParam(value = "docShortName", required = false) String docShortName,
             @RequestParam(value = "docRef", required = false) String docRef,
             @ModelAttribute UploadRequestWrapper wrapper
@@ -101,6 +105,11 @@ public class AttachmentController {
                     dto.setRemarks(remarks != null && i < remarks.length ? remarks[i] : null);
                     dto.setChecklistName(checklistNames != null && i < checklistNames.length ? checklistNames[i] : null);
                     dto.setSeqNo(seqNos != null && i < seqNos.length ? seqNos[i] : null);
+                    dto.setAttachEDI(attachEDIs != null && i < attachEDIs.length && Boolean.TRUE.equals(attachEDIs[i]));
+                    Long resolvedJobPoid = (attachmentEDIJobPoids != null && i < attachmentEDIJobPoids.length) ? attachmentEDIJobPoids[i] :
+                            (jobPoids != null && i < jobPoids.length) ? jobPoids[i] :
+                            (jobIds != null && i < jobIds.length) ? jobIds[i] : null;
+                    dto.setAttachmentEDIJobPoid(resolvedJobPoid);
                     arrayUploads.add(dto);
                 }
             }
