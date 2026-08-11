@@ -11,4 +11,12 @@ public class AttachmentUploadDto {
     private boolean attachEDI;
     private Long attachmentEDIJobPoid;
     private Long seqNo; // Auto-generated if null
+
+    public void setJobId(Long jobId) {
+        if (jobId != null) this.attachmentEDIJobPoid = jobId;
+    }
+
+    public void setJobPoid(Long jobPoid) {
+        if (jobPoid != null) this.attachmentEDIJobPoid = jobPoid;
+    }
 }
