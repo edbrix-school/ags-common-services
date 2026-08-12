@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DivisionWiseComparisonReport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="541876ce-4320-45fd-8a4a-aab793964545">
+  <property name="ireport.zoom" value="1.2100000000000006"/>
+  <property name="ireport.x" value="0"/>
+  <property name="ireport.y" value="0"/>
+  <parameter name="COMPANY_POID" class="java.lang.String"/>
+  <!-- COMPANY_POID holds only the first selected company; COMPANY_POID_CSV carries the full multiselect list -->
+  <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+  <parameter name="PERIOD" class="java.lang.String"/>
+  <parameter name="PERIOD2" class="java.lang.String"/>
+  <parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="PROFIT_TYPE" class="java.lang.String">
+    <defaultValueExpression><![CDATA["GROSS_PROFIT"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="COST_GROUP" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA["GL_COST_CENTRE"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="GROUP_GL_POID" class="java.lang.String"/>
+  <parameter name="FFS_ALLOCATE_TO" class="java.lang.String">
+    <defaultValueExpression><![CDATA["SH"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="SUBREPORT1" class="net.sf.jasperreports.engine.JasperReport"/>
+  <parameter name="OTHER_INCOME" class="java.lang.String"/>
+  <parameter name="USER_POID" class="java.lang.String"/>
+  <parameter name="REPORT_DATE" class="java.util.Date"/>
+  <queryString language="sql">
+    <![CDATA[WITH p AS (
+    SELECT ('{' || TRANSLATE(CAST($P{COMPANY_POID_CSV} AS TEXT), '[] ', '') || '}')::numeric[] AS poids
+)
+SELECT
+    CASE
+        WHEN 999 = ANY(p.poids) THEN 'All Companies'
+        ELSE (
+            SELECT STRING_AGG(DISTINCT GCM.COMPANY_NAME, ',' || CHR(10) ORDER BY GCM.COMPANY_NAME)
+            FROM GLOBAL_COMPANY_MASTER GCM
+            WHERE GCM.COMPANY_POID = ANY(p.poids)
+        )
+    END AS COMPANY_NAME,
+    CASE
+        WHEN $P{OTHER_INCOME}='Y' AND $P{PROFIT_TYPE}='GROSS_PROFIT' THEN 'Included'
+        WHEN $P{PROFIT_TYPE}='NET_PROFIT' THEN 'Included'
+        ELSE 'Excluded'
+    END AS OTHER_INCOME
+FROM p]]>
+  </queryString>
+  <field name="COMPANY_NAME" class="java.lang.String"/>
+  <field name="OTHER_INCOME" class="java.lang.String"/>
+  <title>
+    <band height="50"/>
+  </title>
+  <pageHeader>
+    <band height="64" splitType="Stretch">
+      <frame>
+        <reportElement x="12" y="0" width="346" height="62" uuid="7f3a9c21-5b84-4e07-9d16-c2a8e4f61b30"/>
+        <box>
+          <pen lineWidth="0.0"/>
+          <topPen lineWidth="0.0"/>
+          <leftPen lineWidth="0.0"/>
+          <bottomPen lineWidth="0.0"/>
+          <rightPen lineWidth="0.0"/>
+        </box>
+        <staticText>
+          <reportElement x="0" y="0" width="70" height="15" uuid="dc3c7a68-ed5b-4cc7-90d8-5fbbb3b85474"/>
+          <textElement verticalAlignment="Top">
+            <font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <text><![CDATA[Company :]]></text>
+        </staticText>
+        <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+          <reportElement x="70" y="0" width="276" height="15" uuid="24eb95b2-98ca-4dae-83b2-d8a7a01dc120"/>
+          <textElement verticalAlignment="Top">
+            <font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+          </textElement>
+          <textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+        </textField>
+        <frame>
+          <reportElement positionType="Float" x="0" y="22" width="346" height="16" uuid="8e4b0d32-6c95-4f18-8e27-d3b9f5a72c41"/>
+          <box>
+            <pen lineWidth="0.0"/>
+            <topPen lineWidth="0.0"/>
+            <leftPen lineWidth="0.0"/>
+            <bottomPen lineWidth="0.0"/>
+            <rightPen lineWidth="0.0"/>
+          </box>
+          <staticText>
+            <reportElement x="0" y="0" width="55" height="16" uuid="bf5daed8-42ea-47ce-b3df-042376e40bf8"/>
+            <textElement verticalAlignment="Middle">
+              <font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+            </textElement>
+            <text><![CDATA[Period :]]></text>
+          </staticText>
+          <textField isBlankWhenNull="true">
+            <reportElement x="55" y="0" width="85" height="16" uuid="59ee2575-3023-4db3-8cec-4bfb819dbe43"/>
+            <textElement verticalAlignment="Middle">
+              <font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+            </textElement>
+            <textFieldExpression><![CDATA[$P{PERIOD} == null ? null : new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new java.text.SimpleDateFormat("yyyy-MM-dd").parse($P{PERIOD}.toString()))]]></textFieldExpression>
+          </textField>
+          <staticText>
+            <reportElement x="150" y="0" width="70" height="16" uuid="c1fca2a5-41a6-4d8f-812e-863dc34b43c2"/>
+            <textElement verticalAlignment="Middle">
+              <font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+            </textElement>
+            <text><![CDATA[Period To :]]></text>
+          </staticText>
+          <textField isBlankWhenNull="true">
+            <reportElement x="220" y="0" width="90" height="16" uuid="fd0c02e5-4db8-424c-9f1f-5ded3490923a"/>
+            <textElement verticalAlignment="Middle">
+              <font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+            </textElement>
+            <textFieldExpression><![CDATA[$P{PERIOD2} == null ? null : new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new java.text.SimpleDateFormat("yyyy-MM-dd").parse($P{PERIOD2}.toString()))]]></textFieldExpression>
+          </textField>
+        </frame>
+        <frame>
+          <reportElement positionType="Float" x="0" y="46" width="346" height="14" uuid="9f5c1e43-7da6-4029-9f38-e4c0a6b83d52"/>
+          <box>
+            <pen lineWidth="0.0"/>
+            <topPen lineWidth="0.0"/>
+            <leftPen lineWidth="0.0"/>
+            <bottomPen lineWidth="0.0"/>
+            <rightPen lineWidth="0.0"/>
+          </box>
+          <staticText>
+            <reportElement x="0" y="0" width="80" height="14" uuid="d7fb5e1f-ee8e-4592-ac1e-2b1bae5751e3"/>
+            <textElement verticalAlignment="Middle">
+              <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+            </textElement>
+            <text><![CDATA[Other Income :]]></text>
+          </staticText>
+          <textField isBlankWhenNull="true">
+            <reportElement x="80" y="0" width="120" height="14" uuid="963c628b-49c6-4b86-aed4-e6a0bda1cef5"/>
+            <textElement verticalAlignment="Middle">
+              <font size="9"/>
+            </textElement>
+            <textFieldExpression><![CDATA[$F{OTHER_INCOME}]]></textFieldExpression>
+          </textField>
+        </frame>
+      </frame>
+      <staticText>
+        <reportElement x="363" y="0" width="192" height="20" uuid="4f1c7c51-f771-4a15-9133-c993df99fe9a"/>
+        <textElement textAlignment="Right">
+          <font size="13" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Division Wise Comparison]]></text>
+      </staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="417" y="21" width="138" height="15" uuid="b89dac58-49d2-4729-afc4-8031c9769f60"/>
+        <textElement textAlignment="Right">
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{PROFIT_TYPE}]]></textFieldExpression>
+      </textField>
+    </band>
+  </pageHeader>
+  <detail>
+    <band height="45" splitType="Stretch">
+      <subreport>
+        <reportElement x="12" y="0" width="543" height="45" uuid="6aca6dec-64d8-424e-8b82-ef9db979502c"/>
+        <subreportParameter name="COMPANY_POID">
+          <subreportParameterExpression><![CDATA[$P{COMPANY_POID}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="COMPANY_POID_CSV">
+          <subreportParameterExpression><![CDATA[$P{COMPANY_POID_CSV}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="PERIOD2">
+          <subreportParameterExpression><![CDATA[$P{PERIOD2}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="GROUP_GL_POID">
+          <subreportParameterExpression><![CDATA[$P{GROUP_GL_POID}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="FFS_ALLOCATE_TO">
+          <subreportParameterExpression><![CDATA[$P{FFS_ALLOCATE_TO}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="OTHER_INCOME">
+          <subreportParameterExpression><![CDATA[$P{OTHER_INCOME}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="PERIOD">
+          <subreportParameterExpression><![CDATA[$P{PERIOD}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="PROFIT_TYPE">
+          <subreportParameterExpression><![CDATA[$P{PROFIT_TYPE}]]></subreportParameterExpression>
+        </subreportParameter>
+        <subreportParameter name="COST_GROUP">
+          <subreportParameterExpression><![CDATA[$P{COST_GROUP}]]></subreportParameterExpression>
+        </subreportParameter>
+        <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+        <subreportExpression><![CDATA[$P{SUBREPORT1}]]></subreportExpression>
+      </subreport>
+    </band>
+  </detail>
+  <pageFooter>
+    <band height="44" splitType="Stretch">
+      <textField pattern="EEE, d MMM yyyy HH:mm" isBlankWhenNull="true">
+        <reportElement x="12" y="20" width="302" height="20" forecolor="#666666" uuid="5cbc2c36-3eda-4dac-8298-88627be770af"/>
+        <textElement verticalAlignment="Middle">
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
+      </textField>
+    </band>
+  </pageFooter>
+</jasperReport>

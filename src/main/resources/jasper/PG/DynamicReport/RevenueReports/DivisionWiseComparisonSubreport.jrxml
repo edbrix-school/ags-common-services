@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DivisionWiseComparisonSubreport" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="2c30e541-8ea2-4c13-a703-0fa22d13bf1d">
+  <property name="ireport.zoom" value="2.8531167061100033"/>
+  <property name="ireport.x" value="0"/>
+  <property name="ireport.y" value="0"/>
+  <style name="style1" mode="Transparent" hAlign="Right" vAlign="Middle" pattern="#,##0.000" isBlankWhenNull="true" fontSize="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <pen lineWidth="0.0" lineStyle="Dashed" lineColor="#000000"/>
+    <box leftPadding="0">
+      <pen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+    </box>
+    <paragraph rightIndent="3"/>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{COST_POID}.equalsIgnoreCase("TOTAL")]]></conditionExpression>
+      <style mode="Opaque" forecolor="#000000" backcolor="#CCCCCC" fill="Solid" pattern="#,##0.000" isBlankWhenNull="true" fontSize="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style2" mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box>
+      <pen lineWidth="1.0" lineStyle="Solid" lineColor="#666666"/>
+      <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#666666"/>
+      <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#666666"/>
+      <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#666666"/>
+      <rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#666666"/>
+    </box>
+    <paragraph firstLineIndent="3"/>
+  </style>
+  <style name="style3" isBlankWhenNull="true" fontSize="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box>
+      <pen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+    </box>
+    <paragraph firstLineIndent="3"/>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{COST_POID}.equalsIgnoreCase( "TOTAL" )]]></conditionExpression>
+      <style mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" fontSize="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style4" pattern="#,##0.000" isBlankWhenNull="true" fontSize="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box>
+      <pen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+      <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#666666"/>
+    </box>
+    <paragraph rightIndent="3"/>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{VARIANCE}<0]]></conditionExpression>
+      <style mode="Opaque" forecolor="#FF0000" pattern="#,##0.000" isBlankWhenNull="true" fontSize="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineStyle="Solid" lineColor="#666666"/>
+        <box>
+          <pen lineWidth="1.0"/>
+          <topPen lineWidth="1.0"/>
+          <leftPen lineWidth="1.0"/>
+          <bottomPen lineWidth="1.0"/>
+          <rightPen lineWidth="1.0"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{COST_POID}.equalsIgnoreCase( "TOTAL" )]]></conditionExpression>
+      <style mode="Opaque" backcolor="#CCCCCC" pattern="#,##0.000" isBlankWhenNull="true" fontSize="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineWidth="0.0" lineStyle="Dotted" lineColor="#666666"/>
+        <box>
+          <pen lineWidth="1.0"/>
+          <topPen lineWidth="1.0"/>
+          <leftPen lineWidth="1.0"/>
+          <bottomPen lineWidth="1.0"/>
+          <rightPen lineWidth="1.0"/>
+        </box>
+      </style>
+    </conditionalStyle>
+  </style>
+  <parameter name="COMPANY_POID" class="java.lang.String"/>
+  <!-- COMPANY_POID holds only the first selected company; COMPANY_POID_CSV carries the full multiselect list -->
+  <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+  <parameter name="PERIOD" class="java.lang.String"/>
+  <parameter name="PERIOD2" class="java.lang.String"/>
+  <parameter name="PROFIT_TYPE" class="java.lang.String" isForPrompting="false">
+    <parameterDescription><![CDATA[]]></parameterDescription>
+    <defaultValueExpression><![CDATA["GROSS_PROFIT"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="COST_GROUP" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA["GL_COST_CENTRE"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="GROUP_GL_POID" class="java.lang.String"/>
+  <parameter name="FFS_ALLOCATE_TO" class="java.lang.String">
+    <defaultValueExpression><![CDATA["SH"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="OTHER_INCOME" class="java.lang.String"/>
+  <queryString language="sql">
+    <![CDATA[SELECT * FROM fn_gl_div_com_rpt_print_v2(
+    NULL, 
+    $P{PERIOD}::date, 
+    $P{PERIOD2}::date, 
+    ('{' || TRANSLATE(CAST($P{COMPANY_POID_CSV} AS TEXT), '[] ', '') || '}')::numeric[],
+    $P{PROFIT_TYPE}, 
+    $P{OTHER_INCOME}
+    )]]>
+  </queryString>
+  <field name="COST_POID" class="java.lang.String"/>
+  <field name="DESCRIPTION" class="java.lang.String"/>
+  <field name="CURRENT_YEAR" class="java.math.BigDecimal"/>
+  <field name="PREVIOUS_YEAR" class="java.math.BigDecimal"/>
+  <field name="VARIANCE" class="java.math.BigDecimal"/>
+  <field name="PERCENTAGE" class="java.lang.String"/>
+  <background>
+    <band splitType="Stretch"/>
+  </background>
+  <columnHeader>
+    <band height="21" splitType="Stretch">
+      <staticText>
+        <reportElement style="style2" x="0" y="1" width="146" height="20" uuid="9b031444-9903-4598-9bcd-549a899b5251"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Description]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style2" x="146" y="1" width="104" height="20" uuid="baaba5aa-6749-48a4-919e-5b2a04524804"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Current Year]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style2" x="250" y="1" width="100" height="20" uuid="23bc3546-892b-4dc8-a0f1-537f74f9e740"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Previous Year]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style2" x="350" y="1" width="100" height="20" uuid="eb02898c-8558-4d76-8e49-e16efe9d22da"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Variance]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style2" x="450" y="1" width="100" height="20" uuid="aa731e32-0560-4f4c-8e26-ffe43626731f"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Percentage %]]></text>
+      </staticText>
+    </band>
+  </columnHeader>
+  <detail>
+    <band height="40" splitType="Stretch">
+      <textField isBlankWhenNull="true">
+        <reportElement style="style3" x="0" y="0" width="146" height="40" uuid="51839061-e232-4425-b54e-5292af4515ab"/>
+        <textElement verticalAlignment="Middle">
+          <font size="11"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.000" isBlankWhenNull="true">
+        <reportElement style="style1" x="146" y="0" width="104" height="40" uuid="44135f50-f230-44d8-843f-fb46e0f204a2"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="11"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{CURRENT_YEAR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.000" isBlankWhenNull="true">
+        <reportElement style="style1" x="250" y="0" width="100" height="40" uuid="ce4d1d5e-04ee-403c-8214-8d6d80404cf7"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="11"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{PREVIOUS_YEAR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.000" isBlankWhenNull="true">
+        <reportElement style="style4" x="350" y="0" width="100" height="40" uuid="a4df8bdd-01fc-48e8-8f98-c3bb9fac4438"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="11"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{VARIANCE}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement style="style4" x="450" y="0" width="100" height="40" uuid="a90e5816-ae5f-45d5-aa97-e5b972525073"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="11"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{PERCENTAGE}]]></textFieldExpression>
+      </textField>
+    </band>
+  </detail>
+  <columnFooter>
+    <band height="15">
+      <line>
+        <reportElement x="0" y="9" width="550" height="1" forecolor="#666666" uuid="51fe9fe0-e846-44eb-aa36-036fb2bc7041"/>
+        <graphicElement>
+          <pen lineWidth="2.0" lineStyle="Double"/>
+        </graphicElement>
+      </line>
+    </band>
+  </columnFooter>
+</jasperReport>
+ 

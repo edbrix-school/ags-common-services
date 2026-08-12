@@ -27,7 +27,15 @@
 <pen lineWidth="0.5" lineColor="#000000"/>
 </box>
 </style>
-<style name="style1" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+<style name="hdrText" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<pen lineWidth="0.0"/>
+<topPen lineWidth="0.0"/>
+<leftPen lineWidth="0.0"/>
+<bottomPen lineWidth="0.0"/>
+<rightPen lineWidth="0.0"/>
+</box>
+</style>
 <subDataset name="ProfitandLoss" uuid="dd6b8263-f007-4284-9919-0f7833ca03ff">
 <parameter name="PERIOD" class="java.lang.String"/>
 <parameter name="PERIOD2" class="java.lang.String"/>
@@ -82,74 +90,95 @@ FROM p]]>
 <groupHeader>
 <band height="64" splitType="Stretch">
 <frame>
-<reportElement x="1" y="0" width="545" height="64" uuid="9c4e2f80-6a13-4b7d-8e59-d02f7a61c3b4"/>
+<reportElement style="hdrText" x="1" y="0" width="545" height="64" uuid="9c4e2f80-6a13-4b7d-8e59-d02f7a61c3b4"/>
+<box>
+<pen lineWidth="0.0"/>
+<topPen lineWidth="0.0"/>
+<leftPen lineWidth="0.0"/>
+<bottomPen lineWidth="0.0"/>
+<rightPen lineWidth="0.0"/>
+</box>
 <staticText>
-<reportElement style="style1" x="0" y="0" width="82" height="16" uuid="07b1393f-fefd-4702-b1b7-d45448ff4538"/>
+<reportElement style="hdrText" x="0" y="0" width="82" height="16" uuid="07b1393f-fefd-4702-b1b7-d45448ff4538"/>
 <textElement verticalAlignment="Top">
 <font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
-<text><![CDATA[Company :-]]></text>
+<text><![CDATA[Company :]]></text>
 </staticText>
 <textField isStretchWithOverflow="true" isBlankWhenNull="true">
-<reportElement style="style1" x="88" y="0" width="457" height="16" uuid="6ce3cf32-baec-4832-80ed-2ae916c12173"/>
+<reportElement style="hdrText" x="88" y="0" width="457" height="16" uuid="6ce3cf32-baec-4832-80ed-2ae916c12173"/>
 <textElement verticalAlignment="Top">
-<font size="11"/>
+<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
 </textField>
 <frame>
-<reportElement positionType="Float" x="0" y="24" width="545" height="16" uuid="4a8d1c52-7e96-4b30-a1f8-63e05d2b9c17"/>
+<reportElement style="hdrText" positionType="Float" x="0" y="24" width="545" height="16" uuid="4a8d1c52-7e96-4b30-a1f8-63e05d2b9c17"/>
+<box>
+<pen lineWidth="0.0"/>
+<topPen lineWidth="0.0"/>
+<leftPen lineWidth="0.0"/>
+<bottomPen lineWidth="0.0"/>
+<rightPen lineWidth="0.0"/>
+</box>
 <staticText>
-<reportElement style="style1" x="0" y="0" width="60" height="16" uuid="94657de2-7331-432e-b6a6-65b464981454"/>
+<reportElement style="hdrText" x="0" y="0" width="60" height="16" uuid="94657de2-7331-432e-b6a6-65b464981454"/>
 <textElement verticalAlignment="Middle">
 <font isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
-<text><![CDATA[Period     :-]]></text>
+<text><![CDATA[Period     :]]></text>
 </staticText>
 <textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
-<reportElement style="style1" x="61" y="0" width="77" height="16" uuid="04791d20-8537-4fb8-ac31-98abbbf4126f"/>
+<reportElement style="hdrText" x="61" y="0" width="77" height="16" uuid="04791d20-8537-4fb8-ac31-98abbbf4126f"/>
 <textElement verticalAlignment="Middle">
-<font size="10"/>
+<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
-<textFieldExpression><![CDATA[$P{PERIOD}]]></textFieldExpression>
+<textFieldExpression><![CDATA[$P{PERIOD} == null ? null : new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new java.text.SimpleDateFormat("yyyy-MM-dd").parse($P{PERIOD}))]]></textFieldExpression>
 </textField>
 <staticText>
-<reportElement style="style1" x="138" y="0" width="71" height="16" uuid="67de341e-0a5e-4897-a71b-8155bc21bb1a"/>
+<reportElement style="hdrText" x="138" y="0" width="71" height="16" uuid="67de341e-0a5e-4897-a71b-8155bc21bb1a"/>
 <textElement verticalAlignment="Middle">
 <font isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <text><![CDATA[Period To :-]]></text>
 </staticText>
 <textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
-<reportElement style="style1" x="209" y="0" width="93" height="16" uuid="4fd9c51b-cde9-499b-b241-f0d42450b905"/>
+<reportElement style="hdrText" x="209" y="0" width="93" height="16" uuid="4fd9c51b-cde9-499b-b241-f0d42450b905"/>
 <textElement verticalAlignment="Middle">
-<font size="10"/>
+<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
-<textFieldExpression><![CDATA[$P{PERIOD2}]]></textFieldExpression>
+<textFieldExpression><![CDATA[$P{PERIOD2} == null ? null : new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new java.text.SimpleDateFormat("yyyy-MM-dd").parse($P{PERIOD2}))]]></textFieldExpression>
 </textField>
 </frame>
 <frame>
-<reportElement positionType="Float" x="0" y="48" width="545" height="14" uuid="d17b3e68-25f9-4c04-b8a6-90e14c7d52a3"/>
+<reportElement style="hdrText" positionType="Float" x="0" y="48" width="545" height="14" uuid="d17b3e68-25f9-4c04-b8a6-90e14c7d52a3"/>
+<box>
+<pen lineWidth="0.0"/>
+<topPen lineWidth="0.0"/>
+<leftPen lineWidth="0.0"/>
+<bottomPen lineWidth="0.0"/>
+<rightPen lineWidth="0.0"/>
+</box>
 <staticText>
-<reportElement style="style1" x="0" y="0" width="60" height="14" uuid="0abe76ec-5011-4a8a-969b-3e2883b27d0e"/>
+<reportElement style="hdrText" x="0" y="0" width="60" height="14" uuid="0abe76ec-5011-4a8a-969b-3e2883b27d0e"/>
 <textElement verticalAlignment="Middle">
 <font isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
-<text><![CDATA[Cost ID    :-]]></text>
+<text><![CDATA[Cost ID    :]]></text>
 </staticText>
 <textField isBlankWhenNull="true">
-<reportElement style="style1" x="61" y="0" width="100" height="14" uuid="ccc7626e-4d69-4a89-a0de-918412b859ba"/>
+<reportElement style="hdrText" x="61" y="0" width="100" height="14" uuid="ccc7626e-4d69-4a89-a0de-918412b859ba"/>
 <textElement verticalAlignment="Middle">
-<font size="10"/>
+<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <textFieldExpression><![CDATA[$P{COST_POID}]]></textFieldExpression>
 </textField>
 </frame>
 </frame>
 <staticText>
-<reportElement style="style1" x="556" y="0" width="246" height="25" uuid="525b4c4c-7cfc-4fa1-941c-700ea0f10d27"/>
+<reportElement style="hdrText" x="556" y="0" width="246" height="25" uuid="525b4c4c-7cfc-4fa1-941c-700ea0f10d27"/>
 <textElement textAlignment="Right" verticalAlignment="Top">
-<font size="13" isBold="true" pdfFontName="Helvetica-Bold"/>
+<font size="14" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <text><![CDATA[Profit and Loss Report]]></text>
 </staticText>
@@ -186,21 +215,21 @@ FROM p]]>
 <pageFooter>
 <band height="28" splitType="Stretch">
 <textField pattern="EEE, d MMM yyyy HH:mm" isBlankWhenNull="true">
-<reportElement style="style1" x="0" y="0" width="389" height="20" isPrintInFirstWholeBand="true" forecolor="#666666" uuid="62cff133-87d9-42fc-a20f-3e139c207230"/>
+<reportElement style="hdrText" x="0" y="0" width="389" height="20" isPrintInFirstWholeBand="true" forecolor="#666666" uuid="62cff133-87d9-42fc-a20f-3e139c207230"/>
 <textElement verticalAlignment="Middle">
 <font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <textFieldExpression><![CDATA[$P{REPORT_DATE}]]></textFieldExpression>
 </textField>
 <textField isBlankWhenNull="true">
-<reportElement style="style1" x="670" y="0" width="100" height="20" forecolor="#666666" uuid="d1302037-9652-4932-80c3-2fd02a99f804"/>
+<reportElement style="hdrText" x="670" y="0" width="100" height="20" forecolor="#666666" uuid="d1302037-9652-4932-80c3-2fd02a99f804"/>
 <textElement textAlignment="Right" verticalAlignment="Middle">
 <font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
 <textFieldExpression><![CDATA["Page-"+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
 </textField>
 <textField evaluationTime="Report" isBlankWhenNull="true">
-<reportElement style="style1" x="770" y="0" width="32" height="20" forecolor="#666666" uuid="c1adb149-3a2e-4aa7-8515-b272ee7a0e3a"/>
+<reportElement style="hdrText" x="770" y="0" width="32" height="20" forecolor="#666666" uuid="c1adb149-3a2e-4aa7-8515-b272ee7a0e3a"/>
 <textElement verticalAlignment="Middle">
 <font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
 </textElement>
