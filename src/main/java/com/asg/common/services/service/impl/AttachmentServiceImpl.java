@@ -6,6 +6,7 @@ import com.asg.common.lib.exception.AsgException;
 import com.asg.common.lib.exception.CustomException;
 import com.asg.common.lib.exception.ResourceNotFoundException;
 import com.asg.common.lib.security.util.UserContext;
+import com.asg.common.lib.service.GlobalParameterService;
 import com.asg.common.lib.service.LoggingService;
 import com.asg.common.services.dto.AttachmentDto;
 import com.asg.common.services.dto.AttachmentUploadDto;
@@ -33,6 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.CallableStatement;
 import java.sql.Types;
 import java.util.*;
@@ -45,8 +52,18 @@ import static com.asg.common.lib.security.util.UserContext.getUserId;
 @RequiredArgsConstructor
 public class AttachmentServiceImpl implements AttachmentService {
 
+    /**
+     * GLOBAL_PARAMETERS entries holding the attachments folder, same names the legacy ADF app used
+     * (asg.declarative.view.AttachmentsCollectionClass#getAttachmentsPath). Keyed by PARAMETER_KEYID_TYPE
+     * = 'Company' with the company poid as PARAMETER_KEYID.
+     */
+    private static final String PARAM_ATTACHMENTS_PATH = "AttachmentsPath";
+    private static final String PARAM_ATTACHMENTS_PATH_LINUX = "LINUX_AttachmentsPath";
+    private static final String PARAM_KEYID_TYPE_COMPANY = "Company";
+
     private final AttachmentRepository attachmentRepository;
     private final DmsClient dmsClient;
+    private final GlobalParameterService globalParameterService;
     private final jakarta.servlet.http.HttpServletRequest httpServletRequest;
 
     @Autowired
@@ -85,6 +102,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         List<AttachmentDto> uploaded = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         String[] ediResultHolder = {null};
+
+        // Resolved once per request - the parameter lookup is a DB function call
+        String attachmentsPath = resolveAttachmentsPath(docId);
 
         for (MultipartFile file : files) {
             String originalName = sanitizeFilename(file.getOriginalFilename());
@@ -127,6 +147,17 @@ public class AttachmentServiceImpl implements AttachmentService {
                         storedName,
                         (attachEDI && attachmentEDIJobPoid != null) ? attachmentEDIJobPoid : 0L
                 );
+
+                // Mirror the bytes into the attachments folder. DMS stays the system of record, so any
+                // failure here is logged only - it must not alter the upload result the caller sees.
+                // Written before the EDI trigger because the DB-side EDI procedures read the file off
+                // that folder.
+                try {
+                    writeToAttachmentsFolder(file, attachmentsPath, storedName);
+                } catch (Exception fsEx) {
+                    log.error("Folder copy failed for {} into {} (upload itself succeeded): {}",
+                            originalName, attachmentsPath, fsEx.getMessage(), fsEx);
+                }
 
                 if (attachEDI) {
                     try {
@@ -599,8 +630,61 @@ public class AttachmentServiceImpl implements AttachmentService {
 
 
 
+    /**
+     * Resolves the attachments folder for the current company from GLOBAL_PARAMETERS via
+     * RTN_GLOBAL_PARAMETER - the same lookup the legacy ADF app did. On Linux the LINUX_ prefixed
+     * parameter is preferred, on Windows the plain one, and each falls back to the other so a
+     * half-configured company still resolves. The {@code attachments.base-path} property is the
+     * last resort (dev machines with no parameter rows).
+     * <p>
+     * Note: the legacy app used a separate MasterAttachmentsPath for DocType 'Masters'; document type
+     * is not available here, so every doc resolves to the company path.
+     */
     private String resolveAttachmentsPath(String docId) {
-        return basePath;
+        String companyKeyId = String.valueOf(UserContext.getCompanyPoid() != null ? UserContext.getCompanyPoid() : 1L);
+        boolean linux = !System.getProperty("os.name", "").toLowerCase().contains("win");
+
+        String primaryParam = linux ? PARAM_ATTACHMENTS_PATH_LINUX : PARAM_ATTACHMENTS_PATH;
+        String fallbackParam = linux ? PARAM_ATTACHMENTS_PATH : PARAM_ATTACHMENTS_PATH_LINUX;
+
+        String path = globalParameterService.getParameterValue(primaryParam, PARAM_KEYID_TYPE_COMPANY, companyKeyId, "");
+        if (path == null || path.isBlank()) {
+            path = globalParameterService.getParameterValue(fallbackParam, PARAM_KEYID_TYPE_COMPANY, companyKeyId, "");
+        }
+        if (path == null || path.isBlank()) {
+            log.warn("Neither {} nor {} is set for company {} - falling back to attachments.base-path={}",
+                    primaryParam, fallbackParam, companyKeyId, basePath);
+            path = basePath;
+        }
+        return path == null ? null : path.trim();
+    }
+
+    /**
+     * Writes the uploaded bytes into the attachments folder under exactly {@code fileName}, which is the
+     * FILE_NAME_MAPPED stored on the row - so anything resolving the file as AttachmentsPath +
+     * FILE_NAME_MAPPED finds it. Callers must treat a failure here as non-fatal.
+     */
+    private void writeToAttachmentsFolder(MultipartFile file, String attachmentsPath,
+                                          String fileName) throws IOException {
+        if (attachmentsPath == null || attachmentsPath.isBlank()) {
+            throw new IOException("AttachmentsPath is not configured for this company");
+        }
+        if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("\\")) {
+            throw new IOException("Unsafe attachment file name: " + fileName);
+        }
+
+        Path folder = Paths.get(attachmentsPath).normalize();
+        Files.createDirectories(folder);
+
+        Path target = folder.resolve(fileName).normalize();
+        if (!target.startsWith(folder)) {
+            throw new IOException("Attachment file name escapes the attachments folder: " + fileName);
+        }
+
+        try (InputStream in = file.getInputStream()) {
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+        log.info("Attachment written to folder => {} ({} bytes)", target, file.getSize());
     }
 
     // ================== Helper Methods ==================
@@ -696,6 +780,10 @@ public class AttachmentServiceImpl implements AttachmentService {
         return fileName;
     }
 
+    /**
+     * Per-file metadata variant. Delegates each file to {@link #uploadFiles}, so it inherits the DMS
+     * upload, the attachments-folder copy and the EDI trigger from there.
+     */
     @Override
     @Transactional
     public UploadResponse uploadFilesWithMetadata(String docId, Long docKeyPoid,
