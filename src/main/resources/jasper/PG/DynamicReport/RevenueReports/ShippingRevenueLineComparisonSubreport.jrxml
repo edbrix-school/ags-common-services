@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ShippingRevenueLineComparisonSubreport" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e7b4f5c1-127d-4eb4-9545-ea5fb8e99e89">
+  <property name="ireport.zoom" value="1.2100000000000013"/>
+  <property name="ireport.x" value="0"/>
+  <property name="ireport.y" value="0"/>
+  <style name="style1" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{CURRENT_YEAR}<0]]></conditionExpression>
+      <style forecolor="#FF0000" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" forecolor="#000000" backcolor="#99FFFF" pattern="#,##0" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+      </style>
+    </conditionalStyle>
+  </style>
+  <style name="style2" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{PREVIOUS_YEAR}<0]]></conditionExpression>
+      <style forecolor="#FF0000" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" pattern="#,##0" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style3" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{VARIANCE}<0]]></conditionExpression>
+      <style forecolor="#FF0000" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" pattern="#,##0" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style4" mode="Opaque" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{CURRENT_YEAR}<0]]></conditionExpression>
+      <style mode="Opaque" forecolor="#FF0000" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <box>
+          <pen lineWidth="0.5"/>
+          <topPen lineWidth="0.5"/>
+          <leftPen lineWidth="0.5"/>
+          <bottomPen lineWidth="0.5"/>
+          <rightPen lineWidth="0.5"/>
+        </box>
+      </style>
+    </conditionalStyle>
+  </style>
+  <style name="style5" mode="Opaque" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{PREVIOUS_YEAR}<0]]></conditionExpression>
+      <style mode="Opaque" forecolor="#FF0000" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <box>
+          <pen lineColor="#000000"/>
+          <topPen lineColor="#000000"/>
+          <leftPen lineColor="#000000"/>
+          <bottomPen lineColor="#000000"/>
+          <rightPen lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+  </style>
+  <style name="style6" mode="Opaque" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{VARIANCE}<0]]></conditionExpression>
+      <style forecolor="#FF0000" backcolor="#CCFFFF" pattern="#,##0.00" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style7" isBlankWhenNull="true" fontSize="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box leftPadding="3">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+    </conditionalStyle>
+  </style>
+  <style name="style8" mode="Opaque" backcolor="#99FFFF" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box>
+      <pen lineWidth="0.5" lineColor="#000000"/>
+      <topPen lineWidth="0.5" lineColor="#000000"/>
+      <leftPen lineWidth="0.5" lineColor="#000000"/>
+      <bottomPen lineWidth="0.5" lineColor="#000000"/>
+      <rightPen lineWidth="0.5" lineColor="#000000"/>
+    </box>
+  </style>
+  <style name="style9" mode="Transparent" backcolor="#FFFFFF" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+    <box rightPadding="1">
+      <pen lineWidth="0.5"/>
+      <topPen lineWidth="0.5"/>
+      <leftPen lineWidth="0.5"/>
+      <bottomPen lineWidth="0.5"/>
+      <rightPen lineWidth="0.5"/>
+    </box>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{VARIANCE}<0]]></conditionExpression>
+      <style forecolor="#FF0000" pattern="#,##0" isBlankWhenNull="true" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <pen lineColor="#000000"/>
+        <box>
+          <pen lineWidth="0.5" lineColor="#000000"/>
+          <topPen lineWidth="0.5" lineColor="#000000"/>
+          <leftPen lineWidth="0.5" lineColor="#000000"/>
+          <bottomPen lineWidth="0.5" lineColor="#000000"/>
+          <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+      </style>
+    </conditionalStyle>
+    <conditionalStyle>
+      <conditionExpression><![CDATA[$F{LINE_NAME}=="TOTAL"]]></conditionExpression>
+      <style mode="Opaque" backcolor="#99FFFF" pattern="#,##0" isBlankWhenNull="true" fontSize="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+        <box>
+          <pen lineWidth="0.5"/>
+          <topPen lineWidth="0.5"/>
+          <leftPen lineWidth="0.5"/>
+          <bottomPen lineWidth="0.5"/>
+          <rightPen lineWidth="0.5"/>
+        </box>
+      </style>
+    </conditionalStyle>
+  </style>
+  <parameter name="COMPANY_POID" class="java.lang.String"/>
+  <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+  <parameter name="PERIOD" class="java.lang.String"/>
+  <parameter name="PERIOD2" class="java.lang.String"/>
+  <parameter name="OTHER_INCOME" class="java.lang.String"/>
+  <parameter name="LINE" class="java.lang.String"/>
+  <parameter name="PARTY_POID" class="java.lang.String"/>
+  <parameter name="SALESMAN_POID" class="java.lang.String"/>
+  <queryString language="sql">
+    <![CDATA[
+SELECT *
+FROM fn_proc_sh_rev_line_compar_print(
+    ('{' || TRANSLATE(CAST(COALESCE($P{COMPANY_POID_CSV}, $P{COMPANY_POID}) AS TEXT), '[] ', '') || '}')::numeric[],
+    $P{PERIOD}::date,
+    $P{PERIOD2}::date,
+    $P{OTHER_INCOME},
+    $P{LINE},
+    $P{PARTY_POID},
+    $P{SALESMAN_POID}
+)]]>
+  </queryString>
+  <field name="LINE_NAME" class="java.lang.String"/>
+  <field name="CURRENT_YEAR" class="java.math.BigDecimal"/>
+  <field name="PREVIOUS_YEAR" class="java.math.BigDecimal"/>
+  <field name="VARIANCE" class="java.math.BigDecimal"/>
+  <field name="PERCENTAGE" class="java.lang.String"/>
+  <field name="CUR" class="java.lang.String"/>
+  <field name="PRE" class="java.lang.String"/>
+  <field name="VAR" class="java.lang.String"/>
+  <background>
+    <band splitType="Stretch"/>
+  </background>
+  <columnHeader>
+    <band height="30" splitType="Stretch">
+      <staticText>
+        <reportElement style="style7" x="0" y="1" width="150" height="26" uuid="e22b5cba-1fe7-433f-88ac-042419138d59"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Line]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style7" x="151" y="1" width="68" height="26" uuid="bdb8dd39-a6d5-4d28-8f41-4aedc513e658"/>
+        <textElement>
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Current Year]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style7" x="219" y="1" width="68" height="26" uuid="dd72d886-c7bb-4f90-99b4-c95f97a2b00a"/>
+        <textElement>
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Previous Year]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style7" x="287" y="1" width="68" height="26" uuid="f6c8662a-2ac3-42de-8858-4986b17f7a8d"/>
+        <textElement>
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Variance]]></text>
+      </staticText>
+      <line>
+        <reportElement x="0" y="29" width="555" height="1" forecolor="#666666" uuid="955d0636-a25b-4923-9cc3-aef3ab63a561"/>
+        <graphicElement>
+          <pen lineWidth="1.5"/>
+        </graphicElement>
+      </line>
+      <staticText>
+        <reportElement style="style8" x="417" y="14" width="45" height="13" uuid="c9a81987-db25-4886-8f09-5f7c87921e4a"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Cur %]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style8" x="463" y="14" width="45" height="13" uuid="e8a36c42-6019-4e34-a7ad-9c6e1122770b"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Pre %]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style8" x="509" y="14" width="45" height="13" uuid="d882406f-639e-4a27-b1ad-2de26566978d"/>
+        <textElement>
+          <font isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Var %]]></text>
+      </staticText>
+      <line>
+        <reportElement x="0" y="0" width="555" height="1" forecolor="#666666" uuid="4a8eae23-2cf2-4414-856e-e40b8f9fc2a6"/>
+        <graphicElement>
+          <pen lineWidth="2.0" lineStyle="Double"/>
+        </graphicElement>
+      </line>
+      <staticText>
+        <reportElement style="style8" mode="Opaque" x="417" y="1" width="137" height="14" backcolor="#99FFFF" uuid="e9bb523b-c1ca-4722-ae99-f6aaf713dd79"/>
+        <textElement textAlignment="Center" verticalAlignment="Middle">
+          <font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Contribution (%)]]></text>
+      </staticText>
+      <staticText>
+        <reportElement style="style7" x="355" y="1" width="62" height="26" uuid="448efb54-147a-4cd4-a199-35b5c5dbaa78"/>
+        <textElement>
+          <font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+        </textElement>
+        <text><![CDATA[Percentage]]></text>
+      </staticText>
+    </band>
+  </columnHeader>
+  <detail>
+    <band height="15" splitType="Stretch">
+      <textField isBlankWhenNull="true">
+        <reportElement style="style7" x="0" y="0" width="150" height="15" uuid="eb54899c-dd6b-461d-bd7f-7694722ae96e"/>
+        <textElement verticalAlignment="Middle">
+          <font size="7"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{LINE_NAME}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0" isBlankWhenNull="true">
+        <reportElement style="style1" x="151" y="0" width="68" height="15" uuid="f0f5f84e-f0d1-4bf2-a2bf-d1aff320f881"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{CURRENT_YEAR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0" isBlankWhenNull="true">
+        <reportElement style="style2" x="219" y="0" width="68" height="15" uuid="7b22cd7f-895e-4940-98d4-40e63d3a0764"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{PREVIOUS_YEAR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0" isBlankWhenNull="true">
+        <reportElement style="style3" x="287" y="0" width="68" height="15" uuid="c505eb1f-4a9c-437f-b410-9ccdecfbdd0d"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{VARIANCE}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.00" isBlankWhenNull="true">
+        <reportElement style="style4" x="417" y="0" width="45" height="15" uuid="c0744778-b400-484b-8653-8cabce1f07c0"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{CUR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.00" isBlankWhenNull="true">
+        <reportElement style="style5" x="463" y="0" width="45" height="15" backcolor="#CCFFFF" uuid="5a084b6d-f934-4465-a437-8b35bb83b330"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{PRE}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0.00" isBlankWhenNull="true">
+        <reportElement style="style6" x="509" y="0" width="45" height="15" uuid="aa2a308c-1ab7-42bb-9a97-a0141e255514"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{VAR}]]></textFieldExpression>
+      </textField>
+      <textField pattern="#,##0">
+        <reportElement style="style9" x="355" y="0" width="62" height="15" uuid="d667f68c-f3cb-43dd-81ff-c8dda316b29f"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font size="9"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$F{PERCENTAGE}]]></textFieldExpression>
+      </textField>
+    </band>
+  </detail>
+</jasperReport>
+ 

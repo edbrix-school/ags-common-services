@@ -1,0 +1,363 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OverAll_GL_Ledger_DivisionWise_Subreport" language="groovy" pageWidth="802" pageHeight="555" orientation="Landscape" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e7b4f5c1-127d-4eb4-9545-ea5fb8e99e89">
+<property name="ireport.zoom" value="1.4641000000000037"/>
+<property name="ireport.x" value="0"/>
+<property name="ireport.y" value="0"/>
+<style name="style_Hdr" mode="Opaque" backcolor="#CCCCCC" isBlankWhenNull="true" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<topPen lineWidth="1.0"/>
+<leftPen lineWidth="1.0"/>
+<bottomPen lineWidth="1.0"/>
+<rightPen lineWidth="1.0"/>
+</box>
+</style>
+<style name="style_Dtl" isBlankWhenNull="true" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<topPen lineWidth="1.0"/>
+<leftPen lineWidth="1.0"/>
+<bottomPen lineWidth="1.0"/>
+<rightPen lineWidth="1.0"/>
+</box>
+</style>
+<style name="style_Total" isBlankWhenNull="true" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false">
+<box>
+<topPen lineWidth="1.0"/>
+<leftPen lineWidth="1.0"/>
+<bottomPen lineWidth="1.0"/>
+<rightPen lineWidth="1.0"/>
+</box>
+</style>
+<parameter name="COMPANY_POID" class="java.lang.String"/>
+<!-- COMPANY_POID holds only the first selected company; COMPANY_POID_CSV carries the full multiselect list -->
+<parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
+<parameter name="PERIOD" class="java.lang.String"/>
+<parameter name="PERIOD2" class="java.lang.String"/>
+<parameter name="OTHER_INCOME" class="java.lang.String"/>
+<parameter name="PARTY_POID" class="java.lang.String"/>
+<parameter name="SALESMAN_POID" class="java.lang.String"/>
+<parameter name="CHARGE_WISE" class="java.lang.String"/>
+<queryString language="sql">
+<![CDATA[SELECT * FROM fn_mis_gp_ledger_div_print(('{' || TRANSLATE(CAST($P{COMPANY_POID_CSV} AS TEXT), '[] ', '') || '}')::numeric[],$P{PERIOD}::date,$P{PERIOD2}::date,
+    $P{OTHER_INCOME}::text,$P{PARTY_POID}::text,$P{SALESMAN_POID}::text,$P{CHARGE_WISE}::text)]]>
+</queryString>
+<field name="GL_DESCRIPTION" class="java.lang.String"/>
+<field name="SHIPPING" class="java.math.BigDecimal"/>
+<field name="FORWARDING" class="java.math.BigDecimal"/>
+<field name="PROJECTS" class="java.math.BigDecimal"/>
+<field name="CLIENT_SERVICE" class="java.math.BigDecimal"/>
+<field name="MTA" class="java.math.BigDecimal"/>
+<field name="PROPERTIES" class="java.math.BigDecimal"/>
+<field name="STELLAR" class="java.math.BigDecimal"/>
+<field name="COMMON_OVERHEAD" class="java.math.BigDecimal"/>
+<field name="TOTAL" class="java.math.BigDecimal"/>
+<variable name="GRAND_TOTAL" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+</variable>
+<variable name="TOTAL_SHIPPING" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{SHIPPING}]]></variableExpression>
+</variable>
+<variable name="TOTAL_FF" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{FORWARDING}]]></variableExpression>
+</variable>
+<variable name="TOTAL_CLIENT_SERVICE" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{CLIENT_SERVICE}]]></variableExpression>
+</variable>
+<variable name="TOTAL_PROJECTS" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{PROJECTS}]]></variableExpression>
+</variable>
+<variable name="TOTAL_MTA" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{MTA}]]></variableExpression>
+</variable>
+<variable name="TOTAL_PROPERTIES" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{PROPERTIES}]]></variableExpression>
+</variable>
+<variable name="TOTAL_STELLAR" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{STELLAR}]]></variableExpression>
+</variable>
+<variable name="TOTAL_COMMON_OVERHEAD" class="java.math.BigDecimal" calculation="Sum">
+<variableExpression><![CDATA[$F{COMMON_OVERHEAD}]]></variableExpression>
+</variable>
+<background>
+<band splitType="Stretch"/>
+</background>
+<columnHeader>
+<band height="28" splitType="Stretch">
+<staticText>
+<reportElement style="style_Hdr" x="20" y="1" width="166" height="26" uuid="e22b5cba-1fe7-433f-88ac-042419138d59"/>
+<textElement verticalAlignment="Middle">
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[GL Description]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="186" y="1" width="70" height="26" uuid="bdb8dd39-a6d5-4d28-8f41-4aedc513e658"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Total]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="256" y="1" width="70" height="26" uuid="dd72d886-c7bb-4f90-99b4-c95f97a2b00a"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Shipping]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="326" y="1" width="70" height="26" uuid="f6c8662a-2ac3-42de-8858-4986b17f7a8d"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Forwarding]]></text>
+</staticText>
+<line>
+<reportElement x="0" y="27" width="802" height="1" forecolor="#666666" uuid="955d0636-a25b-4923-9cc3-aef3ab63a561"/>
+<graphicElement>
+<pen lineWidth="1.5"/>
+</graphicElement>
+</line>
+<line>
+<reportElement x="0" y="0" width="802" height="1" forecolor="#666666" uuid="4a8eae23-2cf2-4414-856e-e40b8f9fc2a6"/>
+<graphicElement>
+<pen lineWidth="2.0" lineStyle="Double"/>
+</graphicElement>
+</line>
+<staticText>
+<reportElement style="style_Hdr" x="396" y="1" width="70" height="26" uuid="448efb54-147a-4cd4-a199-35b5c5dbaa78"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Projects]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="668" y="1" width="63" height="26" uuid="00c811b6-7676-4f8d-aee2-433df8818a5e"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Stellar]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="608" y="1" width="60" height="26" uuid="6438b811-8128-456c-8a7e-83154ab607d7"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Properties]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="466" y="1" width="77" height="26" uuid="ab83d831-f239-4300-8b24-f479e5c985ca"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Client_Service]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="543" y="1" width="65" height="26" uuid="9b7304fd-a2b2-4b62-a203-f72b4e187a93"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[MTA]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="731" y="1" width="70" height="26" uuid="2701e810-5dad-418b-aa69-ab44c036b6d7"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="1"/>
+</textElement>
+<text><![CDATA[Common Overhead]]></text>
+</staticText>
+<staticText>
+<reportElement style="style_Hdr" x="0" y="1" width="20" height="26" uuid="86a79a87-4bc6-4734-a770-8e92615718ac"/>
+<textElement verticalAlignment="Middle">
+<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="1"/>
+</textElement>
+<text><![CDATA[No.]]></text>
+</staticText>
+</band>
+</columnHeader>
+<detail>
+<band height="15" splitType="Stretch">
+<textField isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="20" y="0" width="166" height="15" uuid="eb54899c-dd6b-461d-bd7f-7694722ae96e"/>
+<textElement verticalAlignment="Middle">
+<font size="7"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{GL_DESCRIPTION}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="186" y="0" width="70" height="15" uuid="f0f5f84e-f0d1-4bf2-a2bf-d1aff320f881"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{TOTAL}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="256" y="0" width="70" height="15" uuid="7b22cd7f-895e-4940-98d4-40e63d3a0764"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{SHIPPING}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="326" y="0" width="70" height="15" uuid="c505eb1f-4a9c-437f-b410-9ccdecfbdd0d"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{FORWARDING}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="608" y="0" width="60" height="15" uuid="3b52b2c0-7231-4976-ae36-d45eabd90092"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{PROPERTIES}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="396" y="0" width="70" height="15" uuid="d667f68c-f3cb-43dd-81ff-c8dda316b29f"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{PROJECTS}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="466" y="0" width="77" height="15" uuid="6cf0d345-6b16-4e34-a1a2-d30dae526a06"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{CLIENT_SERVICE}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="543" y="0" width="65" height="15" uuid="808f1446-593c-4320-a1f6-b8f6ac2e4a8f"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{MTA}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="668" y="0" width="63" height="15" uuid="f7ab1a1f-dc78-4b24-99c6-3047235159ac"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{STELLAR}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="731" y="0" width="70" height="15" uuid="19f7017d-b87a-4c1c-8048-0e47354e3c65"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{COMMON_OVERHEAD}]]></textFieldExpression>
+</textField>
+<textField isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="0" y="0" width="20" height="15" uuid="d2eff02a-0632-4105-8fdb-f57b5736a65b"/>
+<textElement textAlignment="Left" verticalAlignment="Middle">
+<font size="7"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+</textField>
+</band>
+</detail>
+<lastPageFooter>
+<band height="20">
+<staticText>
+<reportElement style="style_Dtl" x="20" y="0" width="166" height="20" uuid="8dabf330-ddd8-4167-bb49-2890e75829eb"/>
+<textElement verticalAlignment="Middle">
+<font isBold="true" pdfFontName="Helvetica-Bold"/>
+<paragraph leftIndent="3"/>
+</textElement>
+<text><![CDATA[Total]]></text>
+</staticText>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="186" y="0" width="70" height="20" uuid="2f391d64-eefc-4e01-a345-6737ffbbc280"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{GRAND_TOTAL}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="256" y="0" width="70" height="20" uuid="62215bde-a1b6-4911-89e8-8f31b3ba94c4"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_SHIPPING}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="466" y="0" width="77" height="20" uuid="c285aa26-17d3-4e57-bb1c-f42590764654"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_CLIENT_SERVICE}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="326" y="0" width="70" height="20" uuid="b91fca4e-7a47-43bb-baf3-57cde82fe1d1"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_FF}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="396" y="0" width="70" height="20" uuid="07f1b3fe-c743-44f9-a403-60d79bf697cb"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_PROJECTS}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="543" y="0" width="65" height="20" uuid="106a72eb-331d-46ac-93fa-899f5a23950f"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_MTA}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="608" y="0" width="60" height="20" uuid="97447e1d-2e19-4b30-92dc-b1847490fec7"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_PROPERTIES}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="668" y="0" width="63" height="20" uuid="6e3b2234-63c5-4932-9d4b-beb2039c5965"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_STELLAR}]]></textFieldExpression>
+</textField>
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement style="style_Dtl" x="731" y="0" width="70" height="20" uuid="18eb51b8-aa83-43bd-bfe7-62297277c2f4"/>
+<textElement textAlignment="Right" verticalAlignment="Middle">
+<font size="8"/>
+<paragraph rightIndent="3"/>
+</textElement>
+<textFieldExpression><![CDATA[$V{TOTAL_COMMON_OVERHEAD}]]></textFieldExpression>
+</textField>
+</band>
+</lastPageFooter>
+</jasperReport>
