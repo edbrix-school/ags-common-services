@@ -29,7 +29,7 @@
 	<parameter name="SUBREPORT1" class="net.sf.jasperreports.engine.JasperReport"/>
 	<parameter name="P_RPT_SELECTED_VALUES_LIST" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT 1 FROM DUAL]]>
+		<![CDATA[SELECT 1 AS "1"]]>
 	</queryString>
 	<field name="1" class="java.math.BigDecimal"/>
 	<background>

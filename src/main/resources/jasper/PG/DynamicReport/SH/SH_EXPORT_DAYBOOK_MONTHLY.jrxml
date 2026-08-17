@@ -1,0 +1,624 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SH_EXPORT_DAYBOOK_MONTHLY" language="groovy" pageWidth="1250" pageHeight="650" orientation="Landscape" columnWidth="1210" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="51f26c1c-332c-43f0-beb9-5722768520c7">
+<property name="ireport.zoom" value="1.3310000000000004"/>
+<property name="ireport.x" value="0"/>
+<property name="ireport.y" value="0"/>
+<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+<style name="Detail" fontName="Arial" fontSize="12"/>
+<style name="Row" mode="Transparent">
+<conditionalStyle>
+<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+<style backcolor="#E6DAC3"/>
+</conditionalStyle>
+</style>
+<style name="table">
+<box>
+<pen lineWidth="1.0" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+<box>
+<pen lineWidth="0.5" lineColor="#000000"/>
+</box>
+</style>
+<subDataset name="Export_Daybook_Monthly" uuid="046d0e0c-bcbf-4509-a434-f6e5aa2e5c5d">
+<queryString>
+<![CDATA[SELECT MONTH_YEAR, NO_OF_BLS::numeric(20,0), FT_20::numeric(20,0), FT_40::numeric(20,0), FT_TUES::numeric(20,0), 
+PRV_NO_OF_BLS::numeric(20,0), PRV_FT_20::numeric(20,0), PRV_FT_40::numeric(20,0), PRV_FT_TUES::numeric(20,0), VAR_NO_OF_BLS::numeric(20,0), 
+VAR_FT_20::numeric(20,0), VAR_FT_40::numeric(20,0), VAR_FT_TUES::numeric(20,0), "var_no_of_bls_%"::numeric(15,0) AS "VAR_NO_OF_BLS_%", 
+"var_ft_20_%"::numeric(15,0) AS "VAR_FT_20_%", "var_ft_40_%"::numeric(15,0) AS "VAR_FT_40_%", "var_ft_tues_%"::numeric(15,0) AS "VAR_FT_TUES_%"
+FROM SHIP_BL_DAY_BOOK_TEMP_HOLD]]>
+</queryString>
+<field name="MONTH_YEAR" class="java.lang.String"/>
+<field name="NO_OF_BLS" class="java.math.BigDecimal"/>
+<field name="FT_20" class="java.math.BigDecimal"/>
+<field name="FT_40" class="java.math.BigDecimal"/>
+<field name="FT_TUES" class="java.math.BigDecimal"/>
+<field name="PRV_NO_OF_BLS" class="java.math.BigDecimal"/>
+<field name="PRV_FT_20" class="java.math.BigDecimal"/>
+<field name="PRV_FT_40" class="java.math.BigDecimal"/>
+<field name="PRV_FT_TUES" class="java.math.BigDecimal"/>
+<field name="VAR_NO_OF_BLS" class="java.math.BigDecimal"/>
+<field name="VAR_FT_20" class="java.math.BigDecimal"/>
+<field name="VAR_FT_40" class="java.math.BigDecimal"/>
+<field name="VAR_FT_TUES" class="java.math.BigDecimal"/>
+<field name="VAR_NO_OF_BLS_%" class="java.math.BigDecimal"/>
+<field name="VAR_FT_20_%" class="java.math.BigDecimal"/>
+<field name="VAR_FT_40_%" class="java.math.BigDecimal"/>
+<field name="VAR_FT_TUES_%" class="java.math.BigDecimal"/>
+<variable name="SUM_NO_OF_BLS" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{NO_OF_BLS}]]></variableExpression>
+</variable>
+<variable name="SUM_FT_20" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{FT_20}]]></variableExpression>
+</variable>
+<variable name="SUM_FT_40" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{FT_40}]]></variableExpression>
+</variable>
+<variable name="SUM_FT_TUES" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{FT_TUES}]]></variableExpression>
+</variable>
+<variable name="SUM_PRV_NO_OF_BLS" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{PRV_NO_OF_BLS}]]></variableExpression>
+</variable>
+<variable name="SUM_PRV_FT_20" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{PRV_FT_20}]]></variableExpression>
+</variable>
+<variable name="SUM_PRV_FT_40" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{PRV_FT_40}]]></variableExpression>
+</variable>
+<variable name="SUM_PRV_FT_TUES" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{PRV_FT_TUES}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_NO_OF_BLS" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{VAR_NO_OF_BLS}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_20" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{VAR_FT_20}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_40" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{VAR_FT_40}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_TUES" class="java.lang.Number" calculation="Sum">
+<variableExpression><![CDATA[$F{VAR_FT_TUES}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_NO_OF_BLS_PER" class="java.lang.Number">
+<variableExpression><![CDATA[(100*$V{SUM_VAR_NO_OF_BLS})/$V{SUM_PRV_NO_OF_BLS}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_20_PER" class="java.lang.Number">
+<variableExpression><![CDATA[(100*$V{SUM_VAR_FT_20}) / $V{SUM_PRV_FT_20}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_40_PER" class="java.lang.Number">
+<variableExpression><![CDATA[(100*$V{SUM_VAR_FT_40}) / $V{SUM_PRV_FT_40}]]></variableExpression>
+</variable>
+<variable name="SUM_VAR_FT_TUES_PER" class="java.lang.Number">
+<variableExpression><![CDATA[(100*$V{SUM_VAR_FT_TUES}) / $V{SUM_PRV_FT_TUES}]]></variableExpression>
+</variable>
+</subDataset>
+<parameter name="LOGIN_GROUP_POID" class="java.lang.String" isForPrompting="false">
+<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+</parameter>
+<parameter name="SUB_HEADER" class="net.sf.jasperreports.engine.JasperReport"/>
+<parameter name="LOGIN_COMP_POID" class="java.lang.String">
+<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+</parameter>
+<parameter name="LOGIN_USER_POID" class="java.lang.String" isForPrompting="false"/>
+<parameter name="DOC_ID" class="java.lang.String" isForPrompting="false"/>
+<parameter name="DOC_KEY_POID" class="java.lang.String"/>
+<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+<defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
+</parameter>
+<queryString>
+<![CDATA[SELECT 'X' AS "DUMMY"]]>
+</queryString>
+<field name="DUMMY" class="java.lang.String"/>
+<title>
+<band height="32" splitType="Stretch">
+<subreport>
+<reportElement x="281" y="0" width="555" height="27" uuid="11dd97b8-4c92-45fe-85bb-3b9358474446"/>
+<subreportParameter name="LOGIN_COMP_POID">
+<subreportParameterExpression><![CDATA[$P{LOGIN_COMP_POID}]]></subreportParameterExpression>
+</subreportParameter>
+<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+<subreportExpression><![CDATA[$P{SUB_HEADER}]]></subreportExpression>
+</subreport>
+</band>
+</title>
+<pageHeader>
+<band height="33" splitType="Stretch">
+<staticText>
+<reportElement x="416" y="0" width="293" height="20" uuid="e88a4b5a-0ece-4b44-a23f-5c821952c2c6"/>
+<textElement textAlignment="Center">
+<font size="14" isBold="true" pdfFontName="Helvetica-Bold" isUnderline="true"/>
+</textElement>
+<text><![CDATA[BL Daybook (Export) Monthly]]></text>
+</staticText>
+<line>
+<reportElement positionType="FixRelativeToBottom" x="0" y="26" width="1175" height="1" uuid="9ec55f57-eda0-48ce-a06e-ffab81edbcc6"/>
+<graphicElement>
+<pen lineWidth="0.5" lineColor="#999999"/>
+</graphicElement>
+</line>
+</band>
+</pageHeader>
+<detail>
+<band height="30" splitType="Stretch">
+<componentElement>
+<reportElement key="table" style="table" x="0" y="0" width="802" height="30" uuid="c01cb139-984f-468d-999e-26d05cfcdc12"/>
+<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+<datasetRun subDataset="Export_Daybook_Monthly" uuid="2c01f81e-aab2-496e-af60-68ccd1984a6a">
+<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+</datasetRun>
+<jr:column width="76" uuid="57422b5b-1776-4d28-980b-e0f42be8c12b">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="76" height="30" uuid="b35691bf-e660-4975-887a-ebff9e31d97d"/>
+<text><![CDATA[MONTH_YEAR]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1"/>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField>
+<reportElement x="1" y="0" width="64" height="20" uuid="92de206b-d5ad-4c3c-9c74-3b5a42f5cdbd"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{MONTH_YEAR}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="74" uuid="79b50897-8f61-4b82-a93d-271f70c7a66c">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="74" height="30" uuid="507e092b-ad3d-496c-8f54-26754b2d54e9"/>
+<text><![CDATA[NO_OF_BLS]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="63" height="30" uuid="81b4277a-bcce-4a22-8c41-0176d44ddec8"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="63" height="20" uuid="7f4a8e9f-414f-4d93-bf57-2a79a05d1bea"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="63" uuid="0ead84fb-ce64-4ed0-b570-7ce5e4adbf39">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="63" height="30" uuid="665d4303-fef0-4046-b36d-d16e719d85d7"/>
+<text><![CDATA[FT_20]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="30" uuid="673b03af-1480-41e6-a3a5-db93cd943cc0"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_FT_20}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="20" uuid="b2b4e8ca-f87f-432b-a232-ebfe168248ec"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{FT_20}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="55" uuid="a14b4e4a-8c61-4aa9-a5f8-5c67617c13ea">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="55" height="30" uuid="c401c3f3-a17b-451a-99ed-cf63359d54fd"/>
+<text><![CDATA[FT_40]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="44" height="30" uuid="18c927be-7979-49e8-8a43-7e1b00ede596"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_FT_40}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="44" height="20" uuid="ee3c4e62-521c-4b60-a00e-70697818c93b"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{FT_40}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="63" uuid="e431e049-31be-4810-8733-c70c7e1b6d7c">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="63" height="30" uuid="8b147c78-3e34-4205-ae27-c221f3bb5483"/>
+<text><![CDATA[FT_TUES]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="30" uuid="3ba035ea-2f3b-4ce8-a9a2-4dee34387617"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="20" uuid="fa8846d8-0e6f-4863-8f9d-9fb13f50851b"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="75" uuid="79c0cef3-7501-47d6-8d18-0bb89fc0c948">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="75" height="30" uuid="3f9a6f54-fea2-4758-b101-e3c4fce4f34a"/>
+<textElement>
+<font size="8"/>
+</textElement>
+<text><![CDATA[PRV_NO_OF_BLS]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="130da54c-54a0-482b-9992-6ddfe25dd482"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_PRV_NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="20" uuid="63a3e747-8cb6-45de-954b-f07a3098ef21"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{PRV_NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="63" uuid="0e0ceca1-41e1-4a88-aa54-fb4f0bc020f2">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="63" height="30" uuid="e63a9696-99d9-492b-b194-79c41edb3407"/>
+<text><![CDATA[PRV_FT_20]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="30" uuid="ff76f172-bd86-416e-a1c3-64443481f4f1"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_PRV_FT_20}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="52" height="20" uuid="361c94c8-2dc8-48c5-a926-41559c8cdf54"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{PRV_FT_20}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="62" uuid="ab5ea97c-a941-4f77-bb63-3d85590ab27f">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="62" height="30" uuid="3174ab2c-59b5-41f9-8bf7-e2cd4616b9bc"/>
+<text><![CDATA[PRV_FT_40]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="51" height="30" uuid="eacbb6e5-eefd-4177-b439-2b35891f7ed4"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_PRV_FT_40}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="51" height="20" uuid="17759dfc-2412-45e7-a558-0f570004c1d5"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{PRV_FT_40}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="73" uuid="1706ad55-006c-48f9-a170-82db087dc201">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="73" height="30" uuid="995480af-bf28-456d-a534-d7d46494d562"/>
+<text><![CDATA[PRV_FT_TUES]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="62" height="30" uuid="a6f29f29-0887-4c82-ad1b-3e78b21edf29"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_PRV_FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="62" height="20" uuid="0c62bdae-0cd6-4814-b99f-53d230229b30"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{PRV_FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="85" uuid="36b3fa6b-5004-4104-84d8-eb31fc63abd8">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="78" height="30" uuid="4c4758db-6ae0-4615-9524-373f4ad0fa9a"/>
+<textElement>
+<font size="9"/>
+</textElement>
+<text><![CDATA[VAR_NO_OF_BLS]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="67" height="30" uuid="d1645475-cff8-487e-ab5e-3b520c81aa81"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="67" height="20" uuid="ee5f4e87-7414-4266-a62f-be72bfa3e769"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{VAR_NO_OF_BLS}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="59" uuid="ab018df7-db48-4c93-9ee4-e9307a05ccce">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="59" height="30" uuid="a9e168da-d4e7-4ba0-8da2-ee2ee8f5fd5a"/>
+<text><![CDATA[VAR_FT_20]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="48" height="30" uuid="5c4f3b08-c999-4aa0-a93b-c2774a360755"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_20}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="48" height="20" uuid="1143d733-2002-4ee9-8bce-2471ece27cd2"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{VAR_FT_20}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="59" uuid="d79abc10-d39f-4688-9167-687bef7cd760">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="59" height="30" uuid="98a44a4f-ed62-4a4a-83b3-2b920d8b4e9c"/>
+<text><![CDATA[VAR_FT_40]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="48" height="30" uuid="6be6836c-70ff-426b-83aa-bf0c75078c6e"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_40}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="48" height="20" uuid="aebf5b81-586e-45ff-b063-9ca6c33394a2"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{VAR_FT_40}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="74" uuid="075cee84-56db-460e-940d-b9df208bae05">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="74" height="30" uuid="261fd47b-5b95-45ce-b2a5-9ca074670200"/>
+<text><![CDATA[VAR_FT_TUES]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="63" height="30" uuid="44981ed8-f074-4919-9712-68fdfbdb7bd4"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="63" height="20" uuid="271392ae-16d3-422a-bdb4-7d254ba5a41d"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$F{VAR_FT_TUES}]]></textFieldExpression>
+</textField>
+</jr:detailCell>
+</jr:column>
+<jr:column width="85" uuid="9f344e32-2109-4ef4-a0ef-cc78be4e4851">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="79" height="30" uuid="64d3eb86-b449-456b-aaa8-76d2e42ba804"/>
+<textElement>
+<font size="8"/>
+</textElement>
+<text><![CDATA[VAR_NO_OF_BLS_%]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="55" height="30" uuid="132f7d83-cd6d-4d0a-8f5e-0495cfbe7730"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_NO_OF_BLS_PER}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="60" y="0" width="20" height="30" uuid="0962c73a-d393-4821-9648-26d9132e1dbe"/>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField>
+<reportElement x="0" y="0" width="55" height="20" uuid="27d54374-c100-4726-9366-fe9829717cec"/>
+<textElement textAlignment="Right">
+<font size="10"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{VAR_NO_OF_BLS_%}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="60" y="0" width="20" height="20" uuid="ba9576a3-69a9-43e3-9467-484302db8301"/>
+<textElement>
+<font size="10"/>
+</textElement>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:detailCell>
+</jr:column>
+<jr:column width="66" uuid="e7c22afb-8666-4575-92a6-2f9e0e0b06ba">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="66" height="30" uuid="ddb0eaa2-f993-4e13-bbf1-9ad0b8f49af0"/>
+<textElement>
+<font size="9"/>
+</textElement>
+<text><![CDATA[VAR_FT_20_%]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="47" height="30" uuid="90be1390-19d6-46a4-9146-372b2bf4a372"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_20_PER}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="16" height="30" uuid="9c1badd3-695d-4db3-b443-f3724fcd8ba1"/>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField>
+<reportElement x="0" y="0" width="47" height="20" uuid="f423980a-c476-44ac-b4fe-589eeb7a837c"/>
+<textElement textAlignment="Right">
+<font size="10"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{VAR_FT_20_%}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="16" height="20" uuid="344d67e6-72cd-416c-a6e0-456a8cdffecf"/>
+<textElement>
+<font size="10"/>
+</textElement>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:detailCell>
+</jr:column>
+<jr:column width="67" uuid="85eb1998-5513-44fd-8e26-fa0857e854c8">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="67" height="30" uuid="a307042e-a912-4641-8f6b-c117360ebbd9"/>
+<textElement>
+<font size="9"/>
+</textElement>
+<text><![CDATA[VAR_FT_40_%]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="3" y="0" width="44" height="30" uuid="939795fb-f325-48ff-9b61-2457953c211e"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_40_PER}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="16" height="30" uuid="6f54fd93-a1d5-44e0-bdd3-17c4039d1f96"/>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField>
+<reportElement x="0" y="0" width="47" height="20" uuid="a7cb0671-b18d-4dc2-aa16-0f6e2e830bb8"/>
+<textElement textAlignment="Right">
+<font size="10"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{VAR_FT_40_%}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="16" height="20" uuid="542e77d9-891e-4d6f-bae9-3c3df20703d8"/>
+<textElement>
+<font size="10"/>
+</textElement>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:detailCell>
+</jr:column>
+<jr:column width="77" uuid="196cf50d-50bf-49dc-a7f3-0d09ae072492">
+<jr:tableHeader style="table_TH" height="30" rowSpan="1"/>
+<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+<staticText>
+<reportElement x="0" y="0" width="77" height="30" uuid="015efaa3-ccec-4f05-8543-2399bc03f690"/>
+<textElement>
+<font size="9"/>
+</textElement>
+<text><![CDATA[VAR_FT_TUES_%]]></text>
+</staticText>
+</jr:columnHeader>
+<jr:columnFooter style="table_TD" height="30" rowSpan="1">
+<textField pattern="#,##0" isBlankWhenNull="true">
+<reportElement x="0" y="0" width="47" height="30" uuid="42c60545-6c1b-43b8-b23e-be0fcdad9d7f"/>
+<textElement textAlignment="Right"/>
+<textFieldExpression><![CDATA[$V{SUM_VAR_FT_TUES_PER}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="24" height="30" uuid="d4e1f24b-76ee-402e-abe3-7a5e02191b04"/>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:columnFooter>
+<jr:detailCell style="table_TD" height="20" rowSpan="1">
+<textField>
+<reportElement x="0" y="0" width="47" height="20" uuid="85dee9dc-91a1-4297-a057-b190e40a7372"/>
+<textElement textAlignment="Right">
+<font size="10"/>
+</textElement>
+<textFieldExpression><![CDATA[$F{VAR_FT_TUES_%}]]></textFieldExpression>
+</textField>
+<staticText>
+<reportElement x="50" y="0" width="16" height="20" uuid="2de94850-ed7b-4c39-80dd-5c87ec368913"/>
+<textElement>
+<font size="10"/>
+</textElement>
+<text><![CDATA[%]]></text>
+</staticText>
+</jr:detailCell>
+</jr:column>
+</jr:table>
+</componentElement>
+</band>
+</detail>
+</jasperReport>
+ 
