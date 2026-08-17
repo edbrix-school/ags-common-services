@@ -188,6 +188,7 @@ public class DynamicReportPrintService {
                 params.put("SUBREPORT1", load("DynamicReport/FA/AssetTagReport.jrxml"));
                 yield load("DynamicReport/FA/AssetTagReportSubreport.jrxml");
             }
+            case "700-216" -> load("DynamicReport/SH/Telephone_Letter.jrxml");
             case "800-204" -> load("DynamicReport/HR/HrPayrollCustomPrint.jrxml");
             case "800-219" -> load("DynamicReport/HR/HrProvisionsTillDateRpt.jrxml");
             default -> load("DynamicReport/DynamicReport_A3.jrxml");
