@@ -233,6 +233,7 @@
     </conditionalStyle>
   </style>
   <parameter name="COMPANY_POID" class="java.lang.String"/>
+  <!-- COMPANY_POID holds only the first selected company; COMPANY_POID_CSV carries the full multiselect list -->
   <parameter name="COMPANY_POID_CSV" class="java.lang.String"/>
   <parameter name="PERIOD" class="java.lang.String"/>
   <parameter name="PERIOD2" class="java.lang.String"/>
@@ -243,8 +244,8 @@
   <queryString language="sql">
     <![CDATA[
 SELECT *
-FROM fn_proc_sh_rev_line_compar_print(
-    ('{' || TRANSLATE(CAST(COALESCE($P{COMPANY_POID_CSV}, $P{COMPANY_POID}) AS TEXT), '[] ', '') || '}')::numeric[],
+FROM fn_sh_rev_line_compar_print(
+    ('{' || TRANSLATE(CAST($P{COMPANY_POID_CSV} AS TEXT), '[] ', '') || '}')::numeric[],
     $P{PERIOD}::date,
     $P{PERIOD2}::date,
     $P{OTHER_INCOME},
