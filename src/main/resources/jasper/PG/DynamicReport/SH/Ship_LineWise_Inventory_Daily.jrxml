@@ -1,0 +1,931 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Ship_LineWise_Inventory_Daily" language="groovy" printOrder="Horizontal" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7f26a3b9-e089-41dd-858f-0392184057f9">
+	<property name="ireport.zoom" value="1.2100000000000002"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<subDataset name="FULL" uuid="f93ca439-e71e-44c6-9dfb-2502a5d2dfc1">
+		<queryString>
+			<![CDATA[select vwinvt.MAINFEST_TRANSACTION_POID,SLM.LINE_NAME,shcntdtl.CONTAINER_NO,shcntdtl.EQUIPMENT_ISO_TYPE
+,vwinvt.DISCHARGE_FULL from VW_CONTAINER_MOVES_INVENTORY vwinvt
+inner join SHIP_BL_MANIFEST_CONTAINER_DTL shcntdtl on vwinvt.MAINFEST_TRANSACTION_POID=shcntdtl.TRANSACTION_POID
+AND shcntdtl.CONTAINER_NO=vwinvt.CONTAINER_NO
+INNER JOIN SHIP_LINE_MASTER SLM ON vwinvt.LINE_POID=SLM.LINE_POID
+where  vwinvt.DISCHARGE_FULL is not null and vwinvt.EMPTY_IN is null and vwinvt.WITH_CONSIGNEE_FULL is null
+AND vwinvt.DISCHARGE_FULL>='01-JAN-2016']]>
+		</queryString>
+		<field name="MAINFEST_TRANSACTION_POID" class="java.math.BigDecimal"/>
+		<field name="LINE_NAME" class="java.lang.String"/>
+		<field name="CONTAINER_NO" class="java.lang.String"/>
+		<field name="EQUIPMENT_ISO_TYPE" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="EMPTY" uuid="f6a00d19-0b98-4656-9bfa-f966fb7f3f9e">
+		<queryString language="SQL">
+			<![CDATA[select vwinvt.MAINFEST_TRANSACTION_POID,SLM.LINE_NAME,shcntdtl.CONTAINER_NO,shcntdtl.EQUIPMENT_ISO_TYPE,vwinvt.EMPTY_IN
+from VW_CONTAINER_MOVES_INVENTORY vwinvt
+inner join SHIP_BL_MANIFEST_CONTAINER_DTL shcntdtl on vwinvt.MAINFEST_TRANSACTION_POID=shcntdtl.TRANSACTION_POID
+AND shcntdtl.CONTAINER_NO=vwinvt.CONTAINER_NO
+INNER JOIN SHIP_LINE_MASTER SLM ON vwinvt.LINE_POID=SLM.LINE_POID
+where  vwinvt.DISCHARGE_FULL is not null and vwinvt.EMPTY_IN is not null and vwinvt.EMPTY_OUT is null
+AND vwinvt.DISCHARGE_FULL>='01-JAN-2016']]>
+		</queryString>
+		<field name="MAINFEST_TRANSACTION_POID" class="java.math.BigDecimal"/>
+		<field name="LINE_NAME" class="java.lang.String"/>
+		<field name="CONTAINER_NO" class="java.lang.String"/>
+		<field name="EQUIPMENT_ISO_TYPE" class="java.lang.String"/>
+		<field name="EMPTY_IN" class="oracle.sql.TIMESTAMP"/>
+	</subDataset>
+	<subDataset name="CONSIGNEE" uuid="3d0b4571-4afe-4c5d-8def-33ce5eae7ead">
+		<queryString>
+			<![CDATA[select vwinvt.MAINFEST_TRANSACTION_POID,SLM.LINE_NAME,shcntdtl.CONTAINER_NO,shcntdtl.EQUIPMENT_ISO_TYPE,
+vwinvt.WITH_CONSIGNEE_FULL from VW_CONTAINER_MOVES_INVENTORY vwinvt
+inner join SHIP_BL_MANIFEST_CONTAINER_DTL shcntdtl on vwinvt.MAINFEST_TRANSACTION_POID=shcntdtl.TRANSACTION_POID
+AND shcntdtl.CONTAINER_NO=vwinvt.CONTAINER_NO
+INNER JOIN SHIP_LINE_MASTER SLM ON vwinvt.LINE_POID=SLM.LINE_POID
+where  vwinvt.DISCHARGE_FULL is not null and vwinvt.EMPTY_IN is   null and vwinvt.WITH_CONSIGNEE_FULL is not null
+AND vwinvt.DISCHARGE_FULL>='01-JAN-2016']]>
+		</queryString>
+		<field name="MAINFEST_TRANSACTION_POID" class="java.math.BigDecimal"/>
+		<field name="LINE_NAME" class="java.lang.String"/>
+		<field name="CONTAINER_NO" class="java.lang.String"/>
+		<field name="EQUIPMENT_ISO_TYPE" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="SHIPPER" uuid="2a5153f3-0006-424c-97a4-95bd2b8920ef">
+		<queryString language="SQL">
+			<![CDATA[select vwinvt.MAINFEST_TRANSACTION_POID,SLM.LINE_NAME,shcntdtl.CONTAINER_NO,shcntdtl.EQUIPMENT_ISO_TYPE,
+vwinvt.EXPORT_PORT_FULL,
+(TRUNC(sysdate)-TRUNC(vwinvt.EMPTY_OUT))days from VW_CONTAINER_MOVES_INVENTORY vwinvt
+inner join SHIP_BL_MANIFEST_CONTAINER_DTL shcntdtl on vwinvt.MAINFEST_TRANSACTION_POID=shcntdtl.TRANSACTION_POID
+AND shcntdtl.CONTAINER_NO=vwinvt.CONTAINER_NO
+INNER JOIN SHIP_LINE_MASTER SLM ON vwinvt.LINE_POID=SLM.LINE_POID
+where  vwinvt.EMPTY_OUT is not null and vwinvt.EXPORT_PORT_FULL is null AND vwinvt.DISCHARGE_FULL>='01-JAN-2016']]>
+		</queryString>
+		<field name="MAINFEST_TRANSACTION_POID" class="java.math.BigDecimal"/>
+		<field name="LINE_NAME" class="java.lang.String"/>
+		<field name="CONTAINER_NO" class="java.lang.String"/>
+		<field name="EQUIPMENT_ISO_TYPE" class="java.lang.String"/>
+		<field name="EXPORT_PORT_FULL" class="oracle.sql.TIMESTAMP"/>
+		<field name="DAYS" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="EXPORT_FULL_GATE" uuid="01149281-91d7-42ab-9adb-ae140e44f810">
+		<queryString language="SQL">
+			<![CDATA[select MAINFEST_TRANSACTION_POID,SLM.LINE_NAME,shcntdtl.CONTAINER_NO,shcntdtl.EQUIPMENT_ISO_TYPE,
+(TRUNC(sysdate)-TRUNC(vwinvt.EXPORT_PORT_FULL))days from VW_CONTAINER_MOVES_INVENTORY vwinvt
+inner join SHIP_BL_MANIFEST_CONTAINER_DTL shcntdtl on vwinvt.MAINFEST_TRANSACTION_POID=shcntdtl.TRANSACTION_POID
+INNER JOIN SHIP_LINE_MASTER SLM ON vwinvt.LINE_POID=SLM.LINE_POID
+where  EMPTY_OUT is not null and EXPORT_PORT_FULL is not null and LOAD_FULL is null AND DISCHARGE_FULL>='01-JAN-2016']]>
+		</queryString>
+		<field name="MAINFEST_TRANSACTION_POID" class="java.math.BigDecimal"/>
+		<field name="LINE_NAME" class="java.lang.String"/>
+		<field name="CONTAINER_NO" class="java.lang.String"/>
+		<field name="EQUIPMENT_ISO_TYPE" class="java.lang.String"/>
+		<field name="DAYS" class="java.math.BigDecimal"/>
+	</subDataset>
+	<queryString>
+		<![CDATA[select 1 AS "1"]]>
+	</queryString>
+	<field name="1" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<summary>
+		<band height="210" splitType="Stretch">
+			<crosstab>
+				<reportElement x="0" y="21" width="802" height="23" uuid="451dcfe6-65cb-46c2-b09b-1e6b57319f66"/>
+				<crosstabDataset>
+					<dataset>
+						<datasetRun subDataset="EMPTY" uuid="9f0051d8-d695-4c63-868f-006ac76b6b05">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<crosstabHeaderCell>
+					<cellContents>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="131" height="15" uuid="0a09636b-0576-4b3d-9126-3080c39a6f1e"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="131" height="15" uuid="d42549ba-4eb8-41e3-8926-72279453264a"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="131" height="15" uuid="f57fc74e-5fc7-4ca8-9512-11eb681e5d6b"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[EMPTY]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="131" height="15" uuid="20026bcb-ba12-4056-baba-5573882b0b5a"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[LINES]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="LINE_NAME" width="131" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{LINE_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="130" height="15" uuid="484c9a61-16a0-40e7-a0d5-1525427bcc37"/>
+								<textFieldExpression><![CDATA[$V{LINE_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="EQUIPMENT_ISO_TYPE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField isBlankWhenNull="true">
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="4f8ba974-3168-4741-aa14-6c7f10bb0935"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="0aa71099-38e1-4b67-91c9-a4d7f3722cd6"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<text><![CDATA[TOTAL]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="EQUIPMENT_ISO_TYPEMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="15">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="9b0d5469-a350-4f46-8155-d2fa8785ac67"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="LINE_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="d02040cf-60a5-43e9-ad7e-55e1309fea78"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" height="15" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="9ea33898-16bf-411e-9abd-bad192be0bed"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="LINE_NAME" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="a0d58f77-15d3-48f8-bec6-45bb96063ed0"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+			<break>
+				<reportElement x="0" y="44" width="802" height="1" uuid="1b7bebf1-f4e3-4040-a0d4-4ba1a7e86ef7"/>
+			</break>
+			<crosstab>
+				<reportElement positionType="Float" x="0" y="66" width="802" height="14" uuid="ba4efdd9-7ab4-4153-a7ad-4a784fd4afb7"/>
+				<crosstabDataset>
+					<dataset>
+						<datasetRun subDataset="FULL" uuid="be1fc78b-1d1f-4477-9c8f-e091820431fb">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<crosstabHeaderCell>
+					<cellContents>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="131" height="15" uuid="c3563ef6-eb51-4fec-a392-e77254787b11"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="131" height="15" uuid="95f13ccb-7fdb-4c55-980d-f218432afd5b"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[FULL]]></text>
+						</staticText>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="131" height="15" uuid="59efd083-0779-4c80-bfd2-724fe19573e9"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="131" height="15" uuid="943836c6-ef2f-4202-b62a-2ced214054d6"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[LINES]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="LINE_NAME" width="131" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{LINE_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="130" height="15" uuid="d3459967-6246-475c-b8bf-abc43e76498a"/>
+								<textFieldExpression><![CDATA[$V{LINE_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="EQUIPMENT_ISO_TYPE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField isBlankWhenNull="true">
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="c306a0fa-5eaf-4788-aeb0-abc3591ccbad"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="59fabca2-a9e1-4258-b00d-317bf6b28e6a"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<text><![CDATA[TOTAL]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="EQUIPMENT_ISO_TYPEMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="16">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="49178814-497d-447d-854e-bbba38e4829d"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="LINE_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="c8c888fb-63bd-40e6-a311-e269a330a6a6"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" height="16" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="48371494-ec3e-4f68-bf37-ba3c07cd7aba"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="LINE_NAME" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="3217ebff-b96f-41da-84ee-aa476d390125"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+			<break>
+				<reportElement x="0" y="79" width="802" height="1" uuid="72401f48-5a5a-43df-a19a-edbb2fb6b6eb"/>
+			</break>
+			<staticText>
+				<reportElement positionType="Float" x="1" y="46" width="312" height="20" uuid="c752d74e-eb29-4fa5-ad9a-a4c02e98445e"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Wise Inventory Daily - FULL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="3" width="312" height="18" uuid="74edcd8d-4bfe-4dd9-a030-a7913d37809c"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Wise Inventory Daily - EMPTY]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="80" width="313" height="20" uuid="6b0e6573-06c5-4d3b-a460-669ea55454bd"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Wise Inventory Daily - WITH CONSIGNEE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="117" width="313" height="20" uuid="cd125172-0f0d-4fe1-8ee5-a0e07c8e9f25"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Wise Inventory Daily - WITH SHIPPER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="1" y="157" width="312" height="20" uuid="2f70782f-7954-4b8e-8725-542bbfd043ad"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Line Wise Inventory Daily - EXPORT FULL GATE IN]]></text>
+			</staticText>
+			<crosstab>
+				<reportElement positionType="Float" x="0" y="100" width="802" height="17" uuid="b235c03b-2287-453e-8dc6-6876dad9018c"/>
+				<crosstabDataset>
+					<dataset>
+						<datasetRun subDataset="CONSIGNEE" uuid="40026f9a-6879-4ac0-bcc4-e2915c922048">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<crosstabHeaderCell>
+					<cellContents>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="132" height="15" uuid="129ad422-a3d4-4d8d-be7f-efc204f60b6a"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="132" height="15" uuid="84c0266e-71b1-4b54-9169-9f55f5ceef15"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="132" height="15" uuid="193680a1-c277-4bac-9a2c-48e0de55952c"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[WITH CONSIGNEE]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="132" height="15" uuid="bbccb7e8-784a-4302-9f20-a93c9d6b4f33"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[LINES]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="LINE_NAME" width="132" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{LINE_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="132" height="15" uuid="0dc14e76-d298-48a5-bd58-8e94132e2cfd"/>
+								<textFieldExpression><![CDATA[$V{LINE_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="EQUIPMENT_ISO_TYPE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="109f067c-3150-4f2c-a0eb-c8343fd9a66a"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="d980b5da-666b-445e-8ec5-963fe98adb3f"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<text><![CDATA[TOTAL]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="EQUIPMENT_ISO_TYPEMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="16">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="f2a2a8f7-9add-42e4-855b-8d5707d4e79e"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="LINE_NAME">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="dc434b64-4fee-4d17-a4b8-8d193ce9b13b"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" height="16" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="6e99a047-17cc-471f-997f-2100d2d6dd89"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="LINE_NAME" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" uuid="01689788-87f8-4118-ac7c-a219786feac6"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+			<crosstab>
+				<reportElement positionType="Float" x="0" y="137" width="802" height="18" uuid="c9ca60f8-9eef-4de7-a729-42ec4fa287d6"/>
+				<crosstabDataset>
+					<dataset>
+						<datasetRun subDataset="SHIPPER" uuid="9bb69d0d-a603-4959-b22a-3897b25f5f56">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<crosstabHeaderCell>
+					<cellContents>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="206" height="15" uuid="4e0cb727-b8f2-4ac8-aeda-7757b42fa220"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="206" height="15" uuid="2c107c68-0a50-4978-853f-47ab35850a05"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="206" height="15" uuid="798ff1d0-9c37-44fb-8aa4-a92f4ae3c48f"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="206" height="15" uuid="096e4dff-64cd-4f43-8bbc-16c2e86f4e70"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[WITH SHIPPER]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="133" height="15" uuid="d751d857-b72b-40a7-ba1a-b6b3a93c52c3"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[LINES]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="133" y="15" width="72" height="15" uuid="d92d3da2-c43b-4031-b131-61b5347ae2d2"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[DAYS]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="LINE_NAME" width="133" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{LINE_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="133" height="15" uuid="0638ea67-baa1-4ef5-ab67-0f6e8c8fd080"/>
+								<textFieldExpression><![CDATA[$V{LINE_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#005FB3" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<rowGroup name="DAYS" width="73" totalPosition="End">
+					<bucket class="java.math.BigDecimal">
+						<bucketExpression><![CDATA[$F{DAYS}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="72" height="15" uuid="424b6062-a584-43a6-b04c-70234ac162c6"/>
+								<textFieldExpression><![CDATA[$V{DAYS}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="EQUIPMENT_ISO_TYPE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField isBlankWhenNull="true">
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="bff6ad28-91a9-4461-a452-0defc1a34928"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="50221e82-6023-439e-9036-716c43fb8c1e"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<text><![CDATA[TOTAL]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="EQUIPMENT_ISO_TYPEMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="16">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="61bfee39-a0a9-4f7a-9842-578ab4ccb523"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="LINE_NAME">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" forecolor="#FFFFFF" uuid="b0b69fe0-f8ab-49a5-82f1-f4a257b01e13"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" height="16" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="d17b982a-1588-41ba-8030-a5cd7303b999"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="LINE_NAME" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" forecolor="#FFFFFF" uuid="644cd401-6d8c-4695-badd-354f9cb81228"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="DAYS">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" uuid="5fc3ffad-306d-4a38-9fb9-630bc20f0ec4"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="DAYS" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" uuid="7029c289-b149-4dcb-b1a0-2b3e13fc9320"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+			<crosstab>
+				<reportElement positionType="Float" x="0" y="177" width="802" height="16" uuid="07321916-9dee-4484-945a-11eec90b39ca"/>
+				<crosstabDataset>
+					<dataset>
+						<datasetRun subDataset="EXPORT_FULL_GATE" uuid="e7135da2-4bf9-4fe4-9f1a-2245dc663c8e">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+				</crosstabDataset>
+				<crosstabHeaderCell>
+					<cellContents>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="203" height="15" uuid="ecf11c79-e69d-458c-ab00-8fbed28eaf09"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="130" height="15" uuid="4693e19a-35d5-4ce7-918d-b350fa469478"/>
+						</rectangle>
+						<rectangle>
+							<reportElement style="Crosstab Data Text" x="130" y="15" width="73" height="15" uuid="343e2348-448a-425e-a54a-984122fc60c0"/>
+						</rectangle>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="15" width="131" height="15" uuid="63658486-c5f7-4666-9f28-e472a3e6a39f"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[LINES]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="203" height="15" uuid="d082604d-f9af-4dac-9fdd-2d04b5fdae8e"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[EXPORT FULL GATE IN]]></text>
+						</staticText>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="130" y="15" width="73" height="15" uuid="6029d077-8468-4f6a-b9ec-a67f4e8ad335"/>
+							<textElement>
+								<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+							</textElement>
+							<text><![CDATA[DAYS]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="LINE_NAME" width="130" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{LINE_NAME}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="130" height="15" uuid="8eb473f4-e82c-47ce-99ba-3239992cb3ec"/>
+								<textFieldExpression><![CDATA[$V{LINE_NAME}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#005FB3" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<rowGroup name="DAYS" width="73" totalPosition="End">
+					<bucket class="java.math.BigDecimal">
+						<bucketExpression><![CDATA[$F{DAYS}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="73" height="15" uuid="a68f26d7-93aa-4cff-8f71-e4535a290731"/>
+								<textFieldExpression><![CDATA[$V{DAYS}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="EQUIPMENT_ISO_TYPE" height="30" totalPosition="End">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField isBlankWhenNull="true">
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="30" uuid="fbf6103e-4d8a-4a88-9535-8a6151c73114"/>
+								<textElement>
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPE}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="6362a7f0-f331-4c94-8a96-c6db6cc3de40"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+								</textElement>
+								<text><![CDATA[TOTAL]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="EQUIPMENT_ISO_TYPEMeasure" class="java.lang.Integer" calculation="Count">
+					<measureExpression><![CDATA[$F{EQUIPMENT_ISO_TYPE}]]></measureExpression>
+				</measure>
+				<crosstabCell width="50" height="16">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="8531d866-2a44-472e-8168-d7af56535a02"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="25" rowTotalGroup="LINE_NAME">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="65735374-2391-46e8-a059-040f8993c10e"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="50" height="16" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="15" uuid="9dc93098-c9bf-4153-8b26-ab082b7f26c5"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="LINE_NAME" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="25" forecolor="#FFFFFF" uuid="92be46ee-db1a-46c1-97ee-098d1c38fff0"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="DAYS">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" uuid="fb9b3e87-3dd5-4018-8a6b-ded6df01aba7"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell height="19" rowTotalGroup="DAYS" columnTotalGroup="EQUIPMENT_ISO_TYPE">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="50" height="18" uuid="a962eecf-93aa-4fd9-935e-4d9f65dea9e4"/>
+							<textFieldExpression><![CDATA[$V{EQUIPMENT_ISO_TYPEMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+		</band>
+	</summary>
+</jasperReport>
