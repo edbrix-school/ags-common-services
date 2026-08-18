@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Telephone_Letter" language="groovy" pageWidth="600" pageHeight="800" columnWidth="520" leftMargin="60" rightMargin="20" topMargin="20" bottomMargin="20" uuid="697f4a45-2e06-4a70-b840-a9cc05f732f1">
+	<property name="ireport.zoom" value="1.9965000000000042"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="577"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="COMPANY_LOG" uuid="58fa9fd2-59c4-44b7-87f9-810d102e5728">
+		<parameter name="LOGIN_COMP_POID_L" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="LOGIN_DIV_POID_L" class="java.lang.String" isForPrompting="false"/>
+		<queryString language="sql">
+			<![CDATA[SELECT
+    CM.COMPANY_POID AS "COMPANY_POID",
+    CM.COMPANY_NAME AS "COMPANY_NAME",
+    CM.ADDRESS AS "ADDRESS",
+    CM.LOGO_IMAGE AS "LOGO_IMAGE",
+    CMD.REMARKS AS "REMARKS",
+    CMD.COMPANY_DIV_LOGO AS "COMPANY_DIV_LOGO",
+    CMD.COMPANY_DIV_ADDRESS AS "COMPANY_DIV_ADDRESS"
+FROM GLOBAL_COMPANY_MASTER CM
+INNER JOIN GLOBAL_COMPANY_MASTER_DIV_DTL CMD ON CM.COMPANY_POID = CMD.COMPANY_POID
+WHERE CM.COMPANY_POID = CAST($P{LOGIN_COMP_POID_L} AS numeric)
+AND CMD.DIV_POID = CAST($P{LOGIN_DIV_POID_L} AS numeric)]]>
+		</queryString>
+		<field name="COMPANY_POID" class="java.math.BigDecimal"/>
+		<field name="COMPANY_NAME" class="java.lang.String"/>
+		<field name="ADDRESS" class="java.lang.String"/>
+		<field name="LOGO_IMAGE" class="java.io.InputStream"/>
+		<field name="REMARKS" class="java.lang.String"/>
+		<field name="COMPANY_DIV_LOGO" class="java.io.InputStream"/>
+		<field name="COMPANY_DIV_ADDRESS" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="DOC_KEY_POID" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="LOGIN_GROUP_POID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGIN_COMP_POID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGIN_USER_POID" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="DOC_ID" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["\\\\shippingbahrain.com\\data\\ERP_REPORTS\\Reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_RPT_SELECTED_VALUES_LIST" class="java.lang.String"/>
+	<queryString language="sql">
+		<![CDATA[SELECT
+    TO_CHAR(CURRENT_TIMESTAMP, 'DD Month YYYY') AS "LSYSDATE",
+    CURRENT_TIMESTAMP AS "SYSDATE",
+    1 AS "DOCUMENT_COMPANY_POID",
+    1 AS "DOCUMENT_COMPANY_DIVISION_POID",
+    TELEPHONE_POID AS "TELEPHONE_POID",
+    'Mobile No. - ' || TELEPHONE_NUMBER AS "TELEPHONE_NUMBER",
+    DESCRIPTION AS "DESCRIPTION"
+FROM ADMIN_TELEPHONES_MASTER
+WHERE COALESCE(ACTIVE,'Y') = 'Y'
+AND TELEPHONE_POID IN (SELECT unnest(string_to_array($P{P_RPT_SELECTED_VALUES_LIST}, ',')::numeric[]))]]>
+	</queryString>
+	<field name="LSYSDATE" class="java.lang.String"/>
+	<field name="SYSDATE" class="java.sql.Timestamp"/>
+	<field name="DOCUMENT_COMPANY_POID" class="java.math.BigDecimal"/>
+	<field name="DOCUMENT_COMPANY_DIVISION_POID" class="java.math.BigDecimal"/>
+	<field name="TELEPHONE_POID" class="java.math.BigDecimal"/>
+	<field name="TELEPHONE_NUMBER" class="java.lang.String"/>
+	<field name="DESCRIPTION" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="135" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="108" width="520" height="26" uuid="0891fc75-4de0-4719-b6a3-35c5acae103c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="18" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Inter - Office Memo]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 4" x="0" y="2" width="520" height="60" uuid="8e3d84da-f9d8-4303-96ac-62d8e5097eb5"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="COMPANY_LOG" uuid="f4a7cf31-c49b-4cfc-bebc-c1f20a52f956">
+						<datasetParameter name="LOGIN_COMP_POID_L">
+							<datasetParameterExpression><![CDATA[$F{DOCUMENT_COMPANY_POID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="LOGIN_DIV_POID_L">
+							<datasetParameterExpression><![CDATA[$F{DOCUMENT_COMPANY_DIVISION_POID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="507" uuid="6f2dfd10-a887-4af9-b5ef-bc56c31d0bf7">
+						<jr:detailCell height="86" rowSpan="1">
+							<image hAlign="Center">
+								<reportElement x="0" y="0" width="507" height="62" forecolor="#FFFFFF" uuid="dd8a3461-a403-4327-85d2-73d4a073d95a"/>
+								<imageExpression><![CDATA[$F{COMPANY_DIV_LOGO}]]></imageExpression>
+							</image>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="66" width="507" height="15" isPrintWhenDetailOverflows="true" uuid="5945a983-cbf2-47f1-81a5-0ea3f5bcdc9c"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="SansSerif" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{COMPANY_DIV_ADDRESS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<textField pattern="dd MMMMM yyyy" isBlankWhenNull="true">
+				<reportElement x="0" y="101" width="149" height="20" uuid="4c8e2210-5815-4951-8372-b3bb5350fc70"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SYSDATE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="540">
+			<staticText>
+				<reportElement x="0" y="356" width="520" height="14" uuid="1a5a81bc-f12c-42e6-ad10-22b202337d3f"/>
+				<textElement>
+					<font fontName="SansSerif" isBold="false"/>
+				</textElement>
+				<text><![CDATA[I read and understood the above and confirm the strict compliance.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="91" width="520" height="52" isPrintWhenDetailOverflows="true" uuid="7dc869d4-b647-4214-b4f8-ec0118bcaeb5"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Further to the e-mail circular dated 27 October 2022 on mobile usage policy, I hereby agree and confirm
+the below :-]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="43" y="451" width="477" height="20" uuid="45a59a0e-e14d-47c9-8f11-ac21ca694aa5"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="72" y="49" width="404" height="20" uuid="00769133-566e-4752-9d97-bbd430136312"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TELEPHONE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="72" y="1" width="404" height="20" uuid="3ccb736c-c517-4642-a88c-eec8b71db21c"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="451" width="149" height="20" uuid="c1a0a9d1-1aa8-4b0f-ba74-fde49ca49c00"/>
+				<textElement>
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name :
+]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="449" width="236" height="1" uuid="e18a09af-05c2-444e-8fe5-eca96761b674"/>
+				<graphicElement>
+					<pen lineColor="#666666"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="1" width="55" height="20" uuid="889b1638-9076-4097-a8a0-1cbadfe1f9f2"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[From]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="55" y="1" width="15" height="20" uuid="60b1570c-06c2-49d4-856a-4e2e737b0541"/>
+				<textElement textAlignment="Left">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="25" width="55" height="20" uuid="a1502061-6a11-4af9-8621-b88bf45ce7c0"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sub]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="55" y="25" width="15" height="20" uuid="5d23c274-7c62-4421-86b1-c8a09ce90a96"/>
+				<textElement textAlignment="Left">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="25" width="404" height="20" uuid="1ef08580-2875-4873-a5d2-b5836af97b55"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Official Company Mobile usage policy]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="55" y="49" width="15" height="20" uuid="382b13d9-61c5-4f4f-a837-64e787a899ba"/>
+				<textElement textAlignment="Left">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="49" width="55" height="20" uuid="0e06b7ca-d867-4d0d-a1ec-b69d9a4c651e"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reg]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="77" width="490" height="2" uuid="b29e3cdb-7c20-4936-ad55-c9675900ab2e"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Double" lineColor="#666666"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="72" y="123" width="448" height="32" uuid="7bed7559-4654-4862-a8f8-b518901cadcf"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[No payment Apps registered on the above referred official company mobile number.
+(Such as Benefit Pay, STC Pay, BFC Pay, Sadad Pay, Beyon Money, ILA Bank, etc…)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="123" width="70" height="20" uuid="22c9b5c9-2ebe-4782-aa09-1cc2baeb3c97"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[>>]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="162" width="70" height="20" uuid="aac84023-1ebb-4763-a0be-02ec5a07f6e1"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[>>]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="162" width="448" height="32" uuid="e75d6022-7eb7-49bd-8fdf-5a824e0c827c"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[I will not register any payment apps using company mobile number in future as well.
+If needed shall use only my personal number for any payment apps.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="201" width="70" height="20" uuid="0a502006-38cf-476c-a803-8e2f62e02414"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[>>]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="201" width="448" height="32" uuid="780f0395-aca0-447a-827c-cd313aa02c58"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Viacloud services to be used for making international calls.
+Batelco services can be used only if Viacloud is not working for making overseas calls.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="240" width="70" height="20" uuid="01a9c7b2-8773-4a15-a06d-b5152c8901a2"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[>>]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="240" width="448" height="20" uuid="17cd16ee-c7c2-44be-b273-2ae0702734c8"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[During Vacation :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="260" width="422" height="18" uuid="707a6ec9-a9fd-4e65-bc2c-9a2a3f37db02"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Shall not use Data Roaming facility.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="78" y="260" width="20" height="18" uuid="6fd21c08-451d-42b3-bea6-56617fdcfc7d"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[• ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="78" y="278" width="20" height="18" uuid="0131faf6-6cfe-45b4-a78a-3a0dec81c2e8"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[• ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="278" width="422" height="18" uuid="867028fd-0fcd-4773-b278-68ebe4de7e16"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Any Data Roaming charges will be on personal account.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="78" y="296" width="20" height="18" uuid="6598dfcf-6664-485c-8911-aa36aa1157d4"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[• ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="296" width="422" height="18" uuid="100f8164-feb8-444d-992b-967134ef57b5"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Use WhatsApp call for International Calls during Vacation.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="78" y="314" width="20" height="18" uuid="14493eb8-b4e1-4eea-a7bf-c6df4c20ce8a"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[• ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="314" width="450" height="18" uuid="fc0114a7-0a13-488d-9a3d-c34043360a44"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[Can use local internet services and the cost can be reimbursed prior approval by HOD.]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>
