@@ -27,7 +27,7 @@ public class ApprovalRepository {
     private final DataSource dataSource;
 
     public ApprovalActionResponse executeApprovalAction(ApprovalActionRequest request) {
-        String sql = "BEGIN PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?); END;";
+        String sql = "{ call PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?) }";
         
         try (Connection connection = DataSourceUtils.getConnection(dataSource);
              CallableStatement cs = connection.prepareCall(sql)) {
@@ -72,7 +72,7 @@ public class ApprovalRepository {
 
     public ApprovalStatusResponse getApprovalStatus(Long loginGroupPoid, Long companyPoid, 
                                                      Long userPoid, String docId, Long docKeyPoid) {
-        String sql = "BEGIN PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?); END;";
+        String sql = "{ call PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?) }";
         
         try (Connection connection = DataSourceUtils.getConnection(dataSource);
              CallableStatement cs = connection.prepareCall(sql)) {
@@ -109,63 +109,78 @@ public class ApprovalRepository {
 
     public ApprovalLogResponse getApprovalLog(Long loginGroupPoid, Long companyPoid, 
                                                String docId, Long docKeyPoid) {
-        String sql = "BEGIN PROC_GLOB_APPROVAL_LOG(?,?,?,?,?); END;";
-        
-        try (Connection connection = DataSourceUtils.getConnection(dataSource);
-             CallableStatement cs = connection.prepareCall(sql)) {
+        String sql = "{ call PROC_GLOB_APPROVAL_LOG(?,?,?,?,?) }";
 
-            cs.setLong(1, loginGroupPoid);
-            cs.setLong(2, companyPoid);
-            cs.setString(3, docId);
-            cs.setString(4, String.valueOf(docKeyPoid));
-            cs.registerOutParameter(5, oracle.jdbc.OracleTypes.CURSOR);
-
-            cs.execute();
-
-            try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(5)) {
-                if (rs == null) {
-                    return ApprovalLogResponse.builder()
-                            .logs(new java.util.ArrayList<>())
-                            .columns(new java.util.ArrayList<>())
-                            .build();
-                }
-
-                java.sql.ResultSetMetaData metadata = rs.getMetaData();
-                int columnCount = metadata.getColumnCount();
-
-                List<Map<String, String>> logs = new java.util.ArrayList<>();
-                List<ApprovalLogResponse.ColumnInfo> columns = new java.util.ArrayList<>();
-
-                // Build columns
-                for (int i = 1; i <= columnCount; i++) {
-                    String colName = metadata.getColumnName(i);
-                    String colWidth = null;
-                    
-                    if (i < columnCount) {
-                        int displaySize = metadata.getColumnDisplaySize(i);
-                        colWidth = (displaySize < 80 ? 100 : displaySize + 30) + "px";
-                    }
-                    
-                    columns.add(ApprovalLogResponse.ColumnInfo.builder()
-                            .columnName(colName)
-                            .columnWidth(colWidth)
-                            .build());
-                }
-
-                // Build rows
-                while (rs.next()) {
-                    Map<String, String> row = new java.util.LinkedHashMap<>();
-                    for (int i = 1; i <= columnCount; i++) {
-                        row.put(metadata.getColumnName(i), rs.getString(i));
-                    }
-                    logs.add(row);
-                }
-
-                return ApprovalLogResponse.builder()
-                        .logs(logs)
-                        .columns(columns)
-                        .build();
+        try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
+            // Postgres refcursors only live within their transaction. If this connection is already
+            // bound to a Spring-managed transaction, autocommit is already off and committing here
+            // ourselves would end that surrounding transaction early — so only manage it locally when
+            // this call isn't already running inside one.
+            boolean manageTx = !DataSourceUtils.isConnectionTransactional(connection, dataSource);
+            if (manageTx) {
+                connection.setAutoCommit(false);
             }
+
+            ApprovalLogResponse response;
+            try (CallableStatement cs = connection.prepareCall(sql)) {
+                cs.setLong(1, loginGroupPoid);
+                cs.setLong(2, companyPoid);
+                cs.setString(3, docId);
+                cs.setString(4, String.valueOf(docKeyPoid));
+                cs.registerOutParameter(5, Types.OTHER); // REF_CURSOR
+
+                cs.execute();
+
+                try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(5)) {
+                    if (rs == null) {
+                        response = ApprovalLogResponse.builder()
+                                .logs(new java.util.ArrayList<>())
+                                .columns(new java.util.ArrayList<>())
+                                .build();
+                    } else {
+                        java.sql.ResultSetMetaData metadata = rs.getMetaData();
+                        int columnCount = metadata.getColumnCount();
+
+                        List<Map<String, String>> logs = new java.util.ArrayList<>();
+                        List<ApprovalLogResponse.ColumnInfo> columns = new java.util.ArrayList<>();
+
+                        // Build columns
+                        for (int i = 1; i <= columnCount; i++) {
+                            String colName = metadata.getColumnName(i);
+                            String colWidth = null;
+
+                            if (i < columnCount) {
+                                int displaySize = metadata.getColumnDisplaySize(i);
+                                colWidth = (displaySize < 80 ? 100 : displaySize + 30) + "px";
+                            }
+
+                            columns.add(ApprovalLogResponse.ColumnInfo.builder()
+                                    .columnName(colName)
+                                    .columnWidth(colWidth)
+                                    .build());
+                        }
+
+                        // Build rows
+                        while (rs.next()) {
+                            Map<String, String> row = new java.util.LinkedHashMap<>();
+                            for (int i = 1; i <= columnCount; i++) {
+                                row.put(metadata.getColumnName(i), rs.getString(i));
+                            }
+                            logs.add(row);
+                        }
+
+                        response = ApprovalLogResponse.builder()
+                                .logs(logs)
+                                .columns(columns)
+                                .build();
+                    }
+                }
+            }
+
+            if (manageTx) {
+                connection.commit();
+            }
+            return response;
 
         } catch (SQLException e) {
             log.error("Error getting approval log: {}", e.getMessage(), e);

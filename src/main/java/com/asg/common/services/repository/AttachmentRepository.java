@@ -89,7 +89,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
                 .collect(Collectors.toList());
     }
 
-    @Query(value = "SELECT VOYAGE_TRANSACTION_POID FROM SHIP_BL_MANIFEST_HDR WHERE TRANSACTION_POID = :blPoid AND ROWNUM = 1", nativeQuery = true)
+    @Query(value = "SELECT VOYAGE_TRANSACTION_POID FROM SHIP_BL_MANIFEST_HDR WHERE TRANSACTION_POID = :blPoid LIMIT 1", nativeQuery = true)
     Long findVoyagePoidByBlPoid(@Param("blPoid") Long blPoid);
 
     @Query("SELECT a FROM Attachment a WHERE a.docId = :docId AND a.docKeyPoid = :docKeyPoid AND a.fileNameMapped = :fileNameMapped AND (a.active IS NULL OR a.active = 'Y') AND (a.deleted IS NULL OR a.deleted = 'N')")

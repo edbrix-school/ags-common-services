@@ -3,7 +3,6 @@ package com.asg.common.services.repository;
 
 import com.asg.common.services.entity.DashboardEntity;
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.OracleTypes;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -25,31 +24,34 @@ public class DashboardRepository {
         List<DashboardEntity> list = new ArrayList<>();
         String sql = "{ call PROC_GLOB_APPROVAL_PENDING(?, ?, ?, ?, ?) }";
 
-        try (Connection conn = dataSource.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+        try (Connection conn = dataSource.getConnection()) {
+            // Postgres refcursors only live for the duration of the transaction that opened them
+            conn.setAutoCommit(false);
 
-            cs.setLong(1, groupPoid);
-            cs.setLong(2, companyPoid);
-            cs.setString(3, userPoid != null ? userPoid.toString() : null);
+            try (CallableStatement cs = conn.prepareCall(sql)) {
+                cs.setLong(1, groupPoid);
+                cs.setLong(2, companyPoid);
+                cs.setString(3, userPoid != null ? userPoid.toString() : null);
 
+                cs.registerOutParameter(4, Types.INTEGER);
+                cs.registerOutParameter(5, Types.OTHER); // REF_CURSOR
+                cs.execute();
 
-            cs.registerOutParameter(4, Types.INTEGER);
-            cs.registerOutParameter(5, OracleTypes.CURSOR);
-            cs.execute();
+                int count = cs.getInt(4);
+                log.debug("Found {} pending approval records", count);
 
-            int count = cs.getInt(4);
-            log.debug("Found {} pending approval records", count);
-
-            try (ResultSet rs = (ResultSet) cs.getObject(5)) {
-                if (rs != null) {
-                    long counter = 1;
-                    while (rs.next()) {
-                        DashboardEntity entity = mapResultSetToEntity(rs);
-                        entity.setId(counter++);
-                        list.add(entity);
+                try (ResultSet rs = (ResultSet) cs.getObject(5)) {
+                    if (rs != null) {
+                        long counter = 1;
+                        while (rs.next()) {
+                            DashboardEntity entity = mapResultSetToEntity(rs);
+                            entity.setId(counter++);
+                            list.add(entity);
+                        }
                     }
                 }
             }
+            conn.commit();
         } catch (SQLException e) {
             log.error("Error while calling stored procedure PROC_GLOB_APPROVAL_PENDING", e);
             throw new RuntimeException("Error fetching pending approvals", e);

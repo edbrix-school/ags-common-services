@@ -34,7 +34,7 @@ public class Draft {
     private Long userPoid;
 
     @Lob
-    @Column(name = "DRAFT_DATA", columnDefinition = "CLOB")
+    @Column(name = "DRAFT_DATA", columnDefinition = "TEXT")
     private String draftData;
 
     @CreationTimestamp

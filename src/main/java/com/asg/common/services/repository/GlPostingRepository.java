@@ -8,7 +8,6 @@ import com.asg.common.lib.dto.response.GlPostingViewResponseDto;
 import com.asg.common.lib.security.util.UserContext;
 import com.asg.common.lib.service.LovDataService;
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.OracleTypes;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import com.asg.common.lib.exception.ValidationException;
@@ -38,43 +37,48 @@ public class GlPostingRepository {
 
         GlPostingViewResponseDto response = new GlPostingViewResponseDto();
 
-        try (Connection connection = dataSource.getConnection();
-             CallableStatement cs = connection.prepareCall(
-                     "{call PROC_GL_POSTING_VIEW_LOAD_V2(?, ?, ?, ?, ?, ?, ?, ?)}")) {
+        try (Connection connection = dataSource.getConnection()) {
+            // Postgres refcursors only live for the duration of the transaction that opened them
+            connection.setAutoCommit(false);
 
-            // Set input parameters
-            cs.setLong(1, groupPoid);        // P_GROUP_POID
-            cs.setLong(2, companyPoid);      // P_COMPANY_POID
-            cs.setString(3, docId);          // P_DOC_ID
-            cs.setLong(4, transactionPoid);  // P_TRANSACTION_POID
+            try (CallableStatement cs = connection.prepareCall(
+                    "{call PROC_GL_POSTING_VIEW_LOAD_V2(?, ?, ?, ?, ?, ?, ?, ?)}")) {
 
-            // Register output parameters (cursors)
-            cs.registerOutParameter(5, OracleTypes.CURSOR);  // Ledger Entries
-            cs.registerOutParameter(6, OracleTypes.CURSOR);  // Billwise Breakup
-            cs.registerOutParameter(7, OracleTypes.CURSOR);  // Cost Breakup
-            cs.registerOutParameter(8, OracleTypes.CURSOR);  // VAT Breakup
+                // Set input parameters
+                cs.setLong(1, groupPoid);        // P_GROUP_POID
+                cs.setLong(2, companyPoid);      // P_COMPANY_POID
+                cs.setString(3, docId);          // P_DOC_ID
+                cs.setLong(4, transactionPoid);  // P_TRANSACTION_POID
 
-            cs.execute();
+                // Register output parameters (cursors)
+                cs.registerOutParameter(5, Types.OTHER);  // Ledger Entries
+                cs.registerOutParameter(6, Types.OTHER);  // Billwise Breakup
+                cs.registerOutParameter(7, Types.OTHER);  // Cost Breakup
+                cs.registerOutParameter(8, Types.OTHER);  // VAT Breakup
 
-            // Process Ledger Entries (cursor 5)
-            try (ResultSet rs = (ResultSet) cs.getObject(5)) {
-                response.setLedgerEntries(mapToLedgerEntries(rs));
+                cs.execute();
+
+                // Process Ledger Entries (cursor 5)
+                try (ResultSet rs = (ResultSet) cs.getObject(5)) {
+                    response.setLedgerEntries(mapToLedgerEntries(rs));
+                }
+
+                // Process Billwise Breakup (cursor 6)
+                try (ResultSet rs = (ResultSet) cs.getObject(6)) {
+                    response.setBillwiseBreakup(mapToBillwiseBreakup(rs));
+                }
+
+                // Process Cost Breakup (cursor 7)
+                try (ResultSet rs = (ResultSet) cs.getObject(7)) {
+                    response.setCostBreakup(mapToCostBreakup(rs));
+                }
+
+                // Process VAT Breakup (cursor 8)
+                try (ResultSet rs = (ResultSet) cs.getObject(8)) {
+                    response.setVatBreakup(mapToVatBreakup(rs));
+                }
             }
-
-            // Process Billwise Breakup (cursor 6)
-            try (ResultSet rs = (ResultSet) cs.getObject(6)) {
-                response.setBillwiseBreakup(mapToBillwiseBreakup(rs));
-            }
-
-            // Process Cost Breakup (cursor 7)
-            try (ResultSet rs = (ResultSet) cs.getObject(7)) {
-                response.setCostBreakup(mapToCostBreakup(rs));
-            }
-
-            // Process VAT Breakup (cursor 8)
-            try (ResultSet rs = (ResultSet) cs.getObject(8)) {
-                response.setVatBreakup(mapToVatBreakup(rs));
-            }
+            connection.commit();
 
         } catch (SQLException e) {
             log.error(" error : {}", e.getMessage());

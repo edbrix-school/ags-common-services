@@ -83,7 +83,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
     private static final String VISIBLE_TO_EMPLOYEE = """
                    h.GROUP_POID   = :groupPoid
                AND h.COMPANY_POID = :companyPoid
-               AND NVL(h.DELETED, 'N') <> 'Y'
+               AND COALESCE(h.DELETED, 'N') <> 'Y'
                AND UPPER(h.PUBLISH_TO_EMPLOYEES) = 'Y'
                AND (
                      UPPER(h.PUBLISH_OPTION) = 'ALL EMPLOYEES'
@@ -113,7 +113,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
               FROM ADMIN_ISO_COMP_POLICY_HDR h
              WHERE (:includeExpired = 1
                     OR h.EXPIRY_DATE IS NULL
-                    OR h.EXPIRY_DATE >= TRUNC(SYSDATE))
+                    OR h.EXPIRY_DATE >= CURRENT_DATE)
                AND
             """ + VISIBLE_TO_EMPLOYEE + """
              ORDER BY h.CATEGORY, h.CREATED_DATE DESC
@@ -128,7 +128,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
      * this employee. All four are a 404 — the caller learns nothing about documents they cannot see.
      */
     private static final String SQL_VISIBLE_HEADER = """
-            SELECT NVL(h.ACKNOWLEDGEMENT, 'N'), h.VERSION_NO
+            SELECT COALESCE(h.ACKNOWLEDGEMENT, 'N'), h.VERSION_NO
               FROM ADMIN_ISO_COMP_POLICY_HDR h
              WHERE h.TRANSACTION_POID = :transactionPoid
                AND
@@ -140,11 +140,9 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
      * <p>
      * The {@code hist} subquery collapses the append-only log back to current state per file: last
      * event time, how many times it was opened, and the time and document version of the most recent
-     * acknowledgement. {@code KEEP (DENSE_RANK LAST ORDER BY ...)} picks the DOC_VERSION of the
-     * latest Acknowledged row — a plain MAX would compare version strings, and 'V10.0' sorts before
-     * 'V2.0'. The CASE inside the aggregate matters as much as the one in the ORDER BY: without it,
-     * a file with only Accessed rows has every row tied at the last rank and reports the version off
-     * an <em>access</em> row as if it had been acknowledged.
+     * acknowledgement. ACK_VERSION is read off whichever Acknowledged row has the latest CREATED_DATE
+     * — not {@code MAX(DOC_VERSION)}, which would compare version strings and put 'V10.0' before
+     * 'V2.0'.
      * <p>
      * The join key is ATTACHMENT_ID (= GLOBAL_ATTACHMENTS.SEQNO), never the file name. Names are
      * neither unique nor stable: replacing Policy.pdf with a corrected Policy.pdf would otherwise
@@ -158,6 +156,12 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
      * CREATED_DATE belongs to a previous occupant of that id. Without the check the new file inherits
      * the dead one's acknowledgements — and the employee is then locked out of acknowledging it for
      * real, because SQL_ACK_EXISTS matches the stale row.
+     * <p>
+     * ACK_VERSION is a correlated subquery rather than an aggregate, because it needs "the DOC_VERSION
+     * of the row with the latest CREATED_DATE" — Oracle has a one-line way to say that inside a
+     * {@code GROUP BY} ({@code KEEP (DENSE_RANK LAST ORDER BY ...)}), Postgres doesn't, so this picks
+     * it up directly under the same filters ACK_TIME's MAX(CREATED_DATE) uses, keeping the two
+     * consistent.
      */
     private static final String SQL_ATTACHMENTS = """
             WITH hist AS (
@@ -166,10 +170,16 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                        MAX(l.CREATED_DATE) AS LAST_EVENT_TIME,
                        COUNT(CASE WHEN UPPER(l.LOG_TYPE) = 'ACCESSED' THEN 1 END) AS ACCESS_COUNT,
                        MAX(CASE WHEN UPPER(l.LOG_TYPE) = 'ACKNOWLEDGED' THEN l.CREATED_DATE END) AS ACK_TIME,
-                       MAX(CASE WHEN UPPER(l.LOG_TYPE) = 'ACKNOWLEDGED' THEN l.DOC_VERSION END)
-                           KEEP (DENSE_RANK LAST ORDER BY
-                                 CASE WHEN UPPER(l.LOG_TYPE) = 'ACKNOWLEDGED' THEN l.CREATED_DATE END
-                                 NULLS FIRST) AS ACK_VERSION
+                       (SELECT l2.DOC_VERSION
+                          FROM ADMIN_ISO_COMP_POLICY_LOG_DTL l2
+                         WHERE l2.TRANSACTION_POID = a.DOC_KEY_POID
+                           AND l2.ATTACHMENT_ID    = a.SEQNO
+                           AND l2.CREATED_DATE    >= a.CREATED_DATE
+                           AND l2.EMPLOYEE_POID    = :employeePoid
+                           AND UPPER(l2.LOG_TYPE)  = 'ACKNOWLEDGED'
+                         ORDER BY l2.CREATED_DATE DESC
+                         LIMIT 1
+                       ) AS ACK_VERSION
                   FROM GLOBAL_ATTACHMENTS a
                   JOIN ADMIN_ISO_COMP_POLICY_LOG_DTL l
                          ON l.TRANSACTION_POID = a.DOC_KEY_POID
@@ -178,7 +188,7 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                  WHERE l.EMPLOYEE_POID = :employeePoid
                    AND a.DOC_ID        = :docId
                    AND a.DOC_KEY_POID IN (:docKeyPoids)
-                 GROUP BY a.DOC_KEY_POID, a.SEQNO
+                 GROUP BY a.DOC_KEY_POID, a.SEQNO, a.CREATED_DATE
             )
             SELECT a.DOC_KEY_POID, a.SEQNO, a.FILE_NAME, a.FILE_NAME_MAPPED, a.FILE_REMARKS,
                    a.CHECKLIST_NAME, a.CREATED_BY, a.CREATED_DATE,
@@ -189,8 +199,8 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                     AND hist.ATTACHMENT_ID    = a.SEQNO
              WHERE a.DOC_ID       = :docId
                AND a.DOC_KEY_POID IN (:docKeyPoids)
-               AND NVL(a.DELETED, 'N') <> 'Y'
-               AND NVL(a.ACTIVE, 'Y')  <> 'N'
+               AND COALESCE(a.DELETED, 'N') <> 'Y'
+               AND COALESCE(a.ACTIVE, 'Y')  <> 'N'
              ORDER BY a.DOC_KEY_POID, a.SEQNO
             """;
 
@@ -205,8 +215,8 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
              WHERE LOGIN_USER_POID = :loginUserPoid
                AND GROUP_POID      = :groupPoid
                AND COMPANY_POID    = :companyPoid
-               AND NVL(DELETED, 'N')      <> 'Y'
-               AND NVL(DISCONTINUED, 'N') <> 'Y'
+               AND COALESCE(DELETED, 'N')      <> 'Y'
+               AND COALESCE(DISCONTINUED, 'N') <> 'Y'
             """;
 
     /**
@@ -221,8 +231,8 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
              WHERE DOC_ID       = :docId
                AND DOC_KEY_POID = :transactionPoid
                AND SEQNO        = :attachmentId
-               AND NVL(DELETED, 'N') <> 'Y'
-               AND NVL(ACTIVE, 'Y')  <> 'N'
+               AND COALESCE(DELETED, 'N') <> 'Y'
+               AND COALESCE(ACTIVE, 'Y')  <> 'N'
             """;
 
     /**
@@ -256,9 +266,9 @@ public class IsoPolicyAccessServiceImpl implements IsoPolicyAccessService {
                    (TRANSACTION_POID, DET_ROW_ID, EMPLOYEE_POID,
                     ATTACHMENT_ID, ATTACHMENT_NAME, LOG_TYPE, DOC_VERSION, REMARKS,
                     CREATED_BY, CREATED_DATE, LASTMODIFIED_BY, LASTMODIFIED_DATE)
-            VALUES (:transactionPoid, ADMIN_ISO_COMP_POLICY_LOG_SEQ.NEXTVAL, :employeePoid,
+            VALUES (:transactionPoid, nextval('ADMIN_ISO_COMP_POLICY_LOG_SEQ'), :employeePoid,
                     :attachmentId, :attachmentName, :logType, :docVersion, :remarks,
-                    :actor, SYSTIMESTAMP, :actor, SYSTIMESTAMP)
+                    :actor, now(), :actor, now())
             """;
 
     /** Reads back the event just written — DET_ROW_ID is monotonic, so the newest row is this one. */
