@@ -2545,9 +2545,6 @@ public class LovController {
             @Parameter(description = "Default POIDs for selection") @RequestParam(required = false) List<Long> defaultPoid) {
         try {
             validateSortParameters(sortBy, sortDir);
-            if ("EMPLOYEE_NAME_WITH_SHORT".equalsIgnoreCase(lovName) && filter != null && !filter.isBlank()) {
-                filter = filter.replace("%", "").trim();
-            }
             return handleLovRequestWithDefaults(filter, groupPoid, companyPoid, userPoid,
                     lovName, lovName, pageNumber, pageSize, sortBy, sortDir, defaultCode, defaultPoid, filterField);
         } catch (IllegalArgumentException e) {
