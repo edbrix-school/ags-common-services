@@ -8,10 +8,15 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +26,9 @@ public class GlobalTermsConditionRepositoryImpl implements GlobalTermsConditionR
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public void insertGlobalTerms(List<GlobalTermsInsertRequestDto> requestList) {
@@ -109,37 +117,56 @@ public class GlobalTermsConditionRepositoryImpl implements GlobalTermsConditionR
             Long docKeyPoid,
             Long termsPoid) {
 
-        StoredProcedureQuery query =
-                entityManager.createStoredProcedureQuery("PROC_GLOB_TERMS_LOADLIST");
+        // PROC_GLOB_TERMS_LOADLIST's 2nd parameter (company) is numeric[], not a scalar — the JPA
+        // StoredProcedureQuery registered it as Long.class, which never matches the real signature.
+        // Its refcursor OUT param is also 6th of 7, not first, hitting the same pgjdbc positional
+        // restriction as the rest of the REF_CURSOR family in this migration. Raw JDBC with an
+        // explicit array bind and a plain CALL fixes both at once.
+        List<GlobalTermsDto> termsList;
+        try (Connection con = dataSource.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                String cursorName;
+                try (PreparedStatement ps = con.prepareStatement(
+                        "CALL PROC_GLOB_TERMS_LOADLIST(?, ?, ?, ?, ?, NULL, NULL)")) {
+                    ps.setLong(1, groupPoid);
+                    ps.setArray(2, con.createArrayOf("numeric", new Object[]{companyPoid}));
+                    ps.setString(3, docId);
+                    // docKeyPoid/termsPoid are both optional at the controller — setLong(index, null)
+                    // NPEs unboxing a null Long, so fall back to setNull when either is absent.
+                    if (docKeyPoid != null) {
+                        ps.setLong(4, docKeyPoid);
+                    } else {
+                        ps.setNull(4, java.sql.Types.NUMERIC);
+                    }
+                    if (termsPoid != null) {
+                        ps.setLong(5, termsPoid);
+                    } else {
+                        ps.setNull(5, java.sql.Types.NUMERIC);
+                    }
+                    try (ResultSet crs = ps.executeQuery()) {
+                        cursorName = crs.next() ? crs.getString(1) : null;
+                    }
+                }
 
-        // Register parameters
-        query.registerStoredProcedureParameter("P_GROUP_POID", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_COMPANY_POID", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_DOC_ID", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_DOC_KEY_POID", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_TERMS_POID", Long.class, ParameterMode.IN);
-
-        query.registerStoredProcedureParameter("OUTDATA", ResultSet.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("P_STATUS", String.class, ParameterMode.OUT);
-
-        // Set parameters
-        query.setParameter("P_GROUP_POID", groupPoid);
-        query.setParameter("P_COMPANY_POID", companyPoid);
-        query.setParameter("P_DOC_ID", docId);
-        query.setParameter("P_DOC_KEY_POID", docKeyPoid);
-        query.setParameter("P_TERMS_POID", termsPoid);
-
-        // Execute
-        query.execute();
-
-        ResultSet rs = (ResultSet) query.getOutputParameterValue("OUTDATA");
-        String status = (String) query.getOutputParameterValue("P_STATUS");
-
-        List<GlobalTermsDto> termsList = mapToGlobalTerms(rs);
+                termsList = new ArrayList<>();
+                if (cursorName != null) {
+                    try (Statement fetchStmt = con.createStatement();
+                         ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursorName + "\"")) {
+                        termsList = mapToGlobalTerms(rs);
+                    }
+                }
+                con.commit();
+            } finally {
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            log.error("Error executing PROC_GLOB_TERMS_LOADLIST: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to load global terms list: " + e.getMessage(), e);
+        }
 
         GlobalTermsResponseDto response = new GlobalTermsResponseDto();
         response.setTermsList(termsList);
-
 
         return response;
     }

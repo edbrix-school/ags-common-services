@@ -31,8 +31,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -345,7 +348,11 @@ public class CommonDataServiceImpl implements CommonDataService {
 
         query.registerStoredProcedureParameter("P_ASSOCIATED_POID", Long.class, jakarta.persistence.ParameterMode.IN);
         query.registerStoredProcedureParameter("P_ASSOCIATED_TYPE", String.class, jakarta.persistence.ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_ADDRESS_MASTER_POID", Long.class, jakarta.persistence.ParameterMode.OUT);
+        // PROC_ADDRESS_GET_ASSOC_DET declares this OUT param as numeric, not bigint — registering it
+        // as Long.class binds Types.BIGINT, which pgjdbc rejects at read time ("out parameter 1 was
+        // of type java.sql.Types=2 however type java.sql.Types=-5 was registered"). BigDecimal.class
+        // binds Types.NUMERIC, matching the real signature.
+        query.registerStoredProcedureParameter("P_ADDRESS_MASTER_POID", BigDecimal.class, jakarta.persistence.ParameterMode.OUT);
         query.registerStoredProcedureParameter("P_STATUS", String.class, jakarta.persistence.ParameterMode.OUT);
 
         query.setParameter("P_ASSOCIATED_POID", associatedAddressPoid);
@@ -395,31 +402,46 @@ public class CommonDataServiceImpl implements CommonDataService {
             throw new ValidationException("Either Address Master POID or Address POID must be provided");
         }
 
-        StoredProcedureQuery query = entityManager
-                .createStoredProcedureQuery("PROC_ADDRESS_GET_DETAILS_ALL");
-
-        query.registerStoredProcedureParameter("P_ADDRESS_MASTER_POID", Long.class, jakarta.persistence.ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_ADDRESS_POID", BigDecimal.class, jakarta.persistence.ParameterMode.IN);
-        query.registerStoredProcedureParameter("OUTDATA", void.class, jakarta.persistence.ParameterMode.REF_CURSOR);
-
-        // Pass both params as-is — the procedure checks P_ADDRESS_POID first (IF branch),
-        // then falls through to P_ADDRESS_MASTER_POID (ELSIF branch).
-        query.setParameter("P_ADDRESS_MASTER_POID", addressMasterPoid);
-        query.setParameter("P_ADDRESS_POID", addressPoid);
-
-        try {
-            query.execute();
-        } catch (Exception e) {
+        // PROC_ADDRESS_GET_DETAILS_ALL's refcursor OUT param is 3rd of 3 (last), not first — the same
+        // pgjdbc positional restriction as the REF_CURSOR family fixed elsewhere in this migration.
+        // JPA's StoredProcedureQuery hit a related but different symptom here: the call itself
+        // succeeded and opened the cursor, but reading it afterward failed with
+        // 'cursor "<unnamed portal 1>" does not exist' — a transaction-boundary mismatch between
+        // Hibernate's managed connection and the cursor's lifetime. Dropping to raw JDBC with full
+        // manual transaction control (same CALL + FETCH pattern used throughout this migration)
+        // sidesteps both issues at once.
+        List<AddressDetailsResponseDto> addressDetailsList;
+        try (Connection con = jdbcTemplate.getDataSource().getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                String cursorName;
+                try (PreparedStatement ps = con.prepareStatement("CALL PROC_ADDRESS_GET_DETAILS_ALL(?, ?, NULL)")) {
+                    if (addressMasterPoid != null) {
+                        ps.setBigDecimal(1, BigDecimal.valueOf(addressMasterPoid));
+                    } else {
+                        ps.setNull(1, Types.NUMERIC);
+                    }
+                    if (addressPoid != null) {
+                        ps.setBigDecimal(2, addressPoid);
+                    } else {
+                        ps.setNull(2, Types.NUMERIC);
+                    }
+                    try (ResultSet crs = ps.executeQuery()) {
+                        crs.next();
+                        cursorName = crs.getString(1);
+                    }
+                }
+                try (Statement fetchStmt = con.createStatement();
+                     ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursorName + "\"")) {
+                    addressDetailsList = mapAddressCursorToList(rs);
+                }
+                con.commit();
+            } finally {
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
             throw new RuntimeException("Failed to execute address details procedure: " + e.getMessage(), e);
         }
-
-        Object cursor = query.getOutputParameterValue("OUTDATA");
-
-        if (cursor == null) {
-            throw new RuntimeException("No data returned from address details procedure");
-        }
-
-        List<AddressDetailsResponseDto> addressDetailsList = mapAddressCursorToList(cursor);
 
         // Check if any address details were found
         if (addressDetailsList.isEmpty()) {

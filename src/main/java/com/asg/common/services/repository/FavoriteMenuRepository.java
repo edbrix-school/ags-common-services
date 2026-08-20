@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,35 +66,46 @@ public class FavoriteMenuRepository {
 
     public List<FavoriteMenuEntity> getFavoriteMenuList(@Param("userPoid") Long userPoid,
                                                         @Param("userId") String userId) throws SQLException {
-        String sql = "{ call PROC_GLOB_FAV_MENU_LIST(?, ?, ?) }";
+        // PROC_GLOB_FAV_MENU_LIST's refcursor OUT param is 3rd of 3, not first — pgjdbc's
+        // CallableStatement.registerOutParameter only binds a REF_CURSOR correctly in the first
+        // position, so it was silently dropped. A plain CALL query sidesteps that entirely:
+        // Postgres returns the cursor's name as an ordinary one-row ResultSet, then a separate
+        // FETCH ALL FROM "<name>" reads the actual rows.
         List<FavoriteMenuEntity> results = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
-
-            try (CallableStatement cs = conn.prepareCall(sql)) {
-                cs.setString(1, userId);
-                cs.setLong(2, userPoid);
-                cs.registerOutParameter(3, Types.OTHER); // REF_CURSOR
-
-                cs.execute();
-
-                try (ResultSet rs = (ResultSet) cs.getObject(3)) {
-                    while (rs.next()) {
-                        FavoriteMenuEntity menu = new FavoriteMenuEntity();
-                        menu.setMenuId(rs.getString("MENU_ID"));
-                        menu.setMenuName(rs.getString("MENU_NAME"));
-                        menu.setMenuLevel(rs.getLong("MENU_LEVEL"));
-                        menu.setMenuGroup(rs.getString("MENU_GROUP"));
-                        menu.setTaskflowUrl(rs.getString("TASKFLOW_URL"));
-                        menu.setDocType(rs.getString("DOC_TYPE"));
-                        menu.setModuleId(rs.getString("MODULE_ID"));
-                        mapSeqColumns(rs, menu);
-                        results.add(menu);
+            try {
+                String cursorName;
+                try (PreparedStatement ps = conn.prepareStatement("CALL PROC_GLOB_FAV_MENU_LIST(?, ?, NULL)")) {
+                    ps.setString(1, userId);
+                    ps.setLong(2, userPoid);
+                    try (ResultSet crs = ps.executeQuery()) {
+                        cursorName = crs.next() ? crs.getString(1) : null;
                     }
                 }
+
+                if (cursorName != null) {
+                    try (Statement fetchStmt = conn.createStatement();
+                         ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursorName + "\"")) {
+                        while (rs.next()) {
+                            FavoriteMenuEntity menu = new FavoriteMenuEntity();
+                            menu.setMenuId(rs.getString("MENU_ID"));
+                            menu.setMenuName(rs.getString("MENU_NAME"));
+                            menu.setMenuLevel(rs.getLong("MENU_LEVEL"));
+                            menu.setMenuGroup(rs.getString("MENU_GROUP"));
+                            menu.setTaskflowUrl(rs.getString("TASKFLOW_URL"));
+                            menu.setDocType(rs.getString("DOC_TYPE"));
+                            menu.setModuleId(rs.getString("MODULE_ID"));
+                            mapSeqColumns(rs, menu);
+                            results.add(menu);
+                        }
+                    }
+                }
+                conn.commit();
+            } finally {
+                conn.setAutoCommit(true);
             }
-            conn.commit();
         }
 
         enrichWithIdAuto(userPoid, results);

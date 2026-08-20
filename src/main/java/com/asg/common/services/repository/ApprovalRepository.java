@@ -11,9 +11,11 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
@@ -27,33 +29,42 @@ public class ApprovalRepository {
     private final DataSource dataSource;
 
     public ApprovalActionResponse executeApprovalAction(ApprovalActionRequest request) {
-        String sql = "{ call PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?) }";
-        
+        // PROC_GLOB_APPROVAL_ACTION declares parameters 12-14 as INOUT, not pure OUT — pgjdbc's
+        // CallableStatement silently drops an INOUT parameter from the actual call sent to Postgres
+        // unless it's both set (setXxx) and registered (registerOutParameter); a bare setObject(x,
+        // null) for the always-null positions also binds an untyped NULL that Postgres can't resolve
+        // against p_doc_date (timestamp) / p_submit_to_user_poid (bigint). A plain CALL through
+        // PreparedStatement.executeQuery() sidesteps CallableStatement's OUT/INOUT machinery
+        // entirely — Postgres returns all 3 INOUT values as an ordinary one-row, 3-column ResultSet.
+        // p_login_company_poid is bigint[] (confirmed via pg_get_function_arguments), not a scalar —
+        // and the 3 trailing INOUT params are text/text/bigint, so bare NULL is untyped/unresolvable.
         try (Connection connection = DataSourceUtils.getConnection(dataSource);
-             CallableStatement cs = connection.prepareCall(sql)) {
+             PreparedStatement ps = connection.prepareStatement(
+                     "CALL PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,NULL::text,NULL::text,NULL::bigint)")) {
 
-            cs.setLong(1, request.getLoginGroupPoid());
-            cs.setLong(2, request.getCompanyPoid());
-            cs.setLong(3, request.getUserPoid());
-            cs.setString(4, request.getDocId());
-            cs.setString(5, String.valueOf(request.getDocKeyPoid()));
-            cs.setString(6, request.getApprovalAction().getCode());
-            cs.setString(7, request.getComments() != null ? request.getComments() : "");
-            cs.setString(8, request.getDocName() != null ? request.getDocName() : "");
-            cs.setString(9, request.getDocRef());
-            cs.setObject(10, request.getDocDate() != null ? java.sql.Timestamp.valueOf(request.getDocDate()) : null);
-            cs.setObject(11, request.getUserRolePoid());
-            cs.registerOutParameter(12, Types.VARCHAR);
-            cs.registerOutParameter(13, Types.VARCHAR);
-            cs.registerOutParameter(14, Types.NUMERIC);
+            ps.setLong(1, request.getLoginGroupPoid());
+            ps.setArray(2, connection.createArrayOf("bigint", new Object[]{request.getCompanyPoid()}));
+            ps.setLong(3, request.getUserPoid());
+            ps.setString(4, request.getDocId());
+            ps.setString(5, String.valueOf(request.getDocKeyPoid()));
+            ps.setString(6, request.getApprovalAction().getCode());
+            ps.setString(7, request.getComments() != null ? request.getComments() : "");
+            ps.setString(8, request.getDocName() != null ? request.getDocName() : "");
+            ps.setString(9, request.getDocRef());
+            ps.setObject(10, request.getDocDate() != null ? java.sql.Timestamp.valueOf(request.getDocDate()) : null, Types.TIMESTAMP);
+            ps.setObject(11, request.getUserRolePoid(), Types.BIGINT);
 
-            cs.execute();
+            String result;
+            String approverUserPoid;
+            Long approvalPoid;
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                result = rs.getString(1);
+                approverUserPoid = rs.getString(2);
+                approvalPoid = rs.getLong(3);
+            }
 
-            String result = cs.getString(12);
-            String approverUserPoid = cs.getString(13);
-            Long approvalPoid = cs.getLong(14);
-
-            log.info("Approval action result: {}, approverUserPoid: {}, approvalPoid: {}", 
+            log.info("Approval action result: {}, approverUserPoid: {}, approvalPoid: {}",
                     result, approverUserPoid, approvalPoid);
 
             return ApprovalActionResponse.builder()
@@ -72,30 +83,32 @@ public class ApprovalRepository {
 
     public ApprovalStatusResponse getApprovalStatus(Long loginGroupPoid, Long companyPoid, 
                                                      Long userPoid, String docId, Long docKeyPoid) {
-        String sql = "{ call PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?) }";
-        
+        // Same fix as executeApprovalAction() above: plain CALL through PreparedStatement.executeQuery()
+        // instead of CallableStatement's OUT/INOUT machinery. p_doc_date/p_submit_to_user_poid are
+        // always null for a status check, so they're cast literals in the SQL text rather than bound
+        // placeholders — no ambiguous untyped NULL to resolve. p_login_company_poid is bigint[], and
+        // the 3 trailing INOUT params are text/text/bigint (also cast, not bare NULL).
         try (Connection connection = DataSourceUtils.getConnection(dataSource);
-             CallableStatement cs = connection.prepareCall(sql)) {
+             PreparedStatement ps = connection.prepareStatement(
+                     "CALL PROC_GLOB_APPROVAL_ACTION(?,?,?,?,?,?,?,?,?,NULL::timestamp,NULL::bigint,NULL::text,NULL::text,NULL::bigint)")) {
 
-            cs.setLong(1, loginGroupPoid);
-            cs.setLong(2, companyPoid);
-            cs.setLong(3, userPoid);
-            cs.setString(4, docId);
-            cs.setString(5, String.valueOf(docKeyPoid));
-            cs.setString(6, "STATUS_CHECK");
-            cs.setString(7, "");
-            cs.setString(8, "");
-            cs.setString(9, "");
-            cs.setObject(10, null);
-            cs.setObject(11, null);
-            cs.registerOutParameter(12, Types.VARCHAR);
-            cs.registerOutParameter(13, Types.VARCHAR);
-            cs.registerOutParameter(14, Types.NUMERIC);
+            ps.setLong(1, loginGroupPoid);
+            ps.setArray(2, connection.createArrayOf("bigint", new Object[]{companyPoid}));
+            ps.setLong(3, userPoid);
+            ps.setString(4, docId);
+            ps.setString(5, String.valueOf(docKeyPoid));
+            ps.setString(6, "STATUS_CHECK");
+            ps.setString(7, "");
+            ps.setString(8, "");
+            ps.setString(9, "");
 
-            cs.execute();
-
-            String result = cs.getString(12);
-            String approverUserRoles = cs.getString(13);
+            String result;
+            String approverUserRoles;
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                result = rs.getString(1);
+                approverUserRoles = rs.getString(2);
+            }
 
             log.info("Approval status result: {}, approverUserRoles: {}", result, approverUserRoles);
 
@@ -107,10 +120,14 @@ public class ApprovalRepository {
         }
     }
 
-    public ApprovalLogResponse getApprovalLog(Long loginGroupPoid, Long companyPoid, 
+    public ApprovalLogResponse getApprovalLog(Long loginGroupPoid, Long companyPoid,
                                                String docId, Long docKeyPoid) {
-        String sql = "{ call PROC_GLOB_APPROVAL_LOG(?,?,?,?,?) }";
-
+        // PROC_GLOB_APPROVAL_LOG's refcursor is an INOUT param at position 5 of 5 (last), not
+        // first — same pgjdbc positional restriction as the rest of the REF_CURSOR family in this
+        // migration (registerOutParameter only binds a REF_CURSOR correctly in the first position).
+        // Calling it as a plain CALL query instead of CallableStatement sidesteps that entirely:
+        // Postgres returns the cursor's name as an ordinary one-row ResultSet, then a separate
+        // FETCH ALL FROM "<name>" reads the actual rows.
         try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
             // Postgres refcursors only live within their transaction. If this connection is already
             // bound to a Spring-managed transaction, autocommit is already off and committing here
@@ -121,59 +138,68 @@ public class ApprovalRepository {
                 connection.setAutoCommit(false);
             }
 
+            String cursorName;
+            // PROC_GLOB_APPROVAL_LOG has two overloads (company_poid as numeric vs numeric[]) —
+            // a bare literal NULL for the refcursor position is untyped ("unknown"), and with two
+            // otherwise-compatible candidates Postgres can't settle on one, so the whole call fails
+            // to resolve. Casting it to the real type removes that ambiguity; the scalar bigint bound
+            // to P_COMPANY_POID below still selects the scalar-numeric overload on its own.
+            try (PreparedStatement ps = connection.prepareStatement("CALL PROC_GLOB_APPROVAL_LOG(?, ?, ?, ?, NULL::refcursor)")) {
+                ps.setLong(1, loginGroupPoid);
+                ps.setLong(2, companyPoid);
+                ps.setString(3, docId);
+                // p_doc_key_poid is numeric, not varchar — String.valueOf(...) here sent it as text
+                // and broke overload resolution for both candidates.
+                ps.setLong(4, docKeyPoid);
+                try (java.sql.ResultSet crs = ps.executeQuery()) {
+                    cursorName = crs.next() ? crs.getString(1) : null;
+                }
+            }
+
             ApprovalLogResponse response;
-            try (CallableStatement cs = connection.prepareCall(sql)) {
-                cs.setLong(1, loginGroupPoid);
-                cs.setLong(2, companyPoid);
-                cs.setString(3, docId);
-                cs.setString(4, String.valueOf(docKeyPoid));
-                cs.registerOutParameter(5, Types.OTHER); // REF_CURSOR
+            if (cursorName == null) {
+                response = ApprovalLogResponse.builder()
+                        .logs(new java.util.ArrayList<>())
+                        .columns(new java.util.ArrayList<>())
+                        .build();
+            } else {
+                try (Statement fetchStmt = connection.createStatement();
+                     java.sql.ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursorName + "\"")) {
+                    java.sql.ResultSetMetaData metadata = rs.getMetaData();
+                    int columnCount = metadata.getColumnCount();
 
-                cs.execute();
+                    List<Map<String, String>> logs = new java.util.ArrayList<>();
+                    List<ApprovalLogResponse.ColumnInfo> columns = new java.util.ArrayList<>();
 
-                try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(5)) {
-                    if (rs == null) {
-                        response = ApprovalLogResponse.builder()
-                                .logs(new java.util.ArrayList<>())
-                                .columns(new java.util.ArrayList<>())
-                                .build();
-                    } else {
-                        java.sql.ResultSetMetaData metadata = rs.getMetaData();
-                        int columnCount = metadata.getColumnCount();
+                    // Build columns
+                    for (int i = 1; i <= columnCount; i++) {
+                        String colName = metadata.getColumnName(i);
+                        String colWidth = null;
 
-                        List<Map<String, String>> logs = new java.util.ArrayList<>();
-                        List<ApprovalLogResponse.ColumnInfo> columns = new java.util.ArrayList<>();
-
-                        // Build columns
-                        for (int i = 1; i <= columnCount; i++) {
-                            String colName = metadata.getColumnName(i);
-                            String colWidth = null;
-
-                            if (i < columnCount) {
-                                int displaySize = metadata.getColumnDisplaySize(i);
-                                colWidth = (displaySize < 80 ? 100 : displaySize + 30) + "px";
-                            }
-
-                            columns.add(ApprovalLogResponse.ColumnInfo.builder()
-                                    .columnName(colName)
-                                    .columnWidth(colWidth)
-                                    .build());
+                        if (i < columnCount) {
+                            int displaySize = metadata.getColumnDisplaySize(i);
+                            colWidth = (displaySize < 80 ? 100 : displaySize + 30) + "px";
                         }
 
-                        // Build rows
-                        while (rs.next()) {
-                            Map<String, String> row = new java.util.LinkedHashMap<>();
-                            for (int i = 1; i <= columnCount; i++) {
-                                row.put(metadata.getColumnName(i), rs.getString(i));
-                            }
-                            logs.add(row);
-                        }
-
-                        response = ApprovalLogResponse.builder()
-                                .logs(logs)
-                                .columns(columns)
-                                .build();
+                        columns.add(ApprovalLogResponse.ColumnInfo.builder()
+                                .columnName(colName)
+                                .columnWidth(colWidth)
+                                .build());
                     }
+
+                    // Build rows
+                    while (rs.next()) {
+                        Map<String, String> row = new java.util.LinkedHashMap<>();
+                        for (int i = 1; i <= columnCount; i++) {
+                            row.put(metadata.getColumnName(i), rs.getString(i));
+                        }
+                        logs.add(row);
+                    }
+
+                    response = ApprovalLogResponse.builder()
+                            .logs(logs)
+                            .columns(columns)
+                            .build();
                 }
             }
 
