@@ -37,44 +37,44 @@ public class GlPostingRepository {
 
         GlPostingViewResponseDto response = new GlPostingViewResponseDto();
 
+        // Catalog confirms: p_company_poid is numeric[] (not scalar), and all 4 refcursor OUT
+        // params sit after the IN params (positions 5-8) — pgjdbc's CallableStatement only binds
+        // a REF_CURSOR correctly when it's the first parameter, so with none of them in position 1
+        // every cursor here was being silently dropped, leaving only the 4 IN args to reach
+        // Postgres. Plain CALL via PreparedStatement.executeQuery() sidesteps registerOutParameter
+        // entirely: Postgres returns the 4 cursor names as an ordinary one-row, 4-column ResultSet.
         try (Connection connection = dataSource.getConnection()) {
-            // Postgres refcursors only live for the duration of the transaction that opened them
             connection.setAutoCommit(false);
 
-            try (CallableStatement cs = connection.prepareCall(
-                    "{call PROC_GL_POSTING_VIEW_LOAD_V2(?, ?, ?, ?, ?, ?, ?, ?)}")) {
+            String cursor1, cursor2, cursor3, cursor4;
+            try (PreparedStatement ps = connection.prepareStatement(
+                    "CALL PROC_GL_POSTING_VIEW_LOAD_V2(?, ?, ?, ?, NULL::refcursor, NULL::refcursor, NULL::refcursor, NULL::refcursor)")) {
 
-                // Set input parameters
-                cs.setLong(1, groupPoid);        // P_GROUP_POID
-                cs.setLong(2, companyPoid);      // P_COMPANY_POID
-                cs.setString(3, docId);          // P_DOC_ID
-                cs.setLong(4, transactionPoid);  // P_TRANSACTION_POID
+                ps.setLong(1, groupPoid);        // P_GROUP_POID
+                ps.setArray(2, connection.createArrayOf("numeric", new Object[]{companyPoid}));  // P_COMPANY_POID
+                ps.setString(3, docId);          // P_DOC_ID
+                ps.setLong(4, transactionPoid);  // P_TRANSACTION_POID
 
-                // Register output parameters (cursors)
-                cs.registerOutParameter(5, Types.OTHER);  // Ledger Entries
-                cs.registerOutParameter(6, Types.OTHER);  // Billwise Breakup
-                cs.registerOutParameter(7, Types.OTHER);  // Cost Breakup
-                cs.registerOutParameter(8, Types.OTHER);  // VAT Breakup
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    cursor1 = rs.getString(1);
+                    cursor2 = rs.getString(2);
+                    cursor3 = rs.getString(3);
+                    cursor4 = rs.getString(4);
+                }
+            }
 
-                cs.execute();
-
-                // Process Ledger Entries (cursor 5)
-                try (ResultSet rs = (ResultSet) cs.getObject(5)) {
+            try (Statement fetchStmt = connection.createStatement()) {
+                try (ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursor1 + "\"")) {
                     response.setLedgerEntries(mapToLedgerEntries(rs));
                 }
-
-                // Process Billwise Breakup (cursor 6)
-                try (ResultSet rs = (ResultSet) cs.getObject(6)) {
+                try (ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursor2 + "\"")) {
                     response.setBillwiseBreakup(mapToBillwiseBreakup(rs));
                 }
-
-                // Process Cost Breakup (cursor 7)
-                try (ResultSet rs = (ResultSet) cs.getObject(7)) {
+                try (ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursor3 + "\"")) {
                     response.setCostBreakup(mapToCostBreakup(rs));
                 }
-
-                // Process VAT Breakup (cursor 8)
-                try (ResultSet rs = (ResultSet) cs.getObject(8)) {
+                try (ResultSet rs = fetchStmt.executeQuery("FETCH ALL FROM \"" + cursor4 + "\"")) {
                     response.setVatBreakup(mapToVatBreakup(rs));
                 }
             }
