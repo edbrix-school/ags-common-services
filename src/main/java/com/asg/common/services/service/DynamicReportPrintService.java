@@ -117,6 +117,8 @@ public class DynamicReportPrintService {
                 params.put("SUBREPORT5", load("DynamicReport/SALES/Shipping_Charges_Final_Dummy.jrxml"));
                 yield load("DynamicReport/SALES/Shipping_Charges_List.jrxml");
             }
+            case "120-521" -> load("DynamicReport/FF/HOUSE_Mnf_Cargo_multiple.jrxml"); // Manifest for Multiple House BLs => Print Manifest After Process
+            case "120-529" -> load("DynamicReport/FF/DELIVERY_RECEIPT.jrxml"); // FF Proof of Delivery Receipt Print Report (120-529), the Print Proof of Delivery Receipt
             case "300-203" -> load("DynamicReport/GL/CustomerLedgerStatement_A4.jrxml");
             case "400-201" -> {
                 params.put("SUBREPORT1", load("DynamicReport/GL/TrialBalanceReportSubreport1.jrxml"));
