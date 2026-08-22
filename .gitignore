@@ -83,8 +83,7 @@ application-*.yml
 
 ### Misc ###
 /node_modules/
-/.env
 
 # VSCode settings
-.vscode/
 *.code-workspace
+config.bat

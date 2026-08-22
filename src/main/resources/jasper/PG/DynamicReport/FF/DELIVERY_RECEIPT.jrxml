@@ -206,7 +206,7 @@ AND (
             <staticText>
                 <reportElement x="123" y="78" width="285" height="15" uuid="67d581dc-98d1-4c99-b5fd-d6f0b6cb765f"/>
                 <textElement textAlignment="Center">
-                    <font fontName="Verdana" size="12" isBold="true" isUnderline="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="12" isUnderline="true"/>
                 </textElement>
                 <text><![CDATA[PROOF OF DELIVERY RECEIPT ]]></text>
             </staticText>
@@ -693,21 +693,21 @@ AND (
             <staticText>
                 <reportElement x="76" y="171" width="422" height="12" forecolor="#999999" uuid="83b94a67-e949-4369-8968-2cc1e66424a8"/>
                 <textElement textAlignment="Center" verticalAlignment="Top">
-                    <font size="8" isBold="true"/>
+                    <font size="8" fontName="Times New Roman" isBold="true" pdfFontName="Times-Bold"/>
                 </textElement>
                 <text><![CDATA[This is a computer-generated document and it does not require a signature.]]></text>
             </staticText>
             <textField isBlankWhenNull="true">
                 <reportElement x="67" y="1" width="149" height="15" uuid="3e1f3f8a-4555-49ab-9199-8760d86f2cf0"/>
                 <textElement>
-                    <font fontName="Verdana" size="8" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{RELEASED_TYPE}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="2" y="128" width="72" height="16" uuid="78503bb7-a536-42ae-8a69-3d8c8e326bf4"/>
                 <textElement verticalAlignment="Top">
-                    <font size="10" isBold="true"/>
+                    <font size="10" fontName="Times New Roman" isBold="true" pdfFontName="Times-Bold"/>
                 </textElement>
                 <text><![CDATA[For]]></text>
             </staticText>
@@ -720,21 +720,21 @@ AND (
             <staticText>
                 <reportElement x="240" y="1" width="306" height="25" uuid="9f4eb45d-4945-4284-991e-79af4fffa19b"/>
                 <textElement>
-                    <font fontName="Verdana" size="14" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="14"/>
                 </textElement>
                 <text><![CDATA[Goods Received In Good Order by]]></text>
             </staticText>
             <staticText>
                 <reportElement x="0" y="1" width="73" height="15" uuid="1c1a512e-e32e-48c8-9985-586c961371be"/>
                 <textElement>
-                    <font fontName="Verdana" size="8" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="8"/>
                 </textElement>
                 <text><![CDATA[Remarks:]]></text>
             </staticText>
             <textField>
                 <reportElement x="67" y="129" width="190" height="16" uuid="ab11a14e-3db2-4f53-894d-00f60fa461b3"/>
                 <textElement>
-                    <font isBold="true"/>
+                    <font fontName="Times New Roman" isBold="true" pdfFontName="Times-Bold"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{COMPANY}]]></textFieldExpression>
             </textField>
@@ -748,21 +748,21 @@ AND (
             <staticText>
                 <reportElement x="259" y="26" width="128" height="22" uuid="6762f40f-2db8-4b1d-902f-57cfa953dc0e"/>
                 <textElement verticalAlignment="Middle">
-                    <font fontName="Verdana" size="10" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="10"/>
                 </textElement>
                 <text><![CDATA[Name]]></text>
             </staticText>
             <staticText>
                 <reportElement x="259" y="51" width="128" height="22" uuid="55eefa51-a15c-4c82-9e43-b2b33562dbba"/>
                 <textElement verticalAlignment="Middle">
-                    <font fontName="Verdana" size="10" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="10"/>
                 </textElement>
                 <text><![CDATA[Contact Number]]></text>
             </staticText>
             <staticText>
                 <reportElement x="259" y="76" width="128" height="22" uuid="ea129838-9fd7-47a5-96f5-cd92e93b5ebb"/>
                 <textElement verticalAlignment="Middle">
-                    <font fontName="Verdana" size="10" isBold="true"/>
+                    <font fontName="Arial" isBold="true" pdfFontName="Helvetica-Bold" size="10"/>
                 </textElement>
                 <text><![CDATA[Date]]></text>
             </staticText>
