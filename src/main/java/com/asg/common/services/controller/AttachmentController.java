@@ -584,4 +584,27 @@ public class AttachmentController {
     private boolean hasDownloadPermission(String docId, Long docKeyPoid) {
         return UserContext.getCurrentUser() != null;
     }
-}
+
+    @Operation(summary = "Generate document via script and attach to entity")
+    @PostMapping(value = "/{docId}/{docKeyPoid}/create-document")
+    public ResponseEntity<?> createDocument(
+            @PathVariable String docId,
+            @PathVariable Long docKeyPoid,
+            @RequestBody(required = false) CreateDocumentRequestDto requestDto,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authToken
+    ) {
+        try {
+            Long currentUserPoid = UserContext.getUserPoid();
+            UploadResponse response = attachmentService.createAndAttachDocument(
+                    docId, docKeyPoid, requestDto, currentUserPoid, authToken);
+
+            if (response.getErrors() != null && !response.getErrors().isEmpty() && response.getUploadedFiles().isEmpty()) {
+                return badRequest(String.join(", ", response.getErrors()));
+            }
+
+            return success("Document created and attached successfully", response);
+        } catch (Exception e) {
+            return error("Failed to create document: " + e.getMessage(), 500);
+        }
+    }
+}

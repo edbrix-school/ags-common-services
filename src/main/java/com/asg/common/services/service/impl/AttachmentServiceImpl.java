@@ -10,6 +10,7 @@ import com.asg.common.lib.service.GlobalParameterService;
 import com.asg.common.lib.service.LoggingService;
 import com.asg.common.services.dto.AttachmentDto;
 import com.asg.common.services.dto.AttachmentUploadDto;
+import com.asg.common.services.dto.CreateDocumentRequestDto;
 import com.asg.common.services.dto.UpdateRemarksRequest;
 import com.asg.common.services.dto.UploadResponse;
 import com.asg.common.services.client.DmsClient;
@@ -840,4 +841,61 @@ public class AttachmentServiceImpl implements AttachmentService {
                 ));
     }
 
+    @Override
+    @Transactional
+    public UploadResponse createAndAttachDocument(String docId, Long docKeyPoid,
+                                                  CreateDocumentRequestDto requestDto,
+                                                  Long createdBy, String authToken) {
+        validateDoc(docId, docKeyPoid);
+
+        List<AttachmentDto> uploaded = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        try {
+            String resolvedDocShortName = (requestDto != null && requestDto.getDocShortName() != null)
+                    ? requestDto.getDocShortName()
+                    : attachmentRepository.getDocShortName(docId);
+
+            String docRef = (requestDto != null) ? requestDto.getDocRef() : null;
+            Long categoryId = (requestDto != null) ? requestDto.getCategoryId() : null;
+            Map<String, Object> params = (requestDto != null) ? requestDto.getParameters() : null;
+
+            Map<String, Object> dmsResult = dmsClient.createDocumentInDms(
+                    docId, docKeyPoid, authToken, categoryId, resolvedDocShortName, docRef, params);
+
+            String documentId = dmsResult.get("document_id") != null ? dmsResult.get("document_id").toString() : null;
+            String storedName = documentId != null ? "DMS_" + documentId : (dmsResult.get("stored_name") != null ? dmsResult.get("stored_name").toString() : "DMS_DOC");
+            String fileName = dmsResult.get("file_name") != null ? dmsResult.get("file_name").toString() : (resolvedDocShortName + "_" + docKeyPoid + ".pdf");
+
+            List<AttachmentDto> existing = getActiveAttachments(docId, docKeyPoid);
+            Long maxSeq = existing.stream()
+                    .map(AttachmentDto::getSeqNo)
+                    .filter(Objects::nonNull)
+                    .max(Long::compareTo)
+                    .orElse(0L);
+
+            Long newSeq = maxSeq + 1L;
+            String remarks = (requestDto != null) ? requestDto.getRemarks() : null;
+            String checklistName = (requestDto != null) ? requestDto.getChecklistName() : null;
+
+            attachmentRepository.insertAttachment(
+                    getGroupPoid(), getCompanyPoid(), docId, docKeyPoid, newSeq,
+                    fileName, remarks, checklistName,
+                    createdBy != null ? String.valueOf(createdBy) : getUserId(),
+                    storedName, 0L
+            );
+
+            uploaded.add(buildDto(docId, docKeyPoid, newSeq, fileName, storedName, remarks, checklistName,
+                    String.valueOf(createdBy != null ? createdBy : getUserPoid()), new java.util.Date(), true));
+            log.info("Successfully created and attached document => docId: {}, docKeyPoid: {}, storedName: {}",
+                    docId, docKeyPoid, storedName);
+        } catch (Exception e) {
+            log.error("Failed to create document for docId {}, docKeyPoid {}: {}", docId, docKeyPoid, e.getMessage(), e);
+            errors.add("Document creation failed: " + e.getMessage());
+        }
+
+        return new UploadResponse(uploaded, errors);
+    }
+
 }
+
