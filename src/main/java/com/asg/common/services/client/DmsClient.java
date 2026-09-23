@@ -166,6 +166,51 @@ public class DmsClient {
         }
     }
 
+    /**
+     * Triggers document creation script in DMS.
+     * Returns document details returned by the DMS script.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> createDocumentInDms(String docId, Long docKeyPoid, String authToken,
+                                                   Long categoryId, String docShortName, String docRef,
+                                                   Map<String, Object> parameters) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (authToken != null) {
+                headers.set(HttpHeaders.AUTHORIZATION, authToken);
+            }
+
+            Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("doc_id", docId);
+            requestBody.put("doc_key_poid", docKeyPoid);
+            if (categoryId != null) requestBody.put("category_id", categoryId);
+            if (docShortName != null) requestBody.put("doc_short_name", docShortName);
+            if (docRef != null) requestBody.put("doc_ref", docRef);
+            if (parameters != null) requestBody.put("parameters", parameters);
+
+            log.info("DMS create document request => doc_id: {}, doc_key_poid: {}, doc_short_name: {}",
+                    docId, docKeyPoid, docShortName);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    dmsBaseUrl + "/api/documents/create", HttpMethod.POST, request, Map.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map<?, ?> data = (Map<?, ?>) response.getBody().get("data");
+                if (data != null) {
+                    return (Map<String, Object>) data;
+                }
+                return (Map<String, Object>) response.getBody();
+            }
+            throw new RuntimeException("DMS create document failed: unexpected response");
+        } catch (Exception e) {
+            log.error("DMS create document error for doc_id {}: {}", docId, e.getMessage(), e);
+            throw new RuntimeException("DMS create document failed: " + e.getMessage(), e);
+        }
+    }
+
+
     // Wraps MultipartFile into a Resource that Spring's RestTemplate can send
     private static class MultipartFileResource extends ByteArrayResource {
         private final String filename;

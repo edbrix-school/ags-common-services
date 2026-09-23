@@ -3,6 +3,7 @@ package com.asg.common.services.service;
 import com.asg.common.lib.enums.AttachmentFilterType;
 import com.asg.common.services.dto.AttachmentDto;
 import com.asg.common.services.dto.AttachmentUploadDto;
+import com.asg.common.services.dto.CreateDocumentRequestDto;
 import com.asg.common.services.dto.UpdateRemarksRequest;
 import com.asg.common.services.dto.UploadResponse;
 import org.springframework.core.io.Resource;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface AttachmentService {
+
 
     // -------------------- UPLOAD --------------------
     UploadResponse uploadFiles(String docId, Long docKeyPoid, MultipartFile[] files,
@@ -71,4 +73,9 @@ public interface AttachmentService {
 
     List<AttachmentDto> getAllAttachments(String docId, Long docKeyPoid);
 
+    UploadResponse createAndAttachDocument(String docId, Long docKeyPoid,
+                                           CreateDocumentRequestDto requestDto,
+                                           Long createdBy, String authToken);
+
 }
+
